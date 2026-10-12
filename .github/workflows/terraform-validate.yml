@@ -1,0 +1,37 @@
+name: terraform-validate
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  tf-validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - name: fmt
+        run: terraform fmt -check -recursive terraform
+
+      - name: init(backend 없이) / validate / test
+        run: |
+          set -euo pipefail
+          for p in $(jq -r '.roots[].path' ci/roots.json); do
+            # 아직 만들지 않은 root 는 건너뜁니다.
+            if [ ! -d "$p" ]; then continue; fi
+            echo "== $p"
+            terraform -chdir="$p" init -backend=false -input=false -lockfile=readonly
+            terraform -chdir="$p" validate
+            if [ -d "$p/tests" ]; then
+              terraform -chdir="$p" test
+            fi
+          done
