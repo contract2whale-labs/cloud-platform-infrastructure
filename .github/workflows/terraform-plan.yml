@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.m.outputs.matrix }}
+      detail: ${{ steps.m.outputs.detail }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -24,8 +25,8 @@ jobs:
           REPO_PRIVATE: ${{ github.event.repository.private }}
         run: |
           set -euo pipefail
-          # plan 원문을 PR 에 게시하므로 private 저장소에서만 실행합니다.
-          test "$REPO_PRIVATE" = "true"
+          # private 저장소는 plan 원문(full), public 저장소는 변경 대상과 개수만(summary) 게시합니다.
+          if [ "$REPO_PRIVATE" = "true" ]; then echo "detail=full" >> "$GITHUB_OUTPUT"; else echo "detail=summary" >> "$GITHUB_OUTPUT"; fi
           git diff --name-only "$BASE_SHA"...HEAD > changed.txt
           # 디렉터리가 있는 등록 root 만 대상으로 삼습니다.
           for p in $(jq -r '.roots[].path' ci/roots.json); do
@@ -62,7 +63,9 @@ jobs:
       STATE_BUCKET: ${{ vars.STATE_BUCKET }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
-      TF_VARS_JSON: ${{ vars.TF_VARS_JSON }}
+      # public 저장소에서는 Secret(로그에서 가려짐), private 저장소에서는 Variable 에 둡니다.
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      PLAN_DETAIL: ${{ needs.tf-pick-roots.outputs.detail }}
       GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
     steps:
@@ -106,19 +109,39 @@ jobs:
         working-directory: ${{ matrix.root.path }}
         run: |
           set -euo pipefail
-          terraform plan -input=false -lock-timeout=5m -out=change.tfplan
+          if [ "$PLAN_DETAIL" = "full" ]; then
+            terraform plan -input=false -lock-timeout=5m -out=change.tfplan
+          else
+            # public 저장소: plan 의 값이 공개 로그에 남지 않도록 출력을 파일로만 받습니다.
+            rc=0
+            terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
+            if [ "$rc" -ne 0 ]; then
+              echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
+              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
+              exit "$rc"
+            fi
+          fi
           terraform show -no-color change.tfplan > plan.txt
+          grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
 
       - name: PR 에 plan 게시
         working-directory: ${{ matrix.root.path }}
         run: |
           set -euo pipefail
           {
-            echo "### terraform plan: $ROOT_PATH"
-            echo '~~~text'
-            head -c 60000 plan.txt
-            echo
-            echo '~~~'
+            if [ "$PLAN_DETAIL" = "full" ]; then
+              echo "### terraform plan: $ROOT_PATH"
+              echo '~~~text'
+              head -c 60000 plan.txt
+              echo
+              echo '~~~'
+            else
+              echo "### terraform plan 요약: $ROOT_PATH"
+              echo "public 저장소라 변경 값은 게시하지 않고 변경 대상과 개수만 게시합니다."
+              echo '~~~text'
+              cat plan.summary.txt
+              echo '~~~'
+            fi
           } > comment.md
           gh pr comment "$PR_NUMBER" --body-file comment.md
 
