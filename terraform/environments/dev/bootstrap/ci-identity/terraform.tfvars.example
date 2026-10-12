@@ -1,0 +1,10 @@
+expected_account_id  = "<DEV_ACCOUNT_ID 실제 값>"                     # 예: "111111111111" (work/lab.env 의 DEV_ACCOUNT_ID)
+region               = "ap-northeast-2"                              # 예: "ap-northeast-2"
+environment          = "dev"                                         # 예: "dev" (Prod 에서는 "prod")
+state_bucket_name    = "company-dev-tfstate-<DEV_ACCOUNT_ID 실제 값>" # 예: company-dev-tfstate-111111111111 (bootstrap/state 에서 만든 버킷)
+github_org           = "<GITHUB_ORG 실제 값>"                        # 예: "my-org" (저장소 URL 의 조직 이름)
+github_repo          = "<GITHUB_REPO 실제 값>"                       # 예: "infrastructure" (저장소 이름)
+github_subject_prefix = "<sub_claim_prefix 실제 값>"                   # 예: "repo:my-org@111/infrastructure@222" (1) 의 gh api 출력의 sub_claim_prefix. use_immutable_subject 가 false 이면 이 줄을 지움
+state_keys           = ["bootstrap/state/terraform.tfstate"]         # 예: CI 가 쓸 State key (ci/roots.json 에 등록한 root 만)
+create_oidc_provider = true                                          # 예: true (1) 에서 provider 가 비어 있었던 경우, false 면 아래 ARN 필요
+# existing_oidc_provider_arn = "arn:aws:iam::<계정 ID>:oidc-provider/token.actions.githubusercontent.com"
