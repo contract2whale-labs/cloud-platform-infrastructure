@@ -1,0 +1,12 @@
+.git
+**/.terraform
+**/*.tfstate*
+**/*.tfplan
+**/backend.hcl
+**/*.auto.tfvars
+**/work
+**/local-inputs
+**/rendered
+**/.env*
+**/*.pem
+**/*private*key*

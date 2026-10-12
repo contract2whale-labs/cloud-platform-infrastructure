@@ -1,0 +1,842 @@
+{
+  "gateway": {
+    "root": "terraform/environments/{environment}/platform/gateway",
+    "variables": {
+      "GATEWAY_CLUSTER_NAME": {
+        "output": "gateway_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_REGION": {
+        "output": "gateway_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_VPC_ID": {
+        "output": "gateway_contract",
+        "field": "vpc_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_EXPOSURE_MODE": {
+        "output": "gateway_contract",
+        "field": "exposure_mode",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_NLB_SUBNET_IDS": {
+        "output": "gateway_contract",
+        "field": "nlb_subnet_ids",
+        "transform": "join_csv",
+        "optional": false
+      },
+      "GATEWAY_NLB_SECURITY_GROUP_ID": {
+        "output": "gateway_contract",
+        "field": "nlb_security_group_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_DNS_ZONE_ID": {
+        "output": "gateway_contract",
+        "field": "dns_zone_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_DNS_ZONE_NAME": {
+        "output": "gateway_contract",
+        "field": "dns_zone_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_PUBLIC_ZONE_ID": {
+        "output": "gateway_contract",
+        "field": "public_zone_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_EXTERNAL_DNS_ENABLED": {
+        "output": "gateway_contract",
+        "field": "external_dns_enabled",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_NAMESPACE": {
+        "output": "gateway_contract",
+        "field": "namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_NAME": {
+        "output": "gateway_contract",
+        "field": "gateway_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "GATEWAY_LISTENER_NAME": {
+        "output": "gateway_contract",
+        "field": "listener_name",
+        "transform": "scalar",
+        "optional": false
+      }
+    }
+  },
+  "operations": {
+    "root": "terraform/environments/{environment}/platform/operations",
+    "variables": {
+      "OPERATIONS_ACCOUNT_ID": {
+        "output": "operations_contract",
+        "field": "account_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OPERATIONS_CLUSTER_NAME": {
+        "output": "operations_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OPERATIONS_REGION": {
+        "output": "operations_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OPERATIONS_PLATFORM_LOG_GROUP_NAME": {
+        "output": "operations_contract",
+        "field": "platform_log_group_name",
+        "transform": "scalar",
+        "optional": true
+      },
+      "OPERATIONS_VELERO_BUCKET_NAME": {
+        "output": "operations_contract",
+        "field": "velero_bucket_name",
+        "transform": "scalar",
+        "optional": true
+      },
+      "OPERATIONS_VELERO_BUCKET_ARN": {
+        "output": "operations_contract",
+        "field": "velero_bucket_arn",
+        "transform": "scalar",
+        "optional": true
+      },
+      "OPERATIONS_ALERTS_TOPIC_ARN": {
+        "output": "operations_contract",
+        "field": "alerts_topic_arn",
+        "transform": "scalar",
+        "optional": true
+      },
+      "OPERATIONS_GRAFANA_SECRET_NAME": {
+        "output": "grafana_secret_name",
+        "field": "",
+        "transform": "scalar",
+        "optional": true
+      }
+    }
+  },
+  "alerting": {
+    "root": "terraform/environments/{environment}/platform/alerting",
+    "variables": {
+      "ALERTING_ACCOUNT_ID": {
+        "output": "alerting_contract",
+        "field": "account_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_ENVIRONMENT": {
+        "output": "alerting_contract",
+        "field": "environment",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_REGION": {
+        "output": "alerting_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_CLUSTER_NAME": {
+        "output": "alerting_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_TOPIC_ARN": {
+        "output": "alerting_contract",
+        "field": "topic_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_RECEIVER_EMAIL": {
+        "output": "alerting_contract",
+        "field": "receiver_email",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_ALERTMANAGER_SERVICE_ACCOUNT": {
+        "output": "alerting_contract",
+        "field": "alertmanager_service_account",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_EVENT_RULE_NAME": {
+        "output": "alerting_contract",
+        "field": "event_rule_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_NAMESPACE": {
+        "output": "alerting_contract",
+        "field": "namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_METRIC_NAMESPACE": {
+        "output": "alerting_contract",
+        "field": "metric_namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_ALARM_POOL_ACQUIRE_TIMEOUT": {
+        "output": "alerting_contract",
+        "field": "alarm_names.pool_acquire_timeout",
+        "transform": "scalar",
+        "optional": false
+      },
+      "ALERTING_ALARM_ARMED_SAMPLE_DELETION": {
+        "output": "alerting_contract",
+        "field": "alarm_names.armed_sample_deletion",
+        "transform": "scalar",
+        "optional": true
+      }
+    }
+  },
+  "observability": {
+    "root": "terraform/environments/{environment}/platform/observability",
+    "variables": {
+      "OBSERVABILITY_ACCOUNT": {
+        "output": "observability_contract",
+        "field": "account",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_REGION": {
+        "output": "observability_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_ENVIRONMENT": {
+        "transform": "scalar",
+        "metadata": "environment",
+        "optional": false
+      },
+      "OBSERVABILITY_CLUSTER": {
+        "output": "observability_contract",
+        "field": "cluster",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_METRICS_NAMESPACE": {
+        "output": "observability_contract",
+        "field": "namespace.metrics",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_LOGS_NAMESPACE": {
+        "output": "observability_contract",
+        "field": "namespace.logs",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_TRACES_NAMESPACE": {
+        "output": "observability_contract",
+        "field": "namespace.traces",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_METRICS_BUCKET": {
+        "output": "observability_contract",
+        "field": "metrics_bucket",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_LOGS_BUCKET": {
+        "output": "observability_contract",
+        "field": "logs_bucket",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_TRACES_BUCKET": {
+        "output": "observability_contract",
+        "field": "traces_bucket",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_METRICS_PREFIX": {
+        "transform": "scalar",
+        "output": "signal_object_prefixes",
+        "field": "metrics",
+        "optional": false
+      },
+      "OBSERVABILITY_TRACES_PREFIX": {
+        "transform": "scalar",
+        "output": "signal_object_prefixes",
+        "field": "traces",
+        "optional": false
+      },
+      "OBSERVABILITY_RETENTION_METRICS_DAYS": {
+        "output": "observability_contract",
+        "field": "retention.metrics",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_RETENTION_LOGS_DAYS": {
+        "output": "observability_contract",
+        "field": "retention.logs",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_RETENTION_TRACES_DAYS": {
+        "output": "observability_contract",
+        "field": "retention.traces",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_PROMETHEUS_ENDPOINT": {
+        "output": "observability_contract",
+        "field": "prometheus_endpoint",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_LOKI_ENDPOINT": {
+        "output": "observability_contract",
+        "field": "loki_endpoint",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_TEMPO_ENDPOINT": {
+        "output": "observability_contract",
+        "field": "tempo_endpoint",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_WRITER_ROLE_ARN": {
+        "output": "observability_contract",
+        "field": "role.writer",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_READER_ROLE_ARN": {
+        "output": "observability_contract",
+        "field": "role.reader",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_MAINTENANCE_ROLE_ARN": {
+        "output": "observability_contract",
+        "field": "role.maintenance",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_ACTIVE_TRACE_BACKEND": {
+        "output": "observability_contract",
+        "field": "active_trace_backend",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_STORAGE_EPOCH": {
+        "output": "observability_contract",
+        "field": "storage_epoch",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_POLICY_VERSION": {
+        "output": "observability_contract",
+        "field": "policy_version",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_POLICY_HASH": {
+        "output": "observability_contract",
+        "field": "policy_hash",
+        "transform": "scalar",
+        "optional": false
+      },
+      "OBSERVABILITY_S3_ENDPOINT_ID": {
+        "transform": "scalar",
+        "output": "observability_network_contract",
+        "field": "s3_endpoint_id",
+        "optional": false
+      }
+    }
+  },
+  "queue_managed": {
+    "root": "terraform/environments/{environment}/platform/queue",
+    "variables": {
+      "QUEUE_ACCOUNT": {
+        "transform": "scalar",
+        "metadata": "account_id",
+        "optional": false
+      },
+      "QUEUE_REGION": {
+        "transform": "scalar",
+        "metadata": "region",
+        "optional": false
+      },
+      "QUEUE_ENVIRONMENT": {
+        "transform": "scalar",
+        "metadata": "environment",
+        "optional": false
+      },
+      "QUEUE_EKS_CLUSTER": {
+        "transform": "scalar",
+        "output": "diagnostic_coordinates",
+        "field": "eks_cluster",
+        "optional": false
+      },
+      "QUEUE_CLUSTER_NAME": {
+        "output": "queue_managed_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_CLUSTER_ARN": {
+        "transform": "scalar",
+        "output": "cluster_arn",
+        "field": "",
+        "optional": false
+      },
+      "QUEUE_BOOTSTRAP_SCRAM": {
+        "transform": "scalar",
+        "output": "bootstrap_brokers_scram",
+        "field": "",
+        "optional": false
+      },
+      "QUEUE_BROKER_PORT": {
+        "transform": "scalar",
+        "output": "diagnostic_coordinates",
+        "field": "broker_port",
+        "optional": false
+      },
+      "QUEUE_KAFKA_VERSION": {
+        "output": "queue_managed_contract",
+        "field": "kafka_version",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_TOPIC": {
+        "output": "queue_managed_contract",
+        "field": "topic_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_PARTITIONS": {
+        "output": "queue_managed_contract",
+        "field": "partitions",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_WRITER_USERNAME": {
+        "transform": "scalar",
+        "output": "diagnostic_coordinates",
+        "field": "writer_username",
+        "optional": false
+      },
+      "QUEUE_READER_USERNAME": {
+        "transform": "scalar",
+        "output": "diagnostic_coordinates",
+        "field": "reader_username",
+        "optional": false
+      },
+      "QUEUE_WRITER_SECRET_ARN": {
+        "output": "queue_managed_contract",
+        "field": "secret_arns.writer",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_READER_SECRET_ARN": {
+        "output": "queue_managed_contract",
+        "field": "secret_arns.reader",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_KMS_KEY_ARN": {
+        "output": "queue_managed_contract",
+        "field": "kms_key_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "QUEUE_BROKER_SUBNET_CIDRS": {
+        "transform": "join_csv",
+        "output": "diagnostic_coordinates",
+        "field": "broker_subnet_cidrs",
+        "optional": false
+      },
+      "QUEUE_CLIENT_SECURITY_GROUP_ID": {
+        "output": "queue_managed_contract",
+        "field": "client_security_group_id",
+        "transform": "scalar",
+        "optional": false
+      }
+    }
+  },
+  "delivery": {
+    "root": "terraform/environments/{environment}/delivery",
+    "variables": {
+      "DELIVERY_ACCOUNT_ID": {
+        "output": "delivery_contract",
+        "field": "account_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_REGION": {
+        "output": "delivery_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_ENVIRONMENT": {
+        "output": "delivery_contract",
+        "field": "environment",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_CLUSTER_NAME": {
+        "output": "delivery_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_ECR_REGISTRY": {
+        "output": "delivery_contract",
+        "field": "ecr_registry",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_WEB_IMAGE_REPOSITORY": {
+        "output": "delivery_contract",
+        "field": "ecr_repositories.commerce-web.url",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_API_IMAGE_REPOSITORY": {
+        "output": "delivery_contract",
+        "field": "ecr_repositories.commerce-api.url",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_SIGNING_KEY_ARN": {
+        "output": "delivery_contract",
+        "field": "signing_key_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_SIGNING_KEY_ALIAS": {
+        "output": "delivery_contract",
+        "field": "signing_key_alias",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_CI_ROLE_ARN": {
+        "output": "delivery_contract",
+        "field": "ci_role_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_ARGOCD_NAMESPACE": {
+        "output": "delivery_contract",
+        "field": "argocd.namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_REPO_SECRET_NAME": {
+        "output": "delivery_contract",
+        "field": "argocd.repo_secret_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_OIDC_SECRET_NAME": {
+        "output": "delivery_contract",
+        "field": "argocd.oidc_secret_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_OIDC_ISSUER": {
+        "output": "delivery_contract",
+        "field": "argocd.oidc_issuer",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_OIDC_CLIENT_ID": {
+        "output": "delivery_contract",
+        "field": "argocd.oidc_client_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_GITOPS_SSH_URL": {
+        "output": "delivery_contract",
+        "field": "argocd.gitops_ssh_url",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_GITOPS_REVISION": {
+        "output": "delivery_contract",
+        "field": "argocd.gitops_revision",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_APPLICATION_NAMESPACE": {
+        "output": "delivery_contract",
+        "field": "argocd.application_namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DELIVERY_KYVERNO_NAMESPACE": {
+        "output": "delivery_contract",
+        "field": "kyverno.namespace",
+        "transform": "scalar",
+        "optional": false
+      }
+    }
+  },
+  "data": {
+    "root": "terraform/environments/{environment}/data",
+    "variables": {
+      "DATA_ENVIRONMENT": {
+        "output": "data_contract",
+        "field": "environment",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_ACCOUNT_ID": {
+        "output": "data_contract",
+        "field": "account_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_REGION": {
+        "output": "data_contract",
+        "field": "region",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_CLUSTER_NAME": {
+        "output": "data_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_NAMESPACE": {
+        "output": "data_contract",
+        "field": "namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_RUNTIME_SERVICE_ACCOUNT": {
+        "output": "data_contract",
+        "field": "service_accounts.runtime",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_OPERATOR_SERVICE_ACCOUNT": {
+        "output": "data_contract",
+        "field": "service_accounts.operator",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_MIGRATION_SERVICE_ACCOUNT": {
+        "output": "data_contract",
+        "field": "service_accounts.migration",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_IDENTIFIER": {
+        "output": "data_contract",
+        "field": "database.identifier",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_ADDRESS": {
+        "output": "data_contract",
+        "field": "database.address",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_PORT": {
+        "output": "data_contract",
+        "field": "database.port",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_NAME": {
+        "output": "data_contract",
+        "field": "database.name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_SCHEMA": {
+        "output": "data_contract",
+        "field": "database.schema",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_ENGINE_VERSION": {
+        "output": "data_contract",
+        "field": "database.engine_version_actual",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_DB_SECURITY_GROUP_ID": {
+        "output": "data_contract",
+        "field": "database.security_group_id",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_MASTER_SECRET_ARN": {
+        "output": "data_contract",
+        "field": "credentials.master_secret_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_MIGRATION_SECRET_ARN": {
+        "output": "data_contract",
+        "field": "credentials.migration_secret_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_RUNTIME_SECRET_ARN": {
+        "output": "data_contract",
+        "field": "credentials.runtime_secret_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_APP_SECRET_ARN": {
+        "output": "data_contract",
+        "field": "credentials.app_secret_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_EXPORT_BUCKET": {
+        "output": "data_contract",
+        "field": "export.bucket_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_EXPORT_PREFIX": {
+        "output": "data_contract",
+        "field": "export.prefix",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_KMS_KEY_ARN": {
+        "output": "data_contract",
+        "field": "kms_key_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_OPERATOR_REPOSITORY_URL": {
+        "output": "data_contract",
+        "field": "operator.repository_url",
+        "transform": "scalar",
+        "optional": false
+      },
+      "DATA_REDIS_ENABLED": {
+        "output": "data_contract",
+        "field": "redis",
+        "transform": "present",
+        "optional": false
+      },
+      "DATA_REDIS_ADDRESS": {
+        "output": "data_contract",
+        "field": "redis.address",
+        "transform": "scalar",
+        "optional": true
+      },
+      "DATA_REDIS_PORT": {
+        "output": "data_contract",
+        "field": "redis.port",
+        "transform": "scalar",
+        "optional": true
+      },
+      "DATA_REDIS_TLS": {
+        "output": "data_contract",
+        "field": "redis.tls_enabled",
+        "transform": "scalar",
+        "optional": true
+      },
+      "DATA_REDIS_SECURITY_GROUP_ID": {
+        "output": "data_contract",
+        "field": "redis.security_group_id",
+        "transform": "scalar",
+        "optional": true
+      }
+    }
+  },
+  "identity": {
+    "root": "terraform/environments/{environment}/identity",
+    "variables": {
+      "IDENTITY_ENVIRONMENT": {
+        "output": "identity_contract",
+        "field": "environment",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_CLUSTER_NAME": {
+        "output": "identity_contract",
+        "field": "cluster_name",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_NAMESPACE": {
+        "output": "identity_contract",
+        "field": "namespace",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_RUNTIME_ROLE_ARN": {
+        "output": "identity_contract",
+        "field": "runtime.role_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_RUNTIME_SERVICE_ACCOUNT": {
+        "output": "identity_contract",
+        "field": "runtime.service_account",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_OPERATOR_ROLE_ARN": {
+        "output": "identity_contract",
+        "field": "operator.role_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_OPERATOR_SERVICE_ACCOUNT": {
+        "output": "identity_contract",
+        "field": "operator.service_account",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_MIGRATION_ROLE_ARN": {
+        "output": "identity_contract",
+        "field": "migration.role_arn",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_MIGRATION_SERVICE_ACCOUNT": {
+        "output": "identity_contract",
+        "field": "migration.service_account",
+        "transform": "scalar",
+        "optional": false
+      },
+      "IDENTITY_SECRETS_ROLE_ARN": {
+        "output": "identity_contract",
+        "field": "secrets_reader.role_arn",
+        "transform": "scalar",
+        "optional": false
+      }
+    }
+  }
+}

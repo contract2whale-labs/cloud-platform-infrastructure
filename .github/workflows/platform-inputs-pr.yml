@@ -1,0 +1,50 @@
+name: Publish approved platform inputs
+on:
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string
+      receipt:
+        required: true
+        type: string
+      apply_result:
+        required: true
+        type: string
+    secrets:
+      publisher_token:
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: platform-inputs-${{ inputs.environment }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: inputs.apply_result == 'success' && github.ref == 'refs/heads/main'
+    environment: platform-inputs-${{ inputs.environment }}
+    runs-on: ubuntu-24.04
+    env:
+      TOOLCHAIN_IMAGE: ${{ vars.TOOLCHAIN_IMAGE }}
+    container:
+      # Reviewed repository variable: verify_toolchain.py rejects any tag or unresolved image.
+      image: ${{ vars.TOOLCHAIN_IMAGE }} # zizmor: ignore[unpinned-images]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify immutable toolchain
+        run: python3 automation/verify_toolchain.py
+      - name: Check receipt and write isolated native source diff
+        env:
+          RECEIPT: ${{ inputs.receipt }}
+          EXPECT_ENVIRONMENT: ${{ inputs.environment }}
+          EXPECT_ACCOUNT: ${{ vars.TARGET_ACCOUNT_ID }}
+        run: |
+          python3 -c 'import os,json,pathlib; d=json.loads(os.environ["RECEIPT"]); assert d["apply_revision"]==os.environ["GITHUB_SHA"]; p=pathlib.Path("/tmp/platform-input-receipt.json"); p.write_text(json.dumps(d)); p.chmod(0o600)'
+          python3 automation/platform_inputs.py --input /tmp/platform-input-receipt.json --repo . --expect-environment "$EXPECT_ENVIRONMENT" --expect-account "$EXPECT_ACCOUNT" --expect-base-revision "$GITHUB_SHA"
+          python3 automation/check_platform_sources.py --repo . --environment "$EXPECT_ENVIRONMENT"
+      - name: Open input change PR for review
+        env:
+          PUBLISHER_TOKEN: ${{ secrets.publisher_token }}
+        run: python3 automation/create_inputs_pr.py --request /tmp/platform-input-receipt.json --repository "$GITHUB_REPOSITORY"

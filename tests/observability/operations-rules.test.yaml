@@ -1,0 +1,82 @@
+# tests/observability/operations-rules.test.yaml
+# 장기 지표의 S3 업로드 차단: gitops/platform/monitoring-resources/overlays/dev/10-operations-alerts.yaml 의 sidecar 업로드 규칙 2개를 promtool 단위 시험으로 확인합니다 (automation/check_observability_rules.py 가 실행, 클러스터 · AWS 호출 없음).
+# 동기화 실패 counter 는 실패가 이어지는 동안 30초마다 1 씩 늘어납니다 (Thanos v0.41.0 shipper 는 30초마다 동기화).
+rule_files:
+  - operations-rules.yaml # 예: automation/check_observability_rules.py 가 만드는 임시 규칙 파일 (spec.groups 만)
+evaluation_interval: 30s
+tests:
+  # 1. 동기화 실패가 늘기 시작하면 5분(for) 뒤 그 Pod 이름으로 뜹니다.
+  - interval: 30s
+    input_series:
+      - series: 'thanos_shipper_dir_sync_failures_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-0"}'
+        values: '0x10 1+1x50'
+      - series: 'thanos_shipper_dir_syncs_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-0"}'
+        values: '100x60'
+    alert_rule_test:
+      - eval_time: 7m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts: []
+      - eval_time: 12m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: monitoring, pod: prometheus-platform-monitoring-prometheus-0}
+            exp_annotations: {summary: prometheus-platform-monitoring-prometheus-0 Thanos sidecar failed to ship blocks to object storage in the last 15 minutes}
+  # 2. 실패가 멈춰도 15분 창이 지나기 전에는 남아 있다가, 창이 지나면 해제됩니다 (업로드 회복 시각 ≠ 경보 해제 시각).
+  - interval: 30s
+    input_series:
+      - series: 'thanos_shipper_dir_sync_failures_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-1"}'
+        values: '0 1+1x20 21x60'
+      - series: 'thanos_shipper_dir_syncs_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-1"}'
+        values: '50x80'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: monitoring, pod: prometheus-platform-monitoring-prometheus-1}
+            exp_annotations: {summary: prometheus-platform-monitoring-prometheus-1 Thanos sidecar failed to ship blocks to object storage in the last 15 minutes}
+      - eval_time: 27m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts: []
+  # 3. Pod 재시작으로 counter 가 0 으로 돌아가도 늘어난 만큼은 셉니다 (increase 의 reset 처리).
+  - interval: 30s
+    input_series:
+      - series: 'thanos_shipper_dir_sync_failures_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-0"}'
+        values: '0x10 1+1x10 0+1x40'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: monitoring, pod: prometheus-platform-monitoring-prometheus-0}
+            exp_annotations: {summary: prometheus-platform-monitoring-prometheus-0 Thanos sidecar failed to ship blocks to object storage in the last 15 minutes}
+  # 4. 실패가 없으면 뜨지 않습니다.
+  - interval: 30s
+    input_series:
+      - series: 'thanos_shipper_dir_sync_failures_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-0"}'
+        values: '3x60'
+      - series: 'thanos_shipper_dir_syncs_total{namespace="monitoring", pod="prometheus-platform-monitoring-prometheus-0"}'
+        values: '0+1x60'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: ThanosSidecarMetricsMissing
+        exp_alerts: []
+  # 5. 다른 네임스페이스의 같은 이름 지표는 보지 않습니다.
+  - interval: 30s
+    input_series:
+      - series: 'thanos_shipper_dir_sync_failures_total{namespace="other", pod="x"}'
+        values: '0+1x60'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: ThanosSidecarUploadFailing
+        exp_alerts: []
+  # 6. sidecar 지표가 아예 없으면 15분 뒤 ThanosSidecarMetricsMissing 이 뜹니다 (없음 ≠ 업로드 정상).
+  - interval: 30s
+    input_series: []
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ThanosSidecarMetricsMissing
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: monitoring}
+            exp_annotations: {summary: Thanos sidecar shipper metrics are absent; block upload failures cannot be detected}

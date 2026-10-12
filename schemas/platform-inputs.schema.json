@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "environment", "account_id", "region", "root", "apply_revision", "base_revision", "state_lineage", "state_serial", "values"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "environment": {"enum": ["dev", "prod"]},
+    "account_id": {"type": "string", "pattern": "^[0-9]{12}$"},
+    "region": {"const": "ap-northeast-2"},
+    "root": {"enum": ["network", "core", "gateway", "operations", "observability", "queue-managed", "delivery", "data", "identity", "app-auth", "alerting"]},
+    "apply_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "base_revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "state_lineage": {"type": "string", "format": "uuid", "pattern": "^[0-9a-fA-F-]{36}$"},
+    "state_serial": {"type": "integer", "minimum": 0},
+    "values": {"type": "object", "minProperties": 1, "additionalProperties": {"type": ["string", "integer", "boolean"]}}
+  }
+}

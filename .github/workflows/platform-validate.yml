@@ -1,0 +1,41 @@
+name: Platform source validation
+on:
+  pull_request:
+  merge_group:
+permissions:
+  contents: read
+concurrency:
+  group: platform-validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  platform-validate:
+    # Initial repository seeding precedes the reviewed toolchain image. Register this required check only after its first real successful run.
+    if: vars.TOOLCHAIN_IMAGE != ''
+    runs-on: ubuntu-24.04
+    env:
+      TOOLCHAIN_IMAGE: ${{ vars.TOOLCHAIN_IMAGE }}
+    container:
+      # Reviewed repository variable: verify_toolchain.py rejects any tag or unresolved image.
+      image: ${{ vars.TOOLCHAIN_IMAGE }} # zizmor: ignore[unpinned-images]
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Verify container release lock
+        run: python3 automation/verify_toolchain.py
+      - name: Validate registered platform sources
+        run: python3 automation/check_platform_sources.py --repo .
+      - name: Validate platform contracts
+        run: |
+          python3 -m unittest discover -s tests/platform-inputs -p 'test_*.py'
+          python3 -m unittest discover -s tests/platform-contracts -p 'test_*.py'
+      - name: Validate workflow syntax and security boundaries
+        run: |
+          actionlint .github/workflows/*.yml
+          zizmor --no-online-audits .github/workflows
+      - name: Validate workflow permissions and Terraform contracts
+        run: |
+          python3 automation/check_observability_rules.py --repo .
+          python3 automation/check_terraform_format.py
+          python3 automation/check_terraform_contracts.py --repo .
+          python3 automation/check_workflow_permissions.py

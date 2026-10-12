@@ -1,0 +1,37 @@
+rule_files:
+- alerting-path-rules.yaml
+evaluation_interval: 30s
+tests:
+- name: one-sender-ready
+  interval: 1m
+  input_series:
+  - series: up{job="platform-monitoring-alertmanager",endpoint="http-web",instance="sender:9093"}
+    values: 1+0x12
+  alert_rule_test:
+  - eval_time: 12m
+    alertname: AlertSenderLowReplicas
+    exp_alerts: []
+- name: sender-down
+  interval: 1m
+  input_series:
+  - series: up{job="platform-monitoring-alertmanager",endpoint="http-web",instance="sender:9093"}
+    values: 0+0x12
+  alert_rule_test:
+  - eval_time: 12m
+    alertname: AlertSenderLowReplicas
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+      exp_annotations:
+        summary: The configured alert sender is unavailable
+- name: sender-series-absent
+  interval: 1m
+  input_series: []
+  alert_rule_test:
+  - eval_time: 12m
+    alertname: AlertSenderLowReplicas
+    exp_alerts:
+    - exp_labels:
+        severity: warning
+      exp_annotations:
+        summary: The configured alert sender is unavailable

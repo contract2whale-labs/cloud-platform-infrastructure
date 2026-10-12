@@ -1,0 +1,83 @@
+rule_files: []
+evaluation_interval: 1m
+tests:
+- name: none
+  interval: 1m
+  input_series: []
+  promql_expr_test:
+  - expr: "(\n  (sum(rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=\"httproute/contract2whale-demo/app-ui/rule/0/backend/1\"\
+      ,envoy_response_code_class=\"5\"}[2m])) or vector(0))\n  /\n  (sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples: []
+  - expr: "(\n  histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])))\n  and\n  (sum(rate(envoy_cluster_upstream_rq_time_count{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples: []
+- name: zero
+  interval: 1m
+  input_series:
+  - series: envoy_cluster_upstream_rq_total{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1"}
+    values: 0+0x5
+  - series: envoy_cluster_upstream_rq_time_count{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1"}
+    values: 0+0x5
+  promql_expr_test:
+  - expr: "(\n  (sum(rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=\"httproute/contract2whale-demo/app-ui/rule/0/backend/1\"\
+      ,envoy_response_code_class=\"5\"}[2m])) or vector(0))\n  /\n  (sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples: []
+  - expr: "(\n  histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])))\n  and\n  (sum(rate(envoy_cluster_upstream_rq_time_count{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples: []
+- name: normal
+  interval: 1m
+  input_series:
+  - series: envoy_cluster_upstream_rq_total{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1"}
+    values: 0+60x5
+  - series: envoy_cluster_upstream_rq_time_count{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1"}
+    values: 0+60x5
+  - series: envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1",le="100"}
+    values: 0+60x5
+  - series: envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1",le="500"}
+    values: 0+60x5
+  - series: envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1",le="+Inf"}
+    values: 0+60x5
+  promql_expr_test:
+  - expr: "(\n  (sum(rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=\"httproute/contract2whale-demo/app-ui/rule/0/backend/1\"\
+      ,envoy_response_code_class=\"5\"}[2m])) or vector(0))\n  /\n  (sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples:
+    - labels: '{}'
+      value: 0
+  - expr: "(\n  histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])))\n  and\n  (sum(rate(envoy_cluster_upstream_rq_time_count{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples:
+    - labels: '{}'
+      value: 95
+- name: error-rate
+  interval: 1m
+  input_series:
+  - series: envoy_cluster_upstream_rq_total{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1"}
+    values: 0+60x5
+  - series: envoy_cluster_upstream_rq_xx{envoy_cluster_name="httproute/contract2whale-demo/app-ui/rule/0/backend/1",envoy_response_code_class="5"}
+    values: 0+30x5
+  promql_expr_test:
+  - expr: "(\n  (sum(rate(envoy_cluster_upstream_rq_xx{envoy_cluster_name=\"httproute/contract2whale-demo/app-ui/rule/0/backend/1\"\
+      ,envoy_response_code_class=\"5\"}[2m])) or vector(0))\n  /\n  (sum(rate(envoy_cluster_upstream_rq_total{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples:
+    - labels: '{}'
+      value: 0.5
+  - expr: "(\n  histogram_quantile(0.95, sum by (le) (rate(envoy_cluster_upstream_rq_time_bucket{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])))\n  and\n  (sum(rate(envoy_cluster_upstream_rq_time_count{envoy_cluster_name=\"\
+      httproute/contract2whale-demo/app-ui/rule/0/backend/1\"}[2m])) > 0)\n)\n"
+    eval_time: 5m
+    exp_samples: []

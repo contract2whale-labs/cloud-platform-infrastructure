@@ -1,0 +1,134 @@
+# tests/observability/application-rules.test.yaml
+# 대시보드 연결 · 정상 기준과 공통 검사: gitops/platform/monitoring-resources/overlays/dev/80-application-rules.yaml 의 규칙을 promtool 단위 시험으로 확인합니다. automation/check_observability_rules.py 가 PrometheusRule 에서 groups 를 Python YAML reader로 추출해 promtool test rules 를 돌립니다 (클러스터 · AWS 호출 없음).
+# 값 표기 "0+10x40" = 0 에서 시작해 표본(30s)마다 10 씩 늘어나는 41개 값 (rate ≈ 0.33/s). 시험이 실제 시간을 기다리지 않습니다.
+# 정상 기준과 공통 검사 에서 업무 요청(http_route 가 /health 가 아님)과 프로브를 나눈 시험 5 ~ 10 을 더했습니다. 버킷 경계는 OTel HTTP 권장 경계(초)입니다.
+rule_files:
+  - application-rules.yaml # 예: check-rules.sh 가 만드는 임시 규칙 파일 (spec.groups 만)
+evaluation_interval: 30s
+tests:
+  # 1. 업무 요청이 충분(≈ 6.7 req/s)하고 오류가 많을 때(≈ 50%) ApplicationErrorRateHigh 가 뜹니다.
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '0+100x40'
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="500"}'
+        values: '0+100x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationErrorRateHigh
+        exp_alerts:
+          - exp_labels: {severity: critical, service_name: api}
+            exp_annotations: {summary: api business 5xx ratio is above 5% with at least 1 req/s}
+  # 2. 업무 요청이 적을 때(≈ 0.03 req/s) 오류 비율이 커도 뜨지 않습니다 (최소 요청 수 조건).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '0+1x40'
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="500"}'
+        values: '0+1x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationErrorRateHigh
+        exp_alerts: []
+  # 3. 입력 계열이 없으면 ApplicationTargetMissing 이 뜹니다 (없음 ≠ 정상).
+  - interval: 30s
+    input_series: []
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationTargetMissing
+        exp_alerts:
+          - exp_labels: {severity: critical}
+            exp_annotations: {summary: Application request metrics are absent; do not read missing data as zero errors}
+  # 4. 대상이 살아 있으면 ApplicationTargetMissing 이 뜨지 않습니다 (3 과 짝).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/health", status_code="200"}'
+        values: '0+10x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationTargetMissing
+        exp_alerts: []
+  # 5. 업무 요청 6% 가 5xx 이고 빠른 프로브 200 이 많이 섞여도 업무 기준으로 뜹니다 (프로브를 섞던 옛 식은 비율이 5% 아래로 희석돼 뜨지 않음).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '0+47x40'
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="503"}'
+        values: '0+3x40'
+      - series: 'course_http_requests_total{service_name="api", http_route="/health", status_code="200"}'
+        values: '0+60x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationErrorRateHigh
+        exp_alerts:
+          - exp_labels: {severity: critical, service_name: api}
+            exp_annotations: {summary: api business 5xx ratio is above 5% with at least 1 req/s}
+  # 6. 프로브만 있고(≈ 0.5 req/s) 프로브가 500 을 내도 업무 오류율 규칙은 뜨지 않습니다 (업무 요청 0 은 판정 근거가 없음).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/health", status_code="500"}'
+        values: '0+15x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationErrorRateHigh
+        exp_alerts: []
+  # 7. 업무 요청 2 req/s 가 모두 50ms 안쪽이면 p95 가 1초보다 작아 ApplicationLatencyHigh 가 뜨지 않습니다.
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="0.025"}'
+        values: '0+30x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="0.05"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="1"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="2.5"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="+Inf"}'
+        values: '0+60x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationLatencyHigh
+        exp_alerts: []
+  # 8. 업무 요청 2 req/s 의 대부분이 1 ~ 2.5초 버킷이면 ApplicationLatencyHigh 가 뜹니다.
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="0.05"}'
+        values: '0+1x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="1"}'
+        values: '0+2x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="2.5"}'
+        values: '0+60x40'
+      - series: 'course_http_request_duration_seconds_bucket{service_name="api", http_route="/store/products", le="+Inf"}'
+        values: '0+60x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: ApplicationLatencyHigh
+        exp_alerts:
+          - exp_labels: {severity: warning, service_name: api}
+            exp_annotations: {summary: api business p95 latency is above 1s with at least 1 req/s}
+  # 9. 프로브까지 포함한 응답 계열이 10분 넘게 늘지 않으면 ApplicationNoResponses 가 뜹니다 (값이 그대로인 계열 = 응답 0).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/health", status_code="200"}'
+        values: '100x60'
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: ApplicationNoResponses
+        exp_alerts:
+          - exp_labels: {severity: warning, service_name: api}
+            exp_annotations: {summary: "api has served no HTTP responses, health probes included, for 15 minutes"}
+  # 10. 업무 요청이 0 이어도 프로브 응답이 이어지면 ApplicationNoResponses 는 뜨지 않습니다 (이 규칙은 업무 무응답을 보지 않음).
+  - interval: 30s
+    input_series:
+      - series: 'course_http_requests_total{service_name="api", http_route="/health", status_code="200"}'
+        values: '0+15x60'
+      - series: 'course_http_requests_total{service_name="api", http_route="/store/products", status_code="200"}'
+        values: '7x60'
+    alert_rule_test:
+      - eval_time: 29m
+        alertname: ApplicationNoResponses
+        exp_alerts: []

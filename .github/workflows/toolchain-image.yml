@@ -1,0 +1,145 @@
+name: Build reviewed toolchain
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  packages: write
+concurrency:
+  group: platform-toolchain
+  cancel-in-progress: false
+jobs:
+  build_amd64:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    outputs:
+      digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build, verify and publish native Linux amd64
+        id: publish
+        env:
+          BUILD_ARCH: amd64
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_OWNER: ${{ github.repository_owner }}
+          SOURCE_REPOSITORY: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Require native hardware rather than silently falling back to emulation.
+          case "$(uname -m)" in
+            x86_64) RUNNER_ARCH=amd64 ;;
+            aarch64|arm64) RUNNER_ARCH=arm64 ;;
+            *) exit 1 ;;
+          esac
+          test "$RUNNER_ARCH" = "$BUILD_ARCH"
+          # Support the tooling distribution and the installed infrastructure repository.
+          CONTEXT=tooling
+          INFRA=.
+          if [ -f assets/infrastructure/tooling/Dockerfile ]; then
+            CONTEXT=assets/infrastructure/tooling
+            INFRA=assets/infrastructure
+          fi
+          OWNER="$(printf '%s' "$REGISTRY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          export IMAGE="ghcr.io/$OWNER/platform-toolchain"
+          TAG="$IMAGE:$GITHUB_SHA-$BUILD_ARCH"
+          docker buildx build --platform "linux/$BUILD_ARCH" --load \
+            --provenance=false --sbom=false --tag "$TAG" \
+            --label "org.opencontainers.image.source=$SOURCE_REPOSITORY" \
+            --metadata-file build-metadata.json "$CONTEXT"
+          docker image inspect "$TAG" > image-config.json
+          python3 -c 'import json,os; i=json.load(open("image-config.json"))[0]; assert i["Os"]=="linux" and i["Architecture"]==os.environ["BUILD_ARCH"], i'
+          # Verify tools, Python packages and native ELF before publishing this exact image.
+          docker run --rm --platform "linux/$BUILD_ARCH" \
+            --mount "type=bind,source=$PWD/$INFRA,target=/workspace/infra,readonly" \
+            "$TAG" python /workspace/infra/automation/verify_toolchain.py \
+            --expected-arch "$BUILD_ARCH" | tee "verify-$BUILD_ARCH.log"
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io --username "$REGISTRY_USER" --password-stdin
+          docker push "$TAG"
+          docker image inspect "$TAG" > pushed-config.json
+          DIGEST="$(python3 -c 'import json,os,re; i=json.load(open("pushed-config.json"))[0]; d=next(x.split("@",1)[1] for x in i["RepoDigests"] if x.startswith(os.environ["IMAGE"]+"@")); assert re.fullmatch("sha256:[0-9a-f]{64}",d); print(d)')"
+          printf 'digest=%s\n' "$DIGEST" >> "$GITHUB_OUTPUT"
+          printf 'Build SHA A: %s\nPlatform: linux/%s (native)\nVerified child: %s@%s\n' "$GITHUB_SHA" "$BUILD_ARCH" "$IMAGE" "$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+  build_arm64:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 45
+    outputs:
+      digest: ${{ steps.publish.outputs.digest }}
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Build, verify and publish native Linux arm64
+        id: publish
+        env:
+          BUILD_ARCH: arm64
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_OWNER: ${{ github.repository_owner }}
+          SOURCE_REPOSITORY: ${{ github.server_url }}/${{ github.repository }}
+        run: |
+          set -euo pipefail
+          # Require native hardware rather than silently falling back to emulation.
+          case "$(uname -m)" in
+            x86_64) RUNNER_ARCH=amd64 ;;
+            aarch64|arm64) RUNNER_ARCH=arm64 ;;
+            *) exit 1 ;;
+          esac
+          test "$RUNNER_ARCH" = "$BUILD_ARCH"
+          # Support the tooling distribution and the installed infrastructure repository.
+          CONTEXT=tooling
+          INFRA=.
+          if [ -f assets/infrastructure/tooling/Dockerfile ]; then
+            CONTEXT=assets/infrastructure/tooling
+            INFRA=assets/infrastructure
+          fi
+          OWNER="$(printf '%s' "$REGISTRY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          export IMAGE="ghcr.io/$OWNER/platform-toolchain"
+          TAG="$IMAGE:$GITHUB_SHA-$BUILD_ARCH"
+          docker buildx build --platform "linux/$BUILD_ARCH" --load \
+            --provenance=false --sbom=false --tag "$TAG" \
+            --label "org.opencontainers.image.source=$SOURCE_REPOSITORY" \
+            --metadata-file build-metadata.json "$CONTEXT"
+          docker image inspect "$TAG" > image-config.json
+          python3 -c 'import json,os; i=json.load(open("image-config.json"))[0]; assert i["Os"]=="linux" and i["Architecture"]==os.environ["BUILD_ARCH"], i'
+          # Verify tools, Python packages and native ELF before publishing this exact image.
+          docker run --rm --platform "linux/$BUILD_ARCH" \
+            --mount "type=bind,source=$PWD/$INFRA,target=/workspace/infra,readonly" \
+            "$TAG" python /workspace/infra/automation/verify_toolchain.py \
+            --expected-arch "$BUILD_ARCH" | tee "verify-$BUILD_ARCH.log"
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io --username "$REGISTRY_USER" --password-stdin
+          docker push "$TAG"
+          docker image inspect "$TAG" > pushed-config.json
+          DIGEST="$(python3 -c 'import json,os,re; i=json.load(open("pushed-config.json"))[0]; d=next(x.split("@",1)[1] for x in i["RepoDigests"] if x.startswith(os.environ["IMAGE"]+"@")); assert re.fullmatch("sha256:[0-9a-f]{64}",d); print(d)')"
+          printf 'digest=%s\n' "$DIGEST" >> "$GITHUB_OUTPUT"
+          printf 'Build SHA A: %s\nPlatform: linux/%s (native)\nVerified child: %s@%s\n' "$GITHUB_SHA" "$BUILD_ARCH" "$IMAGE" "$DIGEST" >> "$GITHUB_STEP_SUMMARY"
+  publish_index:
+    if: github.ref == 'refs/heads/main'
+    needs: [build_amd64, build_arm64]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Publish index from both verified child digests
+        env:
+          REGISTRY_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REGISTRY_USER: ${{ github.actor }}
+          REGISTRY_OWNER: ${{ github.repository_owner }}
+          AMD64_DIGEST: ${{ needs.build_amd64.outputs.digest }}
+          ARM64_DIGEST: ${{ needs.build_arm64.outputs.digest }}
+        run: |
+          set -euo pipefail
+          [[ "$AMD64_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          [[ "$ARM64_DIGEST" =~ ^sha256:[0-9a-f]{64}$ ]]
+          OWNER="$(printf '%s' "$REGISTRY_OWNER" | tr '[:upper:]' '[:lower:]')"
+          IMAGE="ghcr.io/$OWNER/platform-toolchain"
+          printf '%s' "$REGISTRY_TOKEN" | docker login ghcr.io --username "$REGISTRY_USER" --password-stdin
+          docker buildx imagetools create --tag "$IMAGE:$GITHUB_SHA" \
+            "$IMAGE@$AMD64_DIGEST" "$IMAGE@$ARM64_DIGEST"
+          docker buildx imagetools inspect "$IMAGE:$GITHUB_SHA" --raw > image-index.json
+          python3 -c 'import json; i=json.load(open("image-index.json")); p=[(m["platform"]["os"],m["platform"]["architecture"]) for m in i["manifests"]]; assert len(p)==2 and set(p)=={("linux","amd64"),("linux","arm64")},p'
+          docker buildx imagetools inspect "$IMAGE:$GITHUB_SHA" --format '{{json .Manifest}}' > index-descriptor.json
+          INDEX_DIGEST="$(python3 -c 'import json,re; d=json.load(open("index-descriptor.json"))["digest"]; assert re.fullmatch("sha256:[0-9a-f]{64}",d); print(d)')"
+          printf 'Build SHA A: %s\nVerified amd64 child: %s\nVerified arm64 child: %s\nPublished index digest: %s\nSet TOOLCHAIN_IMAGE to %s@%s\n' "$GITHUB_SHA" "$AMD64_DIGEST" "$ARM64_DIGEST" "$INDEX_DIGEST" "$IMAGE" "$INDEX_DIGEST" >> "$GITHUB_STEP_SUMMARY"

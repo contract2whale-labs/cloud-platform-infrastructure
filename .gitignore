@@ -1,0 +1,24 @@
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+backend.hcl
+!backend.hcl.example
+crash.log
+crash.*.log
+*.pem
+*.key
+.DS_Store
+.local/
+.labctl/
+*.state-backup.json
+**/local-inputs/
+
+# 로컬 인증·개인 환경 파일
+.aws/
+work/lab.env
+work/protected/
+*.before-course-update

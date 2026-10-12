@@ -1,0 +1,41 @@
+{
+  "name": "Platform engineering toolchain",
+  "workspaceFolder": "/workspace/cloud-platform-infrastructure",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/cloud-platform-infrastructure,type=bind",
+  "mounts": [
+    "source=${localEnv:HOME}/commerce-platform/eks-platform-tooling,target=/workspace/eks-platform-tooling,type=bind",
+    "source=${localEnv:HOME}/commerce-platform/commerce-web,target=/workspace/commerce-web,type=bind",
+    "source=${localEnv:HOME}/commerce-platform/commerce-api,target=/workspace/commerce-api,type=bind",
+    "source=${localEnv:HOME}/.aws,target=/root/.aws,type=bind"
+  ],
+  "containerEnv": {
+    "PLATFORM_DEVCONTAINER": "1",
+    "INFRA_ROOT": "/workspace/cloud-platform-infrastructure",
+    "TOOLING_ROOT": "/workspace/eks-platform-tooling",
+    "AWS_PAGER": ""
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "hashicorp.terraform",
+        "redhat.vscode-yaml",
+        "ms-python.python"
+      ]
+    }
+  },
+  "forwardPorts": [
+    8080,
+    8085
+  ],
+  "portsAttributes": {
+    "8080": {
+      "label": "Argo CD local access",
+      "onAutoForward": "silent"
+    },
+    "8085": {
+      "label": "Argo CLI SSO callback",
+      "onAutoForward": "silent"
+    }
+  },
+  "image": "ghcr.io/contract2whale-labs/platform-toolchain@sha256:8f6e4fb7fc226f75e87c77f931121ea5d0b38f80d6a540bd570455c44439a739"
+}

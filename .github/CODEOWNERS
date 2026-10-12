@@ -1,0 +1,16 @@
+# .github/CODEOWNERS — cloud-platform-infrastructure
+# 권한과 승인 제어 (Day-2 거버넌스): 경로별 필수 리뷰어. 브랜치 보호 규칙에서 "Require review from Code Owners" 를 켜면 아래 경로가 바뀐 PR 은 해당 팀의 승인 없이 merge 되지 않습니다 (앱 저장소 작업 경계 의 Ruleset main-protection).
+# dev 오버레이는 개발팀 + DevOps 리뷰어, prod 오버레이 · prod 루트 모듈 · prod 클러스터 앱은 SRE 리드만. 마지막에 맞는 규칙이 이깁니다 (더 구체적인 경로를 아래에).
+# 한 줄에 팀을 둘 적은 규칙은 "둘 다" 가 아니라 "둘 중 한 owner 의 승인" 으로 충족됩니다 (dev 오버레이 · /modules/). 팀이 하나뿐인 줄만 그 팀의 승인이 반드시 필요합니다.
+*                                              @contract2whale-labs/devops-reviewers
+/gitops/apps/**/overlays/dev/                  @contract2whale-labs/developers @contract2whale-labs/devops-reviewers
+/gitops/platform/**/overlays/dev*/                 @contract2whale-labs/devops-reviewers
+/gitops/clusters/dev/                          @contract2whale-labs/devops-reviewers
+/gitops/apps/**/overlays/prod/                 @contract2whale-labs/sre-leads
+/gitops/platform/**/overlays/prod*/                @contract2whale-labs/sre-leads
+/gitops/platform/**/values/prod*.yaml      @contract2whale-labs/sre-leads
+/gitops/platform/values/argo-cd-prod.yaml      @contract2whale-labs/sre-leads
+/gitops/platform/values/argo-cd-prod-ha.yaml   @contract2whale-labs/sre-leads
+/gitops/clusters/prod/                         @contract2whale-labs/sre-leads
+/terraform/environments/prod/                  @contract2whale-labs/sre-leads
+/modules/                                      @contract2whale-labs/devops-reviewers @contract2whale-labs/sre-leads

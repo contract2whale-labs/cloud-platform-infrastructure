@@ -1,0 +1,68 @@
+# tests/observability/tempo-rules.test.yaml
+# 트레이스 소비자의 지연 재현: gitops/platform/monitoring-resources/overlays/dev/tempo-monitors.yaml 의 세대 규칙을 promtool 단위 시험으로 확인합니다 (automation/check_observability_rules.py 가 실행, 클러스터 · AWS 호출 없음).
+# 세대 1(platform-tempo) · 세대 3(platform-tempo-e3) 이 함께 설치된 상태를 가정합니다. 값 "3 0x59" = 첫 표본 3 뒤 30초마다 0 이 59번.
+rule_files:
+  - tempo-rules.yaml # 예: automation/check_observability_rules.py 가 만드는 임시 규칙 파일 (spec.groups 만)
+evaluation_interval: 30s
+tests:
+  # 1. 활성 세대 3 의 block-builder 가 0 대가 되면 15분 뒤 그 세대 이름으로 뜹니다. 세대 1 은 3 대라 뜨지 않습니다.
+  - interval: 30s
+    input_series:
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-block-builder"}'
+        values: '3x60'
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-e3-block-builder"}'
+        values: '3 0x59'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts: []
+      - eval_time: 17m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts:
+          - exp_labels: {severity: critical, namespace: monitoring, statefulset: platform-tempo-e3-block-builder}
+            exp_annotations: {summary: platform-tempo-e3-block-builder has fewer than three ready block-builders; check Kafka consumption and S3 flush}
+  # 2. 15분이 되기 전에 3 대로 돌아오면 뜨지 않습니다 (for 경계).
+  - interval: 30s
+    input_series:
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-e3-block-builder"}'
+        values: '3 0x20 3x39'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts: []
+  # 3. firing 뒤 3 대로 복구되면 다음 평가부터 해제됩니다.
+  - interval: 30s
+    input_series:
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-e2-block-builder"}'
+        values: '0x40 3x20'
+    alert_rule_test:
+      - eval_time: 19m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts:
+          - exp_labels: {severity: critical, namespace: monitoring, statefulset: platform-tempo-e2-block-builder}
+            exp_annotations: {summary: platform-tempo-e2-block-builder has fewer than three ready block-builders; check Kafka consumption and S3 flush}
+      - eval_time: 25m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts: []
+  # 4. 세대 이름 규칙에 맞지 않는 StatefulSet 은 보지 않습니다 (다른 release 이름).
+  - interval: 30s
+    input_series:
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="other-tempo-block-builder"}'
+        values: '0x60'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: TempoBlockBuilderNotConsuming
+        exp_alerts: []
+  # 5. 세대 3 의 live-store zone 하나가 0 대면 10분 뒤 그 zone 이름으로 뜹니다 (세대 1 이름에만 걸리던 옛 식은 뜨지 않음).
+  - interval: 30s
+    input_series:
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-e3-live-store-zone-a"}'
+        values: '1 0x59'
+      - series: 'kube_statefulset_status_replicas_ready{namespace="monitoring", statefulset="platform-tempo-live-store-zone-a"}'
+        values: '1x60'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: TempoLiveStoreZoneDown
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: monitoring, statefulset: platform-tempo-e3-live-store-zone-a}
+            exp_annotations: {summary: platform-tempo-e3-live-store-zone-a has no ready replica}
