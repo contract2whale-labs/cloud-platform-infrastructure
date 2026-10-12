@@ -16,7 +16,7 @@ variable "expected_account_id" {
 # 다른 리전으로 옮기려면 리전과 AZ 입력 계약을 함께 변경해야 합니다.
 variable "region" {
   description = "AWS region for this chapter; only ap-northeast-2 is supported."
-  type        = string # 예: "ap-northeast-2" 리전 코드 문자열
+  type        = string           # 예: "ap-northeast-2" 리전 코드 문자열
   default     = "ap-northeast-2" # 기본값: "ap-northeast-2"
   nullable    = false
 
