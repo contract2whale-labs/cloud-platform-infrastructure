@@ -1,0 +1,6 @@
+# terraform.tfvars.example — dev bootstrap/state 루트 모듈
+# terraform.tfvars 로 복사한 뒤 실제 Dev 계정 ID 와 소유할 버킷 이름으로 바꿉니다. terraform.tfvars 는 커밋하지 않습니다.
+
+expected_account_id = "111111111111"                     # 예: "111111111111" (work/lab.env의 DEV_ACCOUNT_ID와 대조)
+region              = "ap-northeast-2"                   # 예: "ap-northeast-2" (work/lab.env 의 AWS_REGION)
+state_bucket_name   = "company-dev-tfstate-111111111111" # 예: 계정 ID를 붙인 공유 네임스페이스 이름 후보; 실제 생성 때 유일성 확정

@@ -1,0 +1,10 @@
+# backend.hcl.example — prod bootstrap/state 루트 모듈
+# backend.hcl 로 복사한 뒤 bucket 과 allowed_account_ids 를 Prod bootstrap 출력값으로 바꿉니다. backend.hcl 은 커밋하지 않습니다.
+# 사용: terraform init -backend-config=backend.hcl   (lab.sh 의 up · down 도 같은 방식으로 초기화)
+
+bucket              = "company-prod-tfstate-222222222222" # 예: terraform output -raw state_bucket_name 의 값 (Prod)
+key                 = "bootstrap/state/terraform.tfstate" # 예: Dev 와 같은 key (버킷과 계정이 환경을 구분)
+region              = "ap-northeast-2"                    # 예: terraform output -raw state_region 의 값
+encrypt             = true                                # 예: true (State 객체 저장 암호화 요청)
+use_lockfile        = true                                # 예: true (State key 뒤 .tflock 객체로 동시 실행 차단; DynamoDB 불필요)
+allowed_account_ids = ["222222222222"]                    # 예: terraform output -raw expected_account_id 의 값 (Prod)

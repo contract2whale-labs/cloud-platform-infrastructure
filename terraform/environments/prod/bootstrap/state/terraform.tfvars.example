@@ -1,0 +1,6 @@
+# terraform.tfvars.example — prod bootstrap/state 루트 모듈
+# terraform.tfvars 로 복사한 뒤 실제 Prod 계정 ID 와 소유할 버킷 이름으로 바꿉니다. Dev 값과 반드시 달라야 합니다.
+
+expected_account_id = "222222222222"                      # 예: work/lab.env 의 PROD_ACCOUNT_ID (12자리, Dev 와 다른 계정)
+region              = "ap-northeast-2"                    # 예: "ap-northeast-2" (Dev 와 같아도 됨)
+state_bucket_name   = "company-prod-tfstate-222222222222" # 예: Prod 계정 ID 를 붙인 이름 (Dev 버킷과 다른 이름)

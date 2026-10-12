@@ -1,7 +1,6 @@
 {
   "roots": [
     {"env": "dev", "path": "terraform/environments/dev/bootstrap/state"},
-    {"env": "dev", "path": "terraform/environments/dev/bootstrap/ci-identity"},
     {"env": "dev", "path": "terraform/environments/dev/account-baseline"},
     {"env": "dev", "path": "terraform/environments/dev/account-baseline-dns"},
     {"env": "dev", "path": "terraform/environments/dev/account-integrations"},
@@ -25,7 +24,6 @@
     {"env": "dev", "path": "terraform/environments/dev/platform/queue-association"},
     {"env": "dev", "path": "terraform/environments/dev/platform/queue-secrets"},
     {"env": "prod", "path": "terraform/environments/prod/bootstrap/state"},
-    {"env": "prod", "path": "terraform/environments/prod/bootstrap/ci-identity"},
     {"env": "prod", "path": "terraform/environments/prod/account-baseline"},
     {"env": "prod", "path": "terraform/environments/prod/account-baseline-dns"},
     {"env": "prod", "path": "terraform/environments/prod/network/vpc"},
