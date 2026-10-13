@@ -87,9 +87,9 @@ resource "aws_eip" "lab_nat" {
 }
 
 resource "aws_nat_gateway" "lab" {
-  for_each      = toset(local.lab_nat_azs) # 예: AZ 이름이 키 (목록 순서가 바뀌어도 주소가 유지됨)
-  allocation_id = aws_eip.lab_nat[each.key].id                                       # 예: 같은 AZ 키의 EIP
-  subnet_id     = module.vpc.public_subnets[index(var.availability_zones, each.key)] # 예: 같은 AZ 의 Public 서브넷
+  for_each      = toset(local.lab_nat_azs)                                                 # 예: AZ 이름이 키 (목록 순서가 바뀌어도 주소가 유지됨)
+  allocation_id = aws_eip.lab_nat[each.key].id                                             # 예: 같은 AZ 키의 EIP
+  subnet_id     = module.vpc.public_subnets[index(var.availability_zones, each.key)]       # 예: 같은 AZ 의 Public 서브넷
   tags          = merge(local.common_tags, { Name = "${local.vpc_name}-nat-${each.key}" }) # 예: "cp-dev-nat-ap-northeast-2a"
 
   depends_on = [module.vpc] # 예: IGW 와 Public 경로가 먼저 준비되어야 NAT 가 외부와 통신
