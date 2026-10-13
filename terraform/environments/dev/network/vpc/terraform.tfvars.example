@@ -1,0 +1,6 @@
+expected_account_id = "111111111111" # 예: 실제 Dev 계정 ID 12자리
+region              = "ap-northeast-2"        # 예: "ap-northeast-2"
+environment         = "dev"                   # 예: "dev" (VPC 이름이 cp-dev 가 됩니다)
+vpc_cidr            = "172.20.0.0/16"         # 예: 다른 네트워크와 겹치지 않는 사설 /16
+
+availability_zones = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
