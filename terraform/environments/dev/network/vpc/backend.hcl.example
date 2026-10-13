@@ -1,0 +1,10 @@
+# backend.hcl.example — dev network/vpc 루트 모듈
+# CI backend 항목을 확인하는 예시입니다. 로컬 backend.hcl 로 복사하지 않습니다.
+# 실제 값은 BU01의 Dev Environment 설정을 사용합니다.
+
+bucket              = "company-dev-tfstate-111111111111" # 예: state 이 만든 Dev State 버킷 (공유)
+key                 = "network/vpc/terraform.tfstate"    # 예: 이 루트 모듈 전용 key (다른 루트 모듈과 겹치면 안 됨)
+region              = "ap-northeast-2"                   # 예: 버킷이 있는 리전
+encrypt             = true                               # 예: true (State 객체 저장 암호화)
+use_lockfile        = true                               # 예: true (State key 뒤 .tflock 객체로 동시 실행 차단)
+allowed_account_ids = ["111111111111"]                   # 예: ["111111111111"] (State 접근 계정 제한)
