@@ -27,7 +27,7 @@ resource "aws_iam_policy" "vpc_read" {
         "ec2:DescribeNetworkAcls", "ec2:DescribeNetworkInterfaces",
         "ec2:DescribeRouteTables", "ec2:DescribeSecurityGroups",
         "ec2:DescribeSecurityGroupRules", "ec2:DescribeSubnets",
-        "ec2:DescribeTags", "ec2:DescribeVpcAttribute", "ec2:DescribeVpcs","ec2:DescribeAddressesAttribute",
+        "ec2:DescribeTags", "ec2:DescribeVpcAttribute", "ec2:DescribeVpcs", "ec2:DescribeAddressesAttribute",
       ]
       Resource  = "*"
       Condition = local.vpc_ci_region
@@ -57,7 +57,7 @@ resource "aws_iam_policy" "vpc_write" {
           }
         }
       },
-     {
+      {
         # 지정 리전에서 EIP 연결 해제를 허용합니다.
         Sid       = "DisassociateVpcElasticIp"
         Effect    = "Allow"
