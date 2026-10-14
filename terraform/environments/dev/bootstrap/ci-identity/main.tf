@@ -89,7 +89,7 @@ data "aws_iam_policy_document" "state_read" {
 
   statement {
     sid       = "ReadStateObjects"
-    actions   = ["s3:GetObject"]
+    actions   = ["s3:GetObject", "s3:GetObjectVersion"]
     resources = local.state_object_arns
   }
 
