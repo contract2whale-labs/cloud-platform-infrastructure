@@ -92,7 +92,7 @@ jobs:
             -backend-config="use_lockfile=true" > "$PRIVATE/init.log" 2>&1
           test "$(terraform -chdir="$ROOT" workspace show)" = default
           terraform -chdir="$ROOT" state pull > "$PRIVATE/state.json" 2> "$PRIVATE/state.log"
-          # Down은 기존 VPC/NAT State가 필수이고, Up은 삭제 후 빈 AWS State만 받습니다.
+          # Down은 부분 삭제 및 빈 State 재시도를 허용하고, Up은 빈 AWS State만 받습니다.
           python3 - <<'PY'
           import json, os, subprocess
           from pathlib import Path
@@ -102,12 +102,45 @@ jobs:
           rs = [r for r in state.get("resources", []) if r.get("mode") == "managed" and r.get("instances")]
           assert all(r["type"] in allowed for r in rs), "VPC 외 State 자원: 중단"
           if os.environ["OPERATION"] == "down":
-              vpcs = [i["attributes"]["id"] for r in rs if r["type"] == "aws_vpc" for i in r["instances"]]
-              assert len(vpcs) == 1 and any(r["type"] == "aws_nat_gateway" for r in rs), "완료된 BU02 State 필요"
-              raw = subprocess.check_output(["aws", "ec2", "describe-network-interfaces", "--filters", "Name=vpc-id,Values=" + vpcs[0]], stderr=subprocess.DEVNULL)
-              enis = json.loads(raw)["NetworkInterfaces"]
-              owned = {i["attributes"]["network_interface_id"] for r in rs if r["type"] == "aws_nat_gateway" for i in r["instances"]}
-              assert all(x.get("InterfaceType") == "nat_gateway" for x in enis) and {x["NetworkInterfaceId"] for x in enis} == owned, "State 밖 ENI/NAT 의존성: 중단"
+              # State is the ownership boundary; absent resources are reconciled by plan refresh.
+              instances = [(r["type"], i["attributes"]) for r in rs for i in r["instances"]]
+              vpc_ids = {a["id"] for t, a in instances if t == "aws_vpc"}
+              vpc_ids |= {a["vpc_id"] for _, a in instances if a.get("vpc_id")}
+              nat_ids = {a["id"] for t, a in instances if t == "aws_nat_gateway"}
+              eip_ids = {a["id"] for t, a in instances if t == "aws_eip"}
+              assert len(vpc_ids) <= 1, "여러 VPC가 섞인 State: 중단"
+
+              def ec2(command, *args):
+                  raw = subprocess.check_output(
+                      ["aws", "ec2", command, *args, "--region", os.environ["AWS_REGION"], "--output", "json"],
+                      stderr=subprocess.DEVNULL,
+                  )
+                  return json.loads(raw)
+
+              if vpc_ids or nat_ids or eip_ids:
+                  # A regional read avoids treating access errors as resource absence.
+                  nats = ec2("describe-nat-gateways")["NatGateways"]
+                  live_nats = [n for n in nats if n["State"] != "deleted"]
+                  owned_nats = [n for n in live_nats if n["NatGatewayId"] in nat_ids]
+                  vpc_ids |= {n["VpcId"] for n in owned_nats}
+                  assert len(vpc_ids) <= 1, "State NAT의 VPC 불일치: 중단"
+                  assert all(n["NatGatewayId"] in nat_ids for n in live_nats if n["VpcId"] in vpc_ids), "State 밖 NAT: 중단"
+                  owned_enis = {a["NetworkInterfaceId"] for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("NetworkInterfaceId")}
+                  owned_eip_enis = {(a["AllocationId"], a["NetworkInterfaceId"]) for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("AllocationId") and a.get("NetworkInterfaceId")}
+                  assert all(a["AllocationId"] in eip_ids for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("AllocationId")), "State 밖 NAT EIP: 중단"
+                  for vpc_id in sorted(vpc_ids):
+                      live_vpcs = ec2("describe-vpcs", "--filters", "Name=vpc-id,Values=" + vpc_id)["Vpcs"]
+                      if not live_vpcs:
+                          continue
+                      enis = ec2("describe-network-interfaces", "--filters", "Name=vpc-id,Values=" + vpc_id)["NetworkInterfaces"]
+                      assert all(e.get("InterfaceType") == "nat_gateway" and e["NetworkInterfaceId"] in owned_enis for e in enis), "State 밖 ENI 의존성: 중단"
+                  if eip_ids:
+                      addresses = ec2("describe-addresses", "--filters", "Name=allocation-id,Values=" + ",".join(sorted(eip_ids)))["Addresses"]
+                      assert all(a["AllocationId"] in eip_ids for a in addresses)
+                      for a in addresses:
+                          unassociated = not a.get("AssociationId") and not a.get("NetworkInterfaceId")
+                          owned_nat = (a["AllocationId"], a.get("NetworkInterfaceId")) in owned_eip_enis
+                          assert unassociated or owned_nat, "State EIP가 외부 자원에 연결됨: 중단"
           else:
               assert not any(r["type"].startswith("aws_") for r in rs), "Up 전에 Down 완료 필요"
           PY
@@ -125,7 +158,7 @@ jobs:
           allowed = set("aws_vpc aws_subnet aws_internet_gateway aws_eip aws_nat_gateway aws_route aws_route_table aws_route_table_association aws_default_route_table aws_default_security_group aws_default_network_acl aws_network_acl aws_network_acl_rule terraform_data".split())
           actions = {"delete", "no-op", "read"} if os.environ["OPERATION"] == "down" else {"create", "no-op", "read"}
           changes = [r for r in plan.get("resource_changes", []) if r.get("mode") == "managed"]
-          assert changes and all(r["type"] in allowed and set(r["change"]["actions"]) <= actions for r in changes), "범위 밖 plan: 중단"
+          assert (changes or os.environ["OPERATION"] == "down") and all(r["type"] in allowed and set(r["change"]["actions"]) <= actions for r in changes), "범위 밖 plan: 중단"
           for k, v in {"environment":"dev", "region":"ap-northeast-2", "expected_account_id":"004161356469", "state_bucket_name":os.environ["BUCKET"]}.items():
               if k in plan.get("variables", {}):
                   assert plan["variables"][k]["value"] == v, "대상 입력 불일치"
