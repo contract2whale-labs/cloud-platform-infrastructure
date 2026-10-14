@@ -1,0 +1,178 @@
+{
+  "dependencies": {
+    "terraform/environments/dev/bootstrap/state": [],
+    "terraform/environments/dev/account-baseline": [
+      "terraform/environments/dev/bootstrap/state"
+    ],
+    "terraform/environments/dev/account-baseline-dns": [],
+    "terraform/environments/dev/account-integrations": [
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/platform/operations",
+      "terraform/environments/dev/retained/account-integrations"
+    ],
+    "terraform/environments/dev/network/vpc": [
+      "terraform/environments/dev/network/log-storage"
+    ],
+    "terraform/environments/dev/network/transit": [
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/network/peer"
+    ],
+    "terraform/environments/dev/network/peer": [],
+    "terraform/environments/dev/eks": [
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/platform/private-api"
+    ],
+    "terraform/environments/dev/data": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/delivery",
+      "terraform/environments/dev/retained/data"
+    ],
+    "terraform/environments/dev/delivery": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/account-baseline",
+      "terraform/environments/dev/platform/operations",
+      "terraform/environments/dev/platform/app-auth",
+      "terraform/environments/dev/retained/delivery"
+    ],
+    "terraform/environments/dev/identity": [
+      "terraform/environments/dev/data",
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/platform/operations"
+    ],
+    "terraform/environments/dev/platform/alerting": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/platform/operations"
+    ],
+    "terraform/environments/dev/platform/app-auth": [],
+    "terraform/environments/dev/platform/core": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/account-baseline-dns"
+    ],
+    "terraform/environments/dev/platform/dev-app-access": [
+      "terraform/environments/dev/platform/private-api",
+      "terraform/environments/dev/platform/gateway"
+    ],
+    "terraform/environments/dev/platform/edge": [
+      "terraform/environments/dev/platform/gateway"
+    ],
+    "terraform/environments/dev/platform/gateway": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/account-baseline-dns",
+      "terraform/environments/dev/network/vpc"
+    ],
+    "terraform/environments/dev/platform/observability": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/platform/operations",
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/account-baseline",
+      "terraform/environments/dev/retained/observability-foundation"
+    ],
+    "terraform/environments/dev/platform/operations": [
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/retained/operations"
+    ],
+    "terraform/environments/dev/platform/private-api": [
+      "terraform/environments/dev/network/vpc"
+    ],
+    "terraform/environments/dev/platform/queue": [
+      "terraform/environments/dev/network/vpc",
+      "terraform/environments/dev/eks",
+      "terraform/environments/dev/retained/queue-managed"
+    ],
+    "terraform/environments/dev/platform/queue-association": [
+      "terraform/environments/dev/platform/queue"
+    ],
+    "terraform/environments/dev/platform/queue-secrets": [
+      "terraform/environments/dev/platform/queue",
+      "terraform/environments/dev/platform/operations"
+    ],
+    "terraform/environments/prod/bootstrap/state": [],
+    "terraform/environments/prod/account-baseline": [
+      "terraform/environments/prod/bootstrap/state"
+    ],
+    "terraform/environments/prod/account-baseline-dns": [],
+    "terraform/environments/prod/network/vpc": [
+      "terraform/environments/prod/network/log-storage"
+    ],
+    "terraform/environments/prod/eks": [
+      "terraform/environments/prod/network/vpc",
+      "terraform/environments/prod/platform/private-api"
+    ],
+    "terraform/environments/prod/data": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/network/vpc",
+      "terraform/environments/prod/delivery",
+      "terraform/environments/prod/retained/data"
+    ],
+    "terraform/environments/prod/delivery": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/account-baseline",
+      "terraform/environments/prod/platform/operations",
+      "terraform/environments/prod/platform/app-auth",
+      "terraform/environments/prod/retained/delivery"
+    ],
+    "terraform/environments/prod/identity": [
+      "terraform/environments/prod/data",
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/platform/operations"
+    ],
+    "terraform/environments/prod/platform/alerting": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/platform/operations"
+    ],
+    "terraform/environments/prod/platform/app-auth": [],
+    "terraform/environments/prod/platform/core": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/account-baseline-dns"
+    ],
+    "terraform/environments/prod/platform/edge": [
+      "terraform/environments/prod/platform/gateway"
+    ],
+    "terraform/environments/prod/platform/gateway": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/account-baseline-dns",
+      "terraform/environments/prod/network/vpc"
+    ],
+    "terraform/environments/prod/platform/observability": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/platform/operations",
+      "terraform/environments/prod/network/vpc",
+      "terraform/environments/prod/account-baseline",
+      "terraform/environments/prod/retained/observability-foundation"
+    ],
+    "terraform/environments/prod/platform/operations": [
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/retained/operations"
+    ],
+    "terraform/environments/prod/platform/private-api": [
+      "terraform/environments/prod/network/vpc"
+    ],
+    "terraform/environments/prod/platform/queue": [
+      "terraform/environments/prod/network/vpc",
+      "terraform/environments/prod/eks",
+      "terraform/environments/prod/retained/queue-managed"
+    ],
+    "terraform/environments/prod/platform/queue-association": [
+      "terraform/environments/prod/platform/queue"
+    ],
+    "terraform/environments/prod/platform/queue-secrets": [
+      "terraform/environments/prod/platform/queue",
+      "terraform/environments/prod/platform/operations"
+    ],
+    "terraform/environments/dev/network/log-storage": [],
+    "terraform/environments/prod/network/log-storage": [],
+    "terraform/environments/dev/retained/operations": [],
+    "terraform/environments/dev/retained/observability-foundation": [],
+    "terraform/environments/dev/retained/queue-managed": [],
+    "terraform/environments/dev/retained/account-integrations": [],
+    "terraform/environments/dev/retained/delivery": [],
+    "terraform/environments/dev/retained/data": [],
+    "terraform/environments/prod/retained/operations": [],
+    "terraform/environments/prod/retained/observability-foundation": [],
+    "terraform/environments/prod/retained/queue-managed": [],
+    "terraform/environments/prod/retained/delivery": [],
+    "terraform/environments/prod/retained/data": [],
+    "terraform/environments/dev/bootstrap/probe-images": []
+  }
+}

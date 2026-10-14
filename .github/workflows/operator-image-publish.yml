@@ -1,0 +1,179 @@
+name: operator-image-publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'operator 이미지를 게시할 승인 환경'
+        required: true
+        type: choice
+        options: [dev, prod]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: operator-image-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    environment: operator-${{ inputs.environment }}-publish
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      TARGET_ENV: ${{ inputs.environment }}
+      EXPECTED_ACCOUNT_ID: ${{ secrets.ACCOUNT_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      STATE_BUCKET: ${{ secrets.STATE_BUCKET }}
+      TOOLCHAIN_IMAGE: ${{ vars.TOOLCHAIN_IMAGE }}
+      OPERATOR_EVIDENCE_BUCKET: ${{ secrets.OPERATOR_EVIDENCE_BUCKET }}
+      OPERATOR_EVIDENCE_KMS_KEY_ARN: ${{ secrets.OPERATOR_EVIDENCE_KMS_KEY_ARN }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: 승인한 main과 고정 도구 입력 확인
+        shell: bash
+        run: |
+          set -euo pipefail
+          # 승인한 main 실행과 환경을 확인합니다.
+          test "$GITHUB_REF" = refs/heads/main
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
+          case "$TARGET_ENV" in dev|prod) ;; *) exit 1 ;; esac
+          [[ "$EXPECTED_ACCOUNT_ID" =~ ^[0-9]{12}$ ]]
+          test "$AWS_REGION" = ap-northeast-2
+          [[ "$TOOLCHAIN_IMAGE" =~ ^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[0-9a-f]{64}$ ]]
+          [[ "$STATE_BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
+          [[ "$OPERATOR_EVIDENCE_BUCKET" =~ ^[a-z0-9][a-z0-9.-]{1,61}[a-z0-9]$ ]]
+          [[ "$OPERATOR_EVIDENCE_KMS_KEY_ARN" =~ ^arn:aws:kms:ap-northeast-2:${EXPECTED_ACCOUNT_ID}:key/[a-zA-Z0-9-]+$ ]]
+          # 이미지 pull과 필수 도구 확인에는 AWS 게시 권한을 사용하지 않습니다.
+          docker pull "$TOOLCHAIN_IMAGE" > /dev/null
+          docker run --rm --entrypoint bash "$TOOLCHAIN_IMAGE" -ceu '
+            for tool in terraform aws docker git python3 jq syft cosign; do command -v "$tool" > /dev/null; done
+            test "$(terraform version -json | jq -r .terraform_version)" = 1.16.0
+            aws --version 2>&1 | grep -q "aws-cli/2.36.44 "
+            syft version -o json | jq -e '\''.version == "1.51.1"'\'' > /dev/null
+            cosign version 2>&1 | grep -Eq "GitVersion:[[:space:]]+v3\\.1\\.3([[:space:]]|$)"
+            python3 -c "import boto3"
+          '
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ secrets.ACCOUNT_ID }}
+          mask-aws-account-id: true
+      - name: 이미지 게시·서명 검증·보호 receipt 저장
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          # 원문 출력과 비밀이 공개 Actions 로그로 나가지 않도록 보존 경로를 분리합니다.
+          log="$RUNNER_TEMP/operator-private.log"
+          rc=0
+          docker run --rm -i --user 0:0 --entrypoint bash \
+            -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -w "$GITHUB_WORKSPACE" \
+            -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN \
+            -e AWS_REGION -e AWS_DEFAULT_REGION -e TARGET_ENV -e EXPECTED_ACCOUNT_ID \
+            -e STATE_BUCKET -e GITHUB_SHA -e GITHUB_RUN_ID -e GITHUB_REPOSITORY \
+            -e OPERATOR_EVIDENCE_BUCKET -e OPERATOR_EVIDENCE_KMS_KEY_ARN \
+            -e TOOLCHAIN_IMAGE -e GITHUB_WORKSPACE \
+            "$TOOLCHAIN_IMAGE" -se <<'BASH' > "$log" 2>&1 || rc=$?
+          set -euo pipefail
+          umask 077
+          # 같은 SHA의 checkout과 OIDC 계정을 검증합니다.
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+          test "$(aws sts get-caller-identity --query Account --output text)" = "$EXPECTED_ACCOUNT_ID"
+          unset AWS_PROFILE AWS_DEFAULT_PROFILE TF_LOG TF_LOG_PATH
+          # 두 선행 State는 읽기만 합니다. plan/apply와 이관은 실행하지 않습니다.
+          for root in data delivery; do
+            path="terraform/environments/$TARGET_ENV/$root"
+            test -f "$path/.terraform.lock.hcl"
+            {
+              echo "bucket = \"$STATE_BUCKET\""
+              echo "key = \"$root/terraform.tfstate\""
+              echo "region = \"$AWS_REGION\""
+              echo 'encrypt = true'
+              echo 'use_lockfile = true'
+              echo "allowed_account_ids = [\"$EXPECTED_ACCOUNT_ID\"]"
+            } > "$path/backend.hcl"
+            terraform -chdir="$path" init -input=false -lockfile=readonly -backend-config=backend.hcl
+            test "$(terraform -chdir="$path" workspace show)" = default
+          done
+          # 불변 source tag가 이미 있으면 자동 재게시하지 않습니다.
+          python3 - <<'PY'
+          import json, os, subprocess
+          import boto3
+          from botocore.exceptions import ClientError
+          root=f"terraform/environments/{os.environ['TARGET_ENV']}/data"
+          data=json.loads(subprocess.check_output(['terraform',f'-chdir={root}','output','-json','data_contract']))
+          ecr=boto3.client('ecr')
+          meta=ecr.describe_repositories(repositoryNames=[data['operator']['repository_name']])['repositories']
+          if len(meta) != 1 or meta[0]['imageTagMutability'] != 'IMMUTABLE':
+              raise SystemExit('Operator ECR must use strict immutable tags.')
+          try:
+              ecr.describe_images(repositoryName=data['operator']['repository_name'],imageIds=[{'imageTag':os.environ['GITHUB_SHA']}])
+          except ClientError as exc:
+              if exc.response['Error']['Code'] != 'ImageNotFoundException':
+                  raise
+          else:
+              raise SystemExit('Source tag already exists; investigate publication before a retry.')
+          PY
+          # BU13에 전문이 있는 실제 publisher와 verifier를 순서대로 실행합니다.
+          receipt="work/protected/operator-publication.json"
+          python3 automation/publish_operator_image.py \
+            --environment "$TARGET_ENV" --expect-account "$EXPECTED_ACCOUNT_ID" \
+            --region "$AWS_REGION" --approved-revision "$GITHUB_SHA" --receipt "$receipt"
+          digest="$(jq -er '.operator_image_digest' "$receipt")"
+          python3 automation/verify_operator_image.py \
+            --environment "$TARGET_ENV" --expect-account "$EXPECTED_ACCOUNT_ID" \
+            --region "$AWS_REGION" --digest "$digest" \
+            --tfvars work/protected/operator-image.tfvars.json
+          # State/비밀/원문 로그는 올리지 않습니다. receipt와 digest 입력만 보호 S3에 보존합니다.
+          prefix="operator-publication/$TARGET_ENV/$GITHUB_RUN_ID"
+          for file in operator-publication.json operator-image.tfvars.json; do
+            aws s3 cp "work/protected/$file" "s3://$OPERATOR_EVIDENCE_BUCKET/$prefix/$file" \
+              --sse aws:kms --sse-kms-key-id "$OPERATOR_EVIDENCE_KMS_KEY_ARN" --only-show-errors
+          done
+          jq -n --arg sha "$GITHUB_SHA" --arg image "$TOOLCHAIN_IMAGE" --arg run "$GITHUB_RUN_ID" \
+            '{source_revision:$sha,toolchain_image:$image,run_id:$run}' > work/protected/operator-run.json
+          aws s3 cp work/protected/operator-run.json "s3://$OPERATOR_EVIDENCE_BUCKET/$prefix/operator-run.json" \
+            --sse aws:kms --sse-kms-key-id "$OPERATOR_EVIDENCE_KMS_KEY_ARN" --only-show-errors
+          # 공개 Summary에는 비밀이 없는 digest와 source SHA만 남깁니다.
+          echo "$digest" > work/protected/operator-digest.txt
+          BASH
+          if [ "$rc" -ne 0 ]; then
+            echo 'Operator publication failed. Do not retry blindly: an image or signature may already exist.' >&2
+            exit "$rc"
+          fi
+          # 성공한 runner 파일에서 digest를 읽고 형식을 검증합니다.
+          digest="$(sudo cat -- work/protected/operator-digest.txt)"
+          [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]
+          # AWS 계정·repository·서명 key ARN을 공개하지 않습니다.
+          {
+            echo "source SHA: $GITHUB_SHA"
+            echo "environment: $TARGET_ENV"
+            echo "verified digest: $digest"
+            echo 'Protected S3 receipt stored; identity input PR is the next step.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: 임시 인증·State cache·원문 로그 정리
+        if: always()
+        shell: bash
+        run: |
+          # 임시 runner에만 있는 작업 파일을 정리합니다. AWS artifact는 삭제하지 않습니다.
+          sudo rm -rf -- work/protected/operator-publication.json work/protected/operator-image.tfvars.json \
+            work/protected/operator-run.json work/protected/operator-digest.txt
+          sudo rm -f -- "$RUNNER_TEMP/operator-private.log"
+          for root in data delivery; do
+            sudo rm -rf -- "terraform/environments/$TARGET_ENV/$root/.terraform"
+            sudo rm -f -- "terraform/environments/$TARGET_ENV/$root/backend.hcl"
+          done

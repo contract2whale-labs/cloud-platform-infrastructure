@@ -1,0 +1,101 @@
+name: aws-fixed-operations
+'on':
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: 검토한 BU16 고정 대상 작업
+        required: true
+        type: choice
+        options:
+        - metrics-deny-remove
+        - metrics-deny-rollback
+        - trace-deny-remove
+        - trace-deny-rollback
+        - nodegroup-limit
+        - nodegroup-restore
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  plan:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container:
+      image: ${{ vars.LIFECYCLE_TOOLCHAIN_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    environment: aws-ops-dev-plan
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env:
+      OPERATION: ${{ inputs.operation }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      AWS_OPERATIONS_JSON: ${{ secrets.AWS_OPERATIONS_JSON }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+        role-duration-seconds: 3600
+        mask-aws-account-id: true
+    - id: plan
+      run: python3 ci/aws-fixed-operations.py plan
+    outputs:
+      manifest_key: ${{ steps.plan.outputs.manifest_key }}
+      manifest_version: ${{ steps.plan.outputs.manifest_version }}
+      manifest_sha: ${{ steps.plan.outputs.manifest_sha }}
+  apply:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    container:
+      image: ${{ vars.LIFECYCLE_TOOLCHAIN_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    environment: aws-ops-dev-apply
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    env:
+      OPERATION: ${{ inputs.operation }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      AWS_OPERATIONS_JSON: ${{ secrets.AWS_OPERATIONS_JSON }}
+      GH_TOKEN: ${{ github.token }}
+      MANIFEST_KEY: ${{ needs.plan.outputs.manifest_key }}
+      MANIFEST_VERSION: ${{ needs.plan.outputs.manifest_version }}
+      MANIFEST_SHA: ${{ needs.plan.outputs.manifest_sha }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+        role-duration-seconds: 3600
+        mask-aws-account-id: true
+    - id: apply
+      run: python3 ci/aws-fixed-operations.py apply
+    needs: plan

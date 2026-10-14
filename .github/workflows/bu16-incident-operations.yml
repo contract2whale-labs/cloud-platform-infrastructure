@@ -1,0 +1,113 @@
+name: bu16-incident-operations
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, prod]
+        required: true
+      operation:
+        type: choice
+        options: [query-pod-create, selfheal-demo, selfheal-restore, builder-cycle, builder-restore, job-cleanup, ecr-cleanup, pitr-read-source, pitr-read-restored, pitr-fix-row, pitr-read-after, pool-diagnostic, db-connect-during, db-connect-after, db-connect-cleanup, demand-scale, demand-restore, t8-pdb-cleanup, t8a-cleanup, query-pod-cleanup, probe-configmap-cleanup, fixture-t3-cycle, fixture-t3-restore, fixture-t3-cleanup, fixture-t4-cycle, fixture-t4-restore, fixture-t4-cleanup, fixture-t5-cycle, fixture-t5-restore, fixture-t5-cleanup, fixture-t6-cycle, fixture-t6-restore, fixture-t6-cleanup, node-protection-cycle, node-protection-restore, node-drain-cycle, node-drain-restore, mesh-probes-create, mesh-probes-cleanup, collection-probe-create, collection-probe-cleanup, seed-readback-create, seed-readback-cleanup, trace-probe-create, trace-probe-cleanup, application-strict-cycle, application-strict-restore, grafana-secret-refresh, notification-probe-create, notification-probe-cleanup, database-bootstrap, database-bootstrap-observe, database-bootstrap-cleanup, velero-lab-backup, velero-lab-restore, velero-lab-cleanup, managed-queue-setup, database-protection-disable, database-protection-restore, argo-collection-log-retire, argo-queue-admin-dev-retire, argo-queue-admin-prod-retire, argo-backup-probe-retire, argo-commerce-config-retire, argo-platform-policies-selective, argo-collection-log-prod-retire, producer-acl-cycle, producer-acl-recover, s3-endpoint-policy-recover]
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  select:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.select.outputs.image }}
+      gate: ${{ steps.select.outputs.gate }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: select
+        env:
+          TARGET: ${{ inputs.environment }}
+          OPERATION: ${{ inputs.operation }}
+        run: python3 ci/gitops/operations/select.py
+  plan:
+    needs: select
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: incident-${{ inputs.environment }}-plan
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    outputs:
+      manifest_key: ${{ steps.plan.outputs.manifest_key }}
+      manifest_version: ${{ steps.plan.outputs.manifest_version }}
+      manifest_sha: ${{ steps.plan.outputs.manifest_sha }}
+      plan_sha: ${{ steps.plan.outputs.plan_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.INCIDENT_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          mask-aws-account-id: true
+          role-duration-seconds: 3600
+      - id: plan
+        env:
+          TARGET: ${{ inputs.environment }}
+          OPERATION: ${{ inputs.operation }}
+          AWS_ROLE_ARN: ${{ vars.INCIDENT_ROLE_ARN }}
+          GH_TOKEN: ${{ github.token }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+        run: python3 ci/gitops/operations/incident_ops.py --stage plan --environment "$TARGET" --operation "$OPERATION"
+  apply:
+    needs: [select, plan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: ${{ needs.select.outputs.gate }}
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.INCIDENT_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          mask-aws-account-id: true
+          role-duration-seconds: 3600
+      - name: Apply only the approved immutable action
+        env:
+          TARGET: ${{ inputs.environment }}
+          OPERATION: ${{ inputs.operation }}
+          AWS_ROLE_ARN: ${{ vars.INCIDENT_ROLE_ARN }}
+          GH_TOKEN: ${{ github.token }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          MANIFEST_KEY: ${{ needs.plan.outputs.manifest_key }}
+          MANIFEST_VERSION: ${{ needs.plan.outputs.manifest_version }}
+          EXPECTED_MANIFEST_SHA: ${{ needs.plan.outputs.manifest_sha }}
+          EXPECTED_PLAN_SHA: ${{ needs.plan.outputs.plan_sha }}
+        run: python3 ci/gitops/operations/incident_ops.py --stage apply --environment "$TARGET" --operation "$OPERATION"

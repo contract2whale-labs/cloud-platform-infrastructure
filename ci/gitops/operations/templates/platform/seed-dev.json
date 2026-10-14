@@ -1,0 +1,77 @@
+[
+  {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+      "name": "seed-readback",
+      "namespace": "contract2whale-demo"
+    },
+    "spec": {
+      "ttlSecondsAfterFinished": 600,
+      "backoffLimit": 0,
+      "activeDeadlineSeconds": 120,
+      "template": {
+        "metadata": {
+          "labels": {
+            "app.kubernetes.io/name": "database-operator-check"
+          }
+        },
+        "spec": {
+          "restartPolicy": "Never",
+          "automountServiceAccountToken": false,
+          "nodeSelector": {
+            "workload": "app"
+          },
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "readback",
+              "image": "111111111111.dkr.ecr.ap-northeast-2.amazonaws.com/contract2whale/database-operator@sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef",
+              "command": [
+                "sh",
+                "-ec",
+                "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -tAc 'select count(*) from product'\npsql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -tAc \"select token from api_key where type = 'publishable'\"\n"
+              ],
+              "env": [
+                {
+                  "name": "PGSSLMODE",
+                  "value": "verify-full"
+                },
+                {
+                  "name": "PGSSLROOTCERT",
+                  "value": "/opt/contract2whale/certs/rds-global-bundle.pem"
+                },
+                {
+                  "name": "PGOPTIONS",
+                  "value": "-c default_transaction_read_only=on"
+                }
+              ],
+              "envFrom": [
+                {
+                  "secretRef": {
+                    "name": "commerce-api-migration"
+                  }
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

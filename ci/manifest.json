@@ -1,0 +1,687 @@
+{
+  "schema": 1,
+  "status": "proposal_only_not_registered",
+  "roots": {
+    "account-integrations": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "var__operations_contract": "var.operations_contract",
+        "var__expected_account_id": "var.expected_account_id",
+        "var__region": "var.region"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_s3_bucket.reports",
+          "to": "module.retained.aws_s3_bucket.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_ownership_controls.reports",
+          "to": "module.retained.aws_s3_bucket_ownership_controls.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_policy.reports",
+          "to": "module.retained.aws_s3_bucket_policy.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_public_access_block.reports",
+          "to": "module.retained.aws_s3_bucket_public_access_block.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_server_side_encryption_configuration.reports",
+          "to": "module.retained.aws_s3_bucket_server_side_encryption_configuration.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_versioning.reports",
+          "to": "module.retained.aws_s3_bucket_versioning.reports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_cloudwatch_metric_alarm.log_queue_age",
+        "aws_cloudwatch_metric_alarm.platform_log_volume",
+        "aws_iam_role.external_log_consumer",
+        "aws_iam_role_policy.external_log_consumer",
+        "aws_s3_bucket_notification.network_logs",
+        "aws_sns_topic.platform",
+        "aws_sns_topic_policy.platform",
+        "aws_sns_topic_subscription.email",
+        "aws_sqs_queue.logs",
+        "aws_sqs_queue_policy.logs",
+        "terraform_data.contract"
+      ],
+      "source_files": {
+        "modules/account-integrations/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/01-BU11-T1-inputs-and-reports-bucket.md",
+          "line": 109,
+          "sha256": "d56850625ff8b087d660c76f4e00ed588aaa2615c01886a2990a2bfb11547405"
+        },
+        "modules/account-integrations/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/01-BU11-T1-inputs-and-reports-bucket.md",
+          "line": 130,
+          "sha256": "48f183415c47192493d37ea2f23e0aced4aa9baac31fcb6b0bda3c2d64a92abc"
+        },
+        "modules/account-integrations/main.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/01-BU11-T1-inputs-and-reports-bucket.md",
+          "line": 230,
+          "sha256": "f5b505a9eb9bec09c6c37eca8408cd7a25ff5d1b36da9617970e158b953c571a"
+        },
+        "modules/account-integrations/alarms.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/02-BU11-T2-alarms-and-sns.md",
+          "line": 104,
+          "sha256": "a780489ccc75e0c7c1eae6a4e7b3ab6c7cc6e8388dabf2929d0e5625bcfd408e"
+        },
+        "modules/account-integrations/external-log-consumer.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/03-BU11-T3-external-log-consumer.md",
+          "line": 105,
+          "sha256": "d672f2ca1fea5d5f088ef696ff1ac4894d05c1bed0a9225e935e2efcf02681f5"
+        },
+        "modules/account-integrations/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU11/04-BU11-T4-outputs-and-tests.md",
+          "line": 104,
+          "sha256": "cccfb074f7c680f411dc7a76fc001b0a1046e58f696af78a6088624831467e17"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    },
+    "data": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "var__operator_repository_name": "var.operator_repository_name",
+        "local__name_prefix": "local.name_prefix",
+        "var__expected_account_id": "var.expected_account_id",
+        "var__environment": "var.environment",
+        "var__region": "var.region",
+        "local__export_bucket": "local.export_bucket",
+        "local__export_prefix": "local.export_prefix",
+        "local__application_secrets": "local.application_secrets",
+        "local__identifier": "local.identifier"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_ecr_repository.operator",
+          "to": "module.retained.aws_ecr_repository.operator",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_alias.data",
+          "to": "module.retained.aws_kms_alias.data",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_key.data",
+          "to": "module.retained.aws_kms_key.data",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket.exports",
+          "to": "module.retained.aws_s3_bucket.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_lifecycle_configuration.exports",
+          "to": "module.retained.aws_s3_bucket_lifecycle_configuration.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_ownership_controls.exports",
+          "to": "module.retained.aws_s3_bucket_ownership_controls.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_policy.exports",
+          "to": "module.retained.aws_s3_bucket_policy.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_public_access_block.exports",
+          "to": "module.retained.aws_s3_bucket_public_access_block.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_server_side_encryption_configuration.exports",
+          "to": "module.retained.aws_s3_bucket_server_side_encryption_configuration.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_versioning.exports",
+          "to": "module.retained.aws_s3_bucket_versioning.exports",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_secretsmanager_secret.application",
+          "to": "module.retained.aws_secretsmanager_secret.application",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_db_instance.data",
+        "aws_db_parameter_group.data",
+        "aws_db_subnet_group.data",
+        "aws_elasticache_serverless_cache.redis",
+        "aws_iam_role_policy.kyverno_operator_read",
+        "aws_security_group.database",
+        "aws_security_group.redis",
+        "aws_vpc_security_group_ingress_rule.database_from_nodes",
+        "aws_vpc_security_group_ingress_rule.redis_from_nodes",
+        "terraform_data.guard"
+      ],
+      "source_files": {
+        "modules/data/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/01-BU13-T1-data-inputs.md",
+          "line": 124,
+          "sha256": "6ee6ec4d56123cc86def298ece861c4072dd91305279d7f6ce0dd66310a4bea0"
+        },
+        "modules/data/contract.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/01-BU13-T1-data-inputs.md",
+          "line": 357,
+          "sha256": "d6af8ed9140ebdf48666160fae7e89c2adf78c824c4723fec16dd1d2bac51bb6"
+        },
+        "modules/data/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/02-BU13-T2-database-resources.md",
+          "line": 128,
+          "sha256": "644d0582ba8bccb083d0f82c89dd4dab4a75d547bccfeaa15a97a490079c2f5f"
+        },
+        "modules/data/database.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/02-BU13-T2-database-resources.md",
+          "line": 149,
+          "sha256": "533dad6ad082d6569ba95c90dfb7f7c5d4feffa3e09425943f9278ea8bc430d5"
+        },
+        "modules/data/secrets.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/02-BU13-T2-database-resources.md",
+          "line": 311,
+          "sha256": "de282a05fb4daabe7da5181f729ecb0a4c6a69cd1097c81b92565713856c1348"
+        },
+        "modules/data/export.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/02-BU13-T2-database-resources.md",
+          "line": 334,
+          "sha256": "29ebaaef5ad9930d2e372d2a56769532e10abfa1ef05c8e1a37b6f1a9530d6de"
+        },
+        "modules/data/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/03-BU13-T2A-redis-cache.md",
+          "line": 198,
+          "sha256": "4c570ac6eb1bf1b9ef7bba0523a3027d750bf6738a86b257540acb88f46a5a35"
+        },
+        "modules/data/redis.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU13/03-BU13-T2A-redis-cache.md",
+          "line": 123,
+          "sha256": "4a3a5c86975fe72b9dcddb3f78966bd34988522ef5242e0f19842e90a7fda4d8"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    },
+    "delivery": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "var__image_retention_count": "var.image_retention_count",
+        "var__build_tag_expire_days": "var.build_tag_expire_days",
+        "var__untagged_expire_days": "var.untagged_expire_days",
+        "var__manage_registry_scanning": "var.manage_registry_scanning",
+        "var__ecr_repository_names": "var.ecr_repository_names",
+        "local__name_prefix": "local.name_prefix",
+        "var__environment": "var.environment",
+        "var__permissions_boundary_arn": "var.permissions_boundary_arn",
+        "var__github_oidc_provider_arn": "var.github_oidc_provider_arn",
+        "var__expected_account_id": "var.expected_account_id",
+        "local__github_subjects": "local.github_subjects",
+        "local__ci_role_name": "local.ci_role_name",
+        "var__previous_signing_key_id": "var.previous_signing_key_id",
+        "var__region": "var.region",
+        "var__cluster_contract": "var.cluster_contract",
+        "var__gitops_repository": "var.gitops_repository"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_ecr_lifecycle_policy.app",
+          "to": "module.retained.aws_ecr_lifecycle_policy.app",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_ecr_registry_scanning_configuration.account",
+          "to": "module.retained.aws_ecr_registry_scanning_configuration.account",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_ecr_repository.app",
+          "to": "module.retained.aws_ecr_repository.app",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_iam_role.ci",
+          "to": "module.retained.aws_iam_role.ci",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_iam_role_policy.ci",
+          "to": "module.retained.aws_iam_role_policy.ci",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_alias.signing",
+          "to": "module.retained.aws_kms_alias.signing",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_alias.signing_previous",
+          "to": "module.retained.aws_kms_alias.signing_previous",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_key.signing",
+          "to": "module.retained.aws_kms_key.signing",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_secretsmanager_secret.argocd_oidc",
+          "to": "module.retained.aws_secretsmanager_secret.argocd_oidc",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_secretsmanager_secret.argocd_repo",
+          "to": "module.retained.aws_secretsmanager_secret.argocd_repo",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_eks_pod_identity_association.kyverno",
+        "aws_iam_role.argocd_secrets",
+        "aws_iam_role.kyverno",
+        "aws_iam_role.migration",
+        "aws_iam_role_policy.argocd_secrets",
+        "aws_iam_role_policy.kyverno",
+        "terraform_data.contract"
+      ],
+      "source_files": {
+        "modules/delivery/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/02-BU12-T2-storage-and-keys.md",
+          "line": 133,
+          "sha256": "642cdcb3deb600ba3cd3b69b1ba343127ec28f710bf21e58cc84a5c88524f214"
+        },
+        "modules/delivery/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/02-BU12-T2-storage-and-keys.md",
+          "line": 154,
+          "sha256": "6c342387114cf10b01092c4ee833bf295577cc0131c7a62d776bf0b3103e6fe1"
+        },
+        "modules/delivery/main.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/02-BU12-T2-storage-and-keys.md",
+          "line": 491,
+          "sha256": "54d81cc9e05eed67d8caec9de2550bbe3753e3b46457d8c6b3c6c1b4c0e59be5"
+        },
+        "modules/delivery/signing.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/02-BU12-T2-storage-and-keys.md",
+          "line": 631,
+          "sha256": "cb31554afa661062cfb0c1df1fb91764b03d6dde81d42e475c26f49c3550e3d4"
+        },
+        "modules/delivery/ci-identity.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/03-BU12-T3-iam-and-builds.md",
+          "line": 140,
+          "sha256": "aebe806d739b4f9e141227b877617a1ab927aee660e422faa265c99ebe977f43"
+        },
+        "modules/delivery/argocd-identity.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/06-BU12-T6-platform-rbac.md",
+          "line": 138,
+          "sha256": "548df880749bb607f12a78e32a7992ab1b278ff559c581f7eba569dca4ea642c"
+        },
+        "modules/delivery/argocd-sso.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/06-BU12-T6-platform-rbac.md",
+          "line": 219,
+          "sha256": "597efde279f6924581f8f99a3acfec385f67ace0fced1e74976a8a365cb13413"
+        },
+        "modules/delivery/kyverno-identity.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/06-BU12-T6-platform-rbac.md",
+          "line": 231,
+          "sha256": "c938e3f37493db474893727a781921c04c85321aca4b320c6c39209faf5b6915"
+        },
+        "modules/delivery/migration-identity.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/06-BU12-T6-platform-rbac.md",
+          "line": 322,
+          "sha256": "1ef33b74ab20fc792fe6fb9ac9361de82c29c86ed8924f0c2d138790034720f5"
+        },
+        "modules/delivery/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU12/06-BU12-T6-platform-rbac.md",
+          "line": 357,
+          "sha256": "fe2796cf5dffc6188428bacfad48ef4e4e61543f21be6b525af19fbc6797818a"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    },
+    "observability-foundation": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "local__signal_bucket_names": "local.signal_bucket_names",
+        "local__signal_object_prefixes": "local.signal_object_prefixes",
+        "var__signal_retention_days": "var.signal_retention_days"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_s3_bucket.signal",
+          "to": "module.retained.aws_s3_bucket.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_lifecycle_configuration.signal",
+          "to": "module.retained.aws_s3_bucket_lifecycle_configuration.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_ownership_controls.signal",
+          "to": "module.retained.aws_s3_bucket_ownership_controls.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_policy.signal",
+          "to": "module.retained.aws_s3_bucket_policy.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_public_access_block.signal",
+          "to": "module.retained.aws_s3_bucket_public_access_block.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_server_side_encryption_configuration.signal",
+          "to": "module.retained.aws_s3_bucket_server_side_encryption_configuration.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_versioning.signal",
+          "to": "module.retained.aws_s3_bucket_versioning.signal",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_eks_pod_identity_association.signal",
+        "aws_iam_policy.observability_maintenance",
+        "aws_iam_policy.observability_reader",
+        "aws_iam_policy.observability_writer",
+        "aws_iam_role.observability_maintenance",
+        "aws_iam_role.observability_reader",
+        "aws_iam_role.observability_writer",
+        "aws_iam_role_policy_attachment.observability_maintenance",
+        "aws_iam_role_policy_attachment.observability_reader",
+        "aws_iam_role_policy_attachment.observability_writer",
+        "aws_vpc_endpoint_policy.s3",
+        "terraform_data.contract"
+      ],
+      "source_files": {
+        "modules/observability-foundation/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/01-BU10B-T0-state-and-storage-roles.md",
+          "line": 178,
+          "sha256": "03feadd83c16a5f3b6923fbb42c421e6148e7eb4a48ab10927844f7eaf4820c4"
+        },
+        "modules/observability-foundation/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/01-BU10B-T0-state-and-storage-roles.md",
+          "line": 199,
+          "sha256": "a4afb6860c1187f68d6bcea15c7f4f6c308ab0430d8cff3beac4091ea2c685d0"
+        },
+        "modules/observability-foundation/storage-roles.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/01-BU10B-T0-state-and-storage-roles.md",
+          "line": 309,
+          "sha256": "699a78841737f9a707bfec829b817944153a2a2bf84dd54646e8e4c788d0a723"
+        },
+        "modules/observability-foundation/signal-variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/02-BU10B-T1-storage-foundation.md",
+          "line": 158,
+          "sha256": "3121d128e47c187664ea028a50c33ccc0ff0d75288106b5cc8c7980bcd9115c7"
+        },
+        "modules/observability-foundation/providers.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/02-BU10B-T1-storage-foundation.md",
+          "line": 253,
+          "sha256": "1d0f66a029882e41280b4438fa1ae2063e6862d0fd4fcc50ab369916b3e87966"
+        },
+        "modules/observability-foundation/main.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/02-BU10B-T1-storage-foundation.md",
+          "line": 308,
+          "sha256": "b3652c410570c97a614a3b54209d81938f5009af944eed3237a4f788e5b5839e"
+        },
+        "modules/observability-foundation/identities.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/02-BU10B-T1-storage-foundation.md",
+          "line": 453,
+          "sha256": "03d2bc2d96c73d60ee305c8fa16add298eb82295e1a0e6c6566a5bef6119daac"
+        },
+        "modules/observability-foundation/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/02-BU10B-T1-storage-foundation.md",
+          "line": 487,
+          "sha256": "e13e1c98d4374693fee2e00f0e4ebbff9343a1465775fb317401c53e24153a05"
+        },
+        "modules/observability-foundation/contract.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/03-BU10B-T2-root-and-contract.md",
+          "line": 186,
+          "sha256": "ac19c5b38fd0c43b9baa673731199c409df8a91acbe619a776af5df2b2a46bb1"
+        },
+        "modules/observability-foundation/storage-private-path.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10B/05-BU10B-T2B-storage-private-path.md",
+          "line": 171,
+          "sha256": "28cb88577d05fd6df0108a1a5afa3f41c96ec24bac8c4a60bc5be39031968e1f"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    },
+    "operations": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "local__backup_bucket_name": "local.backup_bucket_name",
+        "var__enabled_services": "var.enabled_services",
+        "var__cluster_contract": "var.cluster_contract"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_s3_bucket.velero",
+          "to": "module.retained.aws_s3_bucket.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_lifecycle_configuration.velero",
+          "to": "module.retained.aws_s3_bucket_lifecycle_configuration.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_ownership_controls.velero",
+          "to": "module.retained.aws_s3_bucket_ownership_controls.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_policy.velero",
+          "to": "module.retained.aws_s3_bucket_policy.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_public_access_block.velero",
+          "to": "module.retained.aws_s3_bucket_public_access_block.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_server_side_encryption_configuration.velero",
+          "to": "module.retained.aws_s3_bucket_server_side_encryption_configuration.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_s3_bucket_versioning.velero",
+          "to": "module.retained.aws_s3_bucket_versioning.velero",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_secretsmanager_secret.grafana",
+          "to": "module.retained.aws_secretsmanager_secret.grafana",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_autoscaling_group_tag.discovery",
+        "aws_cloudwatch_log_group.platform",
+        "aws_eks_pod_identity_association.controller",
+        "aws_iam_role.controller",
+        "aws_iam_role_policy.controller",
+        "terraform_data.contract"
+      ],
+      "source_files": {
+        "modules/operations/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 102,
+          "sha256": "ce086137525959e53e2d1c6d8580ad76da71c3b4f656835dc2c205d92437ba28"
+        },
+        "modules/operations/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 123,
+          "sha256": "90458bacfcbfcde275cb3d784e3cdf1a604886b3a0d0520770217abe9831d524"
+        },
+        "modules/operations/providers.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 194,
+          "sha256": "8e077713e150a05409f794b0f8daa02ea6392f865bc5497cbed9dfedd1939bbd"
+        },
+        "modules/operations/main.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 223,
+          "sha256": "41ec835ca5ff9913fb9abbb0f594ea959971231353c694db7b7bc3f54e49b176"
+        },
+        "modules/operations/pod-identity.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 301,
+          "sha256": "6d7e2327f3762504f350a9f27752cb3cc139062e29c390406ef9c938abde6f91"
+        },
+        "modules/operations/backup-storage.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/01-BU10A-T1-identities-and-storage.md",
+          "line": 485,
+          "sha256": "4babd1860a552181a172cb528b550c86eb85d5c7fd132f30bfdb4a84a74636c6"
+        },
+        "modules/operations/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10A/02-BU10A-T7-root-and-contract.md",
+          "line": 105,
+          "sha256": "3df3249838a77dc1ce273d871aaf0d3cab44f2ff6c9049f0a96488413fa6618b"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    },
+    "queue-managed": {
+      "mode": "retain",
+      "dependencies": [],
+      "bindings": {
+        "local__cluster_name": "local.cluster_name",
+        "data__aws_iam_policy_document__queue_secrets_key": "data.aws_iam_policy_document.queue_secrets_key",
+        "local__queue_users": "local.queue_users"
+      },
+      "migration": [
+        {
+          "from": "module.component.aws_kms_alias.queue_secrets",
+          "to": "module.retained.aws_kms_alias.queue_secrets",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_kms_key.queue_secrets",
+          "to": "module.retained.aws_kms_key.queue_secrets",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        },
+        {
+          "from": "module.component.aws_secretsmanager_secret.queue_user",
+          "to": "module.retained.aws_secretsmanager_secret.queue_user",
+          "instances": "expand from reviewed live state; preserve for_each/count keys"
+        }
+      ],
+      "runtime_addresses": [
+        "aws_msk_cluster.traces",
+        "aws_msk_configuration.traces",
+        "aws_vpc_security_group_egress_rule.workload_to_broker",
+        "aws_vpc_security_group_ingress_rule.broker_from_workload",
+        "terraform_data.network_boundary"
+      ],
+      "source_files": {
+        "modules/queue-managed/versions.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 103,
+          "sha256": "730a243132721b051001ee9dfc2bb87e88eb123abce63b0ca4cee399ab0e0468"
+        },
+        "modules/queue-managed/variables.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 123,
+          "sha256": "9a3018d59316b43dcb12934b65491a6091ad98ed0b75dfe5bcc0a140897b0f0b"
+        },
+        "modules/queue-managed/providers.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 236,
+          "sha256": "393f0edff80807317fb1404c050e0cf5788935d4f339323e8259e3c020ce419b"
+        },
+        "modules/queue-managed/kms.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 300,
+          "sha256": "5a6fb3a9bd684a76b758cb10685f5931980dbe0b3e0c7214d359cc79d68c89c5"
+        },
+        "modules/queue-managed/secrets.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 388,
+          "sha256": "936ccdd068c09c049e155734a7e005a73b6d854c9b0004847b104df1a04a4870"
+        },
+        "modules/queue-managed/cluster.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/03-BU10C-T2-keys-and-cluster.md",
+          "line": 427,
+          "sha256": "634707f386c2059f95bd303289a71f42888ee3486c0f8958265fb0e9da17160f"
+        },
+        "modules/queue-managed/configuration.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/04-BU10C-T3-permissions-and-topics.md",
+          "line": 102,
+          "sha256": "1f950541f4984c5c15e88a0bfd810ab252496565b20d6bc1da4b79451aa33a53"
+        },
+        "modules/queue-managed/outputs.tf": {
+          "file": "course/\uc804\uccb4\uad50\uc548/\uc26c\uc6b4\ubc84\uc804/BU10C/04-BU10C-T3-permissions-and-topics.md",
+          "line": 175,
+          "sha256": "a27ba1047627cb1b6e57f1f9412574aec76374b486fce3345232adc846c996f9"
+        }
+      },
+      "blocked_until": [
+        "binding expression equivalence and retained principal closure reviewed",
+        "cross-state migration and same-ID no-change plan verified",
+        "runtime module consumers rewired and source guards ported",
+        "provider validate and mocked/live integration tests passed"
+      ]
+    }
+  },
+  "all_s3_retained": true,
+  "data_modes": [
+    "seed",
+    "restore"
+  ],
+  "final_trace": {
+    "dev": {
+      "backend": "self-managed",
+      "epoch": 3
+    },
+    "prod": {
+      "backend": "managed",
+      "epoch": 2
+    }
+  }
+}

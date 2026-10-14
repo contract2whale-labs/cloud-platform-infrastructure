@@ -1,0 +1,15 @@
+[
+  {
+    "apiVersion": "security.istio.io/v1",
+    "kind": "PeerAuthentication",
+    "metadata": {
+      "name": "application-strict",
+      "namespace": "contract2whale-demo"
+    },
+    "spec": {
+      "mtls": {
+        "mode": "STRICT"
+      }
+    }
+  }
+]

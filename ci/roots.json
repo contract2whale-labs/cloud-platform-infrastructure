@@ -1,46 +1,228 @@
 {
   "roots": [
-    {"env": "dev", "path": "terraform/environments/dev/bootstrap/state"},
-    {"env": "dev", "path": "terraform/environments/dev/account-baseline"},
-    {"env": "dev", "path": "terraform/environments/dev/account-baseline-dns"},
-    {"env": "dev", "path": "terraform/environments/dev/account-integrations"},
-    {"env": "dev", "path": "terraform/environments/dev/network/vpc"},
-    {"env": "dev", "path": "terraform/environments/dev/network/transit"},
-    {"env": "dev", "path": "terraform/environments/dev/network/peer"},
-    {"env": "dev", "path": "terraform/environments/dev/eks"},
-    {"env": "dev", "path": "terraform/environments/dev/data"},
-    {"env": "dev", "path": "terraform/environments/dev/delivery"},
-    {"env": "dev", "path": "terraform/environments/dev/identity"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/alerting"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/app-auth"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/core"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/dev-app-access"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/edge"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/gateway"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/observability"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/operations"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/private-api"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/queue"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/queue-association"},
-    {"env": "dev", "path": "terraform/environments/dev/platform/queue-secrets"},
-    {"env": "prod", "path": "terraform/environments/prod/bootstrap/state"},
-    {"env": "prod", "path": "terraform/environments/prod/account-baseline"},
-    {"env": "prod", "path": "terraform/environments/prod/account-baseline-dns"},
-    {"env": "prod", "path": "terraform/environments/prod/network/vpc"},
-    {"env": "prod", "path": "terraform/environments/prod/eks"},
-    {"env": "prod", "path": "terraform/environments/prod/data"},
-    {"env": "prod", "path": "terraform/environments/prod/delivery"},
-    {"env": "prod", "path": "terraform/environments/prod/identity"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/alerting"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/app-auth"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/core"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/edge"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/gateway"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/observability"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/operations"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/private-api"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/queue"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/queue-association"},
-    {"env": "prod", "path": "terraform/environments/prod/platform/queue-secrets"}
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/bootstrap/state"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/account-baseline"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/account-baseline-dns"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/account-integrations"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/network/vpc"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/network/transit"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/network/peer"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/eks"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/data"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/delivery"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/identity"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/alerting"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/app-auth"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/core"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/dev-app-access"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/edge"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/gateway"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/observability"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/operations"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/private-api"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/queue"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/queue-association"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/platform/queue-secrets"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/bootstrap/state"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/account-baseline"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/account-baseline-dns"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/network/vpc"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/eks"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/data"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/delivery"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/identity"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/alerting"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/app-auth"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/core"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/edge"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/gateway"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/observability"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/operations"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/private-api"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/queue"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/queue-association"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/platform/queue-secrets"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/network/log-storage"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/network/log-storage"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/operations"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/observability-foundation"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/queue-managed"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/account-integrations"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/delivery"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/retained/data"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/retained/operations"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/retained/observability-foundation"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/retained/queue-managed"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/retained/delivery"
+    },
+    {
+      "env": "prod",
+      "path": "terraform/environments/prod/retained/data"
+    },
+    {
+      "env": "dev",
+      "path": "terraform/environments/dev/bootstrap/probe-images"
+    }
   ]
 }

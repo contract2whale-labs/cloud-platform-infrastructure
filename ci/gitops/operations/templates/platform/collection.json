@@ -1,0 +1,70 @@
+[
+  {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "collection-boundary-client",
+      "namespace": "team-platform-check"
+    },
+    "spec": {
+      "replicas": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "policy-client"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "policy-client"
+          }
+        },
+        "spec": {
+          "automountServiceAccountToken": false,
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "probe",
+              "image": "public.ecr.aws/docker/library/python@sha256:78387bc3881b8273120a12ebe6c1ab22b018ccc2c9adf565ae1ac9b536e184ea",
+              "command": [
+                "python3",
+                "-c",
+                "import time; time.sleep(3600)"
+              ],
+              "ports": [
+                {
+                  "name": "http",
+                  "containerPort": 8080
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "resources": {
+                "requests": {
+                  "cpu": "10m",
+                  "memory": "32Mi"
+                },
+                "limits": {
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

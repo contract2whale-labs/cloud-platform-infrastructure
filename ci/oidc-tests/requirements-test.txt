@@ -1,0 +1,6 @@
+# Mandatory credentialless CI test dependencies; production helper is stdlib-only.
+botocore==1.40.18
+jmespath==1.1.0
+python-dateutil==2.9.0.post0
+six==1.17.0
+urllib3==2.8.0

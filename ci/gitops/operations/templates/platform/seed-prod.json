@@ -1,0 +1,77 @@
+[
+  {
+    "apiVersion": "batch/v1",
+    "kind": "Job",
+    "metadata": {
+      "name": "seed-readback",
+      "namespace": "contract2whale-demo",
+      "labels": {
+        "contract2whale.course/run-id": "<실제 승인 UUID>"
+      },
+      "annotations": {
+        "platform.example/validation-run-id": "<실제 승인 UUID>"
+      }
+    },
+    "spec": {
+      "ttlSecondsAfterFinished": 600,
+      "backoffLimit": 0,
+      "activeDeadlineSeconds": 120,
+      "template": {
+        "metadata": {
+          "labels": {
+            "app.kubernetes.io/name": "database-operator-check",
+            "contract2whale.course/run-id": "<Job과 같은 실제 승인 UUID>"
+          }
+        },
+        "spec": {
+          "serviceAccountName": "database-operator",
+          "restartPolicy": "Never",
+          "automountServiceAccountToken": false,
+          "nodeSelector": {
+            "workload": "app"
+          },
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "readback",
+              "image": "<앞서 승인한 운영자 이미지의 실제 digest 참조>",
+              "command": [
+                "sh",
+                "-c",
+                "psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -tAc 'select count(*) from product' && psql \"$DATABASE_URL\" -v ON_ERROR_STOP=1 -tAc \"select id, token from api_key where type = 'publishable'\""
+              ],
+              "env": [
+                {
+                  "name": "PGOPTIONS",
+                  "value": "-c default_transaction_read_only=on"
+                }
+              ],
+              "envFrom": [
+                {
+                  "secretRef": {
+                    "name": "commerce-api-migration"
+                  }
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

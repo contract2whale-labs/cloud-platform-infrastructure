@@ -1,0 +1,11 @@
+{
+  "source_sha": "REPLACE_WITH_REVIEWED_40_HEX_INFRASTRUCTURE_COMMIT",
+  "expires_at": "2000-01-01T00:00:00Z",
+  "change_request": "REPLACE_WITH_CURRENT_APPROVAL_REFERENCE",
+  "data_decision": "bounded-one-producer-deny-restore-and-seven-day-admin-cleanup",
+  "experiment_id": "REPLACE_WITH_NEW_CANONICAL_UUID",
+  "pod_uid": "REPLACE_WITH_CURRENT_MONITORING_QUEUE_ADMIN_UID",
+  "cluster_arn": "REPLACE_WITH_ACTUAL_DEV_QUEUE_MANAGED_CONTRACT_CLUSTER_ARN",
+  "setup_script_sha256": "REPLACE_WITH_SHA256_OF_COMMITTED_REFACTORED_SETUP_HELPER",
+  "hold_seconds": 60
+}

@@ -1,0 +1,98 @@
+name: bu16-aws-drill
+on:
+  workflow_dispatch:
+    inputs:
+      request_path:
+        description: Reviewed incidents/requests/<UUID>.json file committed on main
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  select:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.select.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: select
+        run: python3 ci/incident-aws/select.py
+  plan:
+    needs: select
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment: incident-dev-aws-plan
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    outputs:
+      plan_key: ${{ steps.plan.outputs.plan_key }}
+      plan_version: ${{ steps.plan.outputs.plan_version }}
+      plan_sha: ${{ steps.plan.outputs.plan_sha }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.INCIDENT_AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - id: plan
+        env:
+          INCIDENT_REQUEST_PATH: ${{ inputs.request_path }}
+          AWS_ROLE_ARN: ${{ vars.INCIDENT_AWS_ROLE_ARN }}
+          STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 ci/incident-aws/incident_aws.py plan
+  apply:
+    needs: [select, plan]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: incident-dev-aws-mutate
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.INCIDENT_AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+      - env:
+          INCIDENT_REQUEST_PATH: ${{ inputs.request_path }}
+          AWS_ROLE_ARN: ${{ vars.INCIDENT_AWS_ROLE_ARN }}
+          STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+          GH_TOKEN: ${{ github.token }}
+          PLAN_KEY: ${{ needs.plan.outputs.plan_key }}
+          PLAN_VERSION: ${{ needs.plan.outputs.plan_version }}
+          PLAN_SHA: ${{ needs.plan.outputs.plan_sha }}
+        run: |
+          python3 ci/incident-aws/incident_aws.py verify
+          python3 ci/incident-aws/incident_aws.py apply

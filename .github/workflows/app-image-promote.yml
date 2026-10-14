@@ -1,0 +1,198 @@
+name: app-image-promote
+'on':
+  workflow_dispatch:
+    inputs:
+      request:
+        description: main에서 검토한 operations/promotions/*.json 경로
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: prod-application-image-promotion
+  cancel-in-progress: false
+jobs:
+  dev-export:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: dev-oci-export
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      REQUEST_PATH: ${{ inputs.request }}
+      AWS_REGION: ap-northeast-2
+      TOOLCHAIN_IMAGE: ${{ vars.TOOLCHAIN_IMAGE }}
+      DEV_ACCOUNT_ID: ${{ secrets.DEV_ACCOUNT_ID }}
+      PROD_ACCOUNT_ID: ${{ secrets.PROD_ACCOUNT_ID }}
+      SOURCE_REPOSITORIES_JSON: ${{ secrets.SOURCE_REPOSITORIES_JSON }}
+      SIGNING_KEY_ARN: ${{ secrets.SIGNING_KEY_ARN }}
+      PROMOTION_BUCKET: ${{ secrets.PROMOTION_BUCKET }}
+      PROMOTION_BUCKET_OWNER: ${{ secrets.PROMOTION_BUCKET_OWNER }}
+      PROMOTION_KMS_KEY_ARN: ${{ secrets.PROMOTION_KMS_KEY_ARN }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        fetch-depth: 0
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - name: 승인 source·고정 도구 확인
+      shell: bash
+      run: |
+        set -euo pipefail
+        # main의 실제 SHA와 검토한 요청 경로를 확인합니다.
+        test "$GITHUB_REF" = refs/heads/main
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
+        [[ "$REQUEST_PATH" =~ ^operations/promotions/[a-z0-9-]+\.json$ ]]
+        [[ "$TOOLCHAIN_IMAGE" =~ ^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[0-9a-f]{64}$ ]]
+        # 승인된 도구 이미지와 실제 공식 Skopeo digest를 pull합니다.
+        docker pull "$TOOLCHAIN_IMAGE" > /dev/null
+        docker pull quay.io/skopeo/stable@sha256:97772f3c64fd2fba720b2bafaf37239dc44d8b1c625c8383c64044832efe9ed9 > /dev/null
+        # Python·서명·SBOM 도구 버전을 먼저 확인합니다.
+        docker run --rm --entrypoint bash "$TOOLCHAIN_IMAGE" -ceu '
+          for tool in aws docker git python3 syft cosign; do command -v "$tool" > /dev/null; done
+          aws --version 2>&1 | grep -q "aws-cli/2.36.44 "
+          syft version | grep -F "1.51.1" > /dev/null
+          cosign version 2>&1 | grep -Eq "GitVersion:[[:space:]]+v3\.1\.3([[:space:]]|$)"
+          python3 -I -c "import boto3"
+        '
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ap-northeast-2
+        allowed-account-ids: ${{ secrets.DEV_ACCOUNT_ID }}
+        mask-aws-account-id: true
+    - name: Dev 이미지·서명 검증과 보호 내보내기
+      id: transfer
+      env:
+        GH_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        umask 077
+        # 호스트와 같은 절대 경로를 사용해 고정 Skopeo sidecar에 보호 디렉터리만 연결합니다.
+        docker run --rm --user 0:0 --entrypoint python3 \
+          -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -e AWS_REGION -e GH_TOKEN -e GITHUB_ACTIONS -e GITHUB_EVENT_NAME -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_ID -e GITHUB_RUN_ID -e GITHUB_RUN_ATTEMPT -e GITHUB_WORKSPACE -e DEV_ACCOUNT_ID -e PROD_ACCOUNT_ID -e SOURCE_REPOSITORIES_JSON -e SIGNING_KEY_ARN -e PROMOTION_BUCKET -e PROMOTION_BUCKET_OWNER -e PROMOTION_KMS_KEY_ARN \
+          "$TOOLCHAIN_IMAGE" -I ci/promote-oci-images.py export --request "$REQUEST_PATH"
+        # 원문 이미지·계정·key·manifest는 공개 artifact로 올리지 않습니다.
+        result="$GITHUB_WORKSPACE/work/protected/oci-promotion/export-result.json"
+        version="$(sudo cat "$result" | jq -er .version)"
+        hash="$(sudo cat "$result" | jq -er .sha256)"
+        key="$(sudo cat "$result" | jq -er .key)"
+        [[ "$hash" =~ ^[0-9a-f]{64}$ ]]
+        # 다음 job에는 정확한 객체 버전과 해시만 전달합니다.
+        echo "manifest_version=$version" >> "$GITHUB_OUTPUT"
+        echo "manifest_sha256=$hash" >> "$GITHUB_OUTPUT"
+        # 상세 증거는 별도 보호 S3에 있으며 source와 검증 단계만 공개 Summary에 남깁니다.
+        echo "source SHA: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+        echo "verified phase: export" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object key: $key" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object VersionId: $version" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object SHA-256: $hash" >> "$GITHUB_STEP_SUMMARY"
+        echo 'Private S3 evidence saved; do not copy credentials or raw receipts into PRs.' >> "$GITHUB_STEP_SUMMARY"
+    - name: 임시 이미지·인증 정리
+      if: always()
+      shell: bash
+      run: |
+        # 현재 ephemeral runner의 임시 파일만 정리하며 S3 증거와 ECR 이미지는 지우지 않습니다.
+        sudo rm -rf -- "$GITHUB_WORKSPACE/work/protected/oci-promotion"
+    outputs:
+      manifest_version: ${{ steps.transfer.outputs.manifest_version }}
+      manifest_sha256: ${{ steps.transfer.outputs.manifest_sha256 }}
+  prod-import-sign:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: prod-oci-import
+    permissions:
+      contents: read
+      actions: read
+      id-token: write
+    env:
+      REQUEST_PATH: ${{ inputs.request }}
+      AWS_REGION: ap-northeast-2
+      TOOLCHAIN_IMAGE: ${{ vars.TOOLCHAIN_IMAGE }}
+      DEV_ACCOUNT_ID: ${{ secrets.DEV_ACCOUNT_ID }}
+      PROD_ACCOUNT_ID: ${{ secrets.PROD_ACCOUNT_ID }}
+      SOURCE_REPOSITORIES_JSON: ${{ secrets.SOURCE_REPOSITORIES_JSON }}
+      SIGNING_KEY_ARN: ${{ secrets.SIGNING_KEY_ARN }}
+      PROMOTION_BUCKET: ${{ secrets.PROMOTION_BUCKET }}
+      PROMOTION_BUCKET_OWNER: ${{ secrets.PROMOTION_BUCKET_OWNER }}
+      PROMOTION_KMS_KEY_ARN: ${{ secrets.PROMOTION_KMS_KEY_ARN }}
+      MANIFEST_VERSION: ${{ needs.dev-export.outputs.manifest_version }}
+      MANIFEST_SHA256: ${{ needs.dev-export.outputs.manifest_sha256 }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        fetch-depth: 0
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - name: 승인 source·고정 도구 확인
+      shell: bash
+      run: |
+        set -euo pipefail
+        # main의 실제 SHA와 검토한 요청 경로를 확인합니다.
+        test "$GITHUB_REF" = refs/heads/main
+        test "$(git rev-parse HEAD)" = "$GITHUB_SHA"
+        test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
+        [[ "$REQUEST_PATH" =~ ^operations/promotions/[a-z0-9-]+\.json$ ]]
+        [[ "$TOOLCHAIN_IMAGE" =~ ^[a-zA-Z0-9][a-zA-Z0-9./:_-]*@sha256:[0-9a-f]{64}$ ]]
+        # 승인된 도구 이미지와 실제 공식 Skopeo digest를 pull합니다.
+        docker pull "$TOOLCHAIN_IMAGE" > /dev/null
+        docker pull quay.io/skopeo/stable@sha256:97772f3c64fd2fba720b2bafaf37239dc44d8b1c625c8383c64044832efe9ed9 > /dev/null
+        # Python·서명·SBOM 도구 버전을 먼저 확인합니다.
+        docker run --rm --entrypoint bash "$TOOLCHAIN_IMAGE" -ceu '
+          for tool in aws docker git python3 syft cosign; do command -v "$tool" > /dev/null; done
+          aws --version 2>&1 | grep -q "aws-cli/2.36.44 "
+          syft version | grep -F "1.51.1" > /dev/null
+          cosign version 2>&1 | grep -Eq "GitVersion:[[:space:]]+v3\.1\.3([[:space:]]|$)"
+          python3 -I -c "import boto3"
+        '
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: ap-northeast-2
+        allowed-account-ids: ${{ secrets.PROD_ACCOUNT_ID }}
+        mask-aws-account-id: true
+    - name: 같은 digest 가져오기·Prod 서명과 전체 그래프 검증
+      id: transfer
+      env:
+        GH_TOKEN: ${{ github.token }}
+      shell: bash
+      run: |
+        set -euo pipefail
+        umask 077
+        # 호스트와 같은 절대 경로를 사용해 고정 Skopeo sidecar에 보호 디렉터리만 연결합니다.
+        docker run --rm --user 0:0 --entrypoint python3 \
+          -v "$GITHUB_WORKSPACE:$GITHUB_WORKSPACE" -w "$GITHUB_WORKSPACE" \
+          -v /var/run/docker.sock:/var/run/docker.sock \
+          -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e AWS_SESSION_TOKEN -e AWS_REGION -e GH_TOKEN -e GITHUB_ACTIONS -e GITHUB_EVENT_NAME -e GITHUB_REF -e GITHUB_SHA -e GITHUB_REPOSITORY -e GITHUB_REPOSITORY_ID -e GITHUB_RUN_ID -e GITHUB_RUN_ATTEMPT -e GITHUB_WORKSPACE -e DEV_ACCOUNT_ID -e PROD_ACCOUNT_ID -e SOURCE_REPOSITORIES_JSON -e SIGNING_KEY_ARN -e PROMOTION_BUCKET -e PROMOTION_BUCKET_OWNER -e PROMOTION_KMS_KEY_ARN \
+          "$TOOLCHAIN_IMAGE" -I ci/promote-oci-images.py import --request "$REQUEST_PATH" --manifest-version "$MANIFEST_VERSION" --manifest-sha256 "$MANIFEST_SHA256"
+        # 원문 이미지·계정·key·manifest는 공개 artifact로 올리지 않습니다.
+        result="$GITHUB_WORKSPACE/work/protected/oci-promotion/import-result.json"
+        version="$(sudo cat "$result" | jq -er .version)"
+        hash="$(sudo cat "$result" | jq -er .sha256)"
+        key="$(sudo cat "$result" | jq -er .key)"
+        [[ "$hash" =~ ^[0-9a-f]{64}$ ]]
+        # 다음 job에는 정확한 객체 버전과 해시만 전달합니다.
+        echo "manifest_version=$version" >> "$GITHUB_OUTPUT"
+        echo "manifest_sha256=$hash" >> "$GITHUB_OUTPUT"
+        # 상세 증거는 별도 보호 S3에 있으며 source와 검증 단계만 공개 Summary에 남깁니다.
+        echo "source SHA: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
+        echo "verified phase: import" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object key: $key" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object VersionId: $version" >> "$GITHUB_STEP_SUMMARY"
+        echo "protected object SHA-256: $hash" >> "$GITHUB_STEP_SUMMARY"
+        echo 'Private S3 evidence saved; do not copy credentials or raw receipts into PRs.' >> "$GITHUB_STEP_SUMMARY"
+    - name: 임시 이미지·인증 정리
+      if: always()
+      shell: bash
+      run: |
+        # 현재 ephemeral runner의 임시 파일만 정리하며 S3 증거와 ECR 이미지는 지우지 않습니다.
+        sudo rm -rf -- "$GITHUB_WORKSPACE/work/protected/oci-promotion"
+    needs: dev-export

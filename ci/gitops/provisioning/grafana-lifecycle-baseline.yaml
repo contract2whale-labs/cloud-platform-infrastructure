@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lifecycle-course-baseline
+  namespace: monitoring
+  labels:
+    grafana_dashboard: '1'
+data:
+  lifecycle-course-baseline.json: |
+    {"uid":"lifecycle-course-baseline","title":"Course lifecycle baseline","schemaVersion":39,"version":1,"panels":[{"id":1,"type":"text","title":"Disposable lab restore","gridPos":{"h":4,"w":24,"x":0,"y":0},"options":{"mode":"markdown","content":"Course dashboards are restored from reviewed Git. Manual UI edits must be exported before Down."}}]}

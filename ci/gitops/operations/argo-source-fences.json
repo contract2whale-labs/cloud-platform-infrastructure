@@ -1,0 +1,52 @@
+[
+  {
+    "original": "전체교안/쉬운버전/BU10B/15-BU10B-T7-collector-agent.md",
+    "part3": "파트3/BU10B-파트3.md",
+    "operation": "argo-collection-log-retire",
+    "changed_execution_fences": 1,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md",
+    "part3": "파트3/BU10C-파트3.md",
+    "operation": "argo-queue-admin-dev-retire",
+    "changed_execution_fences": 1,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md",
+    "part3": "파트3/BU15-파트3.md",
+    "operation": "argo-queue-admin-prod-retire",
+    "changed_execution_fences": 3,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU15/07-BU15-T6-prod-operations.md",
+    "part3": "파트3/BU15-파트3.md",
+    "operation": "argo-backup-probe-retire",
+    "changed_execution_fences": 1,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md",
+    "part3": "파트3/BU15-파트3.md",
+    "operation": "argo-platform-policies-selective",
+    "changed_execution_fences": 1,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU15/13-BU15-T10B-second-release-and-canary.md",
+    "part3": "파트3/BU15-파트3.md",
+    "operation": "argo-commerce-config-retire",
+    "changed_execution_fences": 1,
+    "dispatch_present_in_both": true
+  },
+  {
+    "original": "전체교안/쉬운버전/BU15/05-BU15-T4-prod-observability.md",
+    "part3": "파트3/BU15-파트3.md",
+    "operation": "argo-collection-log-prod-retire",
+    "changed_execution_fences": 0,
+    "changed_inline_procedure": 1,
+    "dispatch_present_in_both": true
+  }
+]

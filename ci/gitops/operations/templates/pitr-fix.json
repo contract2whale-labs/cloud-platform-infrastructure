@@ -1,0 +1,102 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "__FIX_JOB_NAME__",
+    "namespace": "contract2whale-demo",
+    "labels": {
+      "app.kubernetes.io/name": "database-operator-check",
+      "app.kubernetes.io/part-of": "contract2whale",
+      "recovery.course/experiment-id": "__RUN_ID__"
+    }
+  },
+  "spec": {
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 180,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/name": "database-operator-check",
+          "app.kubernetes.io/part-of": "contract2whale",
+          "recovery.course/experiment-id": "__RUN_ID__"
+        }
+      },
+      "spec": {
+        "serviceAccountName": "database-operator",
+        "automountServiceAccountToken": false,
+        "restartPolicy": "Never",
+        "nodeSelector": {
+          "workload": "app"
+        },
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 1000,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "fix",
+            "image": "__OPERATOR_IMAGE__",
+            "command": [
+              "bash",
+              "-c"
+            ],
+            "args": [
+              "set -euo pipefail\ncreds=\"$(aws secretsmanager get-secret-value --secret-id \"$APP_SECRET_ARN\" --query SecretString --output text)\"\nPGUSER=\"$(echo -n \"$creds\" | jq -r .username)\"\nPGPASSWORD=\"$(echo -n \"$creds\" | jq -r .password)\"\nexport PGUSER PGPASSWORD\npsql -At -v ON_ERROR_STOP=1 <<'SQL'\nBEGIN;\nSET LOCAL drill.id = '__SAMPLE_ID__'; -- INCIDENT_SAMPLE_ID와 같은 실제 승인 product id\nSET LOCAL drill.h = '__SAMPLE_HANDLE__';\nSET LOCAL drill.expect = '__EXPECT_STATUS__';\nDO $fix$ DECLARE n int; BEGIN\n  UPDATE public.product SET status = '__NEW_STATUS__'\n   WHERE id = current_setting('drill.id') AND handle = current_setting('drill.h')\n     AND status = current_setting('drill.expect');\n  GET DIAGNOSTICS n = ROW_COUNT;\n  IF n <> 1 THEN\n    RAISE EXCEPTION 'expected exactly 1 row, got %', n USING ERRCODE = 'P0001';\n  END IF;\nEND $fix$;\nSELECT handle || '|' || status FROM public.product WHERE id = current_setting('drill.id') AND handle = current_setting('drill.h');\nCOMMIT;\nSQL\n"
+            ],
+            "env": [
+              {
+                "name": "PGHOST",
+                "value": "__DB_HOST__"
+              },
+              {
+                "name": "PGPORT",
+                "value": "5432"
+              },
+              {
+                "name": "PGDATABASE",
+                "value": "commercedb"
+              },
+              {
+                "name": "PGSSLMODE",
+                "value": "verify-full"
+              },
+              {
+                "name": "PGSSLROOTCERT",
+                "value": "/opt/contract2whale/certs/rds-global-bundle.pem"
+              },
+              {
+                "name": "PGCONNECT_TIMEOUT",
+                "value": "10"
+              },
+              {
+                "name": "APP_SECRET_ARN",
+                "value": "__APP_SECRET_ARN__"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "limits": {
+                "memory": "256Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

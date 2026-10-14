@@ -1,0 +1,83 @@
+name: gitops-operations
+on:
+  push:
+    branches: [main]
+    paths: ['gitops/**', 'ci/gitops/**', 'ci/private-api-session.py', 'ci/operations-access.py', 'ci/lifecycle-state.py', 'ci/saved-plan.py', 'ci/eks-lifecycle-guard.py', '.github/workflows/gitops-operations.yml']
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, prod]
+        required: true
+      operation:
+        type: choice
+        options: [verify]
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  select:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.select.outputs.matrix }}
+      image: ${{ steps.select.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - id: select
+        env:
+          EVENT: ${{ github.event_name }}
+          TARGET: ${{ inputs.environment }}
+          OPERATION: ${{ inputs.operation }}
+        run: python3 ci/gitops/select.py
+  operate:
+    needs: select
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.select.outputs.matrix) }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    environment: ${{ matrix.gate }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+          fetch-depth: 0
+      - name: Validate registration before credentials
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          OPERATION: ${{ matrix.operation }}
+        run: python3 ci/gitops/gitops_ops.py --environment "$ENVIRONMENT" --operation "$OPERATION" --check
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.GITOPS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          mask-aws-account-id: true
+          role-duration-seconds: 3600
+      - name: Private GitOps operation
+        env:
+          ENVIRONMENT: ${{ matrix.environment }}
+          OPERATION: ${{ matrix.operation }}
+          GH_TOKEN: ${{ github.token }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          ARGOCD_SERVER_SECRETKEY: ${{ secrets.ARGOCD_SERVER_SECRETKEY }}
+          GITOPS_REPO_SSH_KEY: ${{ secrets.GITOPS_REPO_SSH_KEY }}
+        run: python3 ci/gitops/gitops_ops.py --environment "$ENVIRONMENT" --operation "$OPERATION"

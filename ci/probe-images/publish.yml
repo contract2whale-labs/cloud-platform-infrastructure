@@ -1,0 +1,44 @@
+name: bu07-probe-images
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: Instructor build/publication or learner digest mirror
+        required: true
+        type: choice
+        options: [learner, instructor]
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: ${{ inputs.mode == 'learner' && 'infra-dev-apply' || 'probe-images-instructor' }}
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      GH_TOKEN: ${{ github.token }}
+      PUBLICATION_MODE: ${{ inputs.mode }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+          mask-aws-account-id: true
+      - name: Build or mirror exact diagnostic images
+        id: publish
+        run: python3 -I ci/probe-images/publish.py

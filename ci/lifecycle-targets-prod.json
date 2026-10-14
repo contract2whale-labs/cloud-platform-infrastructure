@@ -1,0 +1,765 @@
+{
+  "schema": 2,
+  "chapter_order": [
+    "BU01",
+    "BU02",
+    "BU03",
+    "BU04",
+    "BU05",
+    "BU06",
+    "BU07",
+    "BU08",
+    "BU08B",
+    "BU09",
+    "BU10A",
+    "BU10B",
+    "BU10C",
+    "BU11",
+    "BU12",
+    "BU13",
+    "BU14",
+    "BU15",
+    "BU16"
+  ],
+  "chapters": {
+    "BU01": {
+      "roots": [
+        "terraform/environments/prod/bootstrap/state",
+        "terraform/environments/prod/bootstrap/ci-identity"
+      ],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU02": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU03": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU04": {
+      "roots": [
+        "terraform/environments/prod/account-baseline",
+        "terraform/environments/prod/account-baseline-dns"
+      ],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU05": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU06": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU07": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU08": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU08B": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU09": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU10A": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU10B": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU10C": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU11": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU12": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU13": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU14": {
+      "roots": [],
+      "hooks": [],
+      "blockers": []
+    },
+    "BU15": {
+      "roots": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/delivery",
+        "terraform/environments/prod/identity",
+        "terraform/environments/prod/platform/alerting",
+        "terraform/environments/prod/platform/app-auth",
+        "terraform/environments/prod/platform/core",
+        "terraform/environments/prod/platform/edge",
+        "terraform/environments/prod/platform/gateway",
+        "terraform/environments/prod/platform/observability",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/platform/private-api",
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/queue-association",
+        "terraform/environments/prod/platform/queue-secrets",
+        "terraform/environments/prod/network/log-storage",
+        "terraform/environments/prod/retained/operations",
+        "terraform/environments/prod/retained/observability-foundation",
+        "terraform/environments/prod/retained/queue-managed",
+        "terraform/environments/prod/retained/delivery",
+        "terraform/environments/prod/retained/data"
+      ],
+      "hooks": [
+        "cluster-private-api-check",
+        "cluster-owned-external-inventory",
+        "node-addon-readiness",
+        "minimum-argo-bootstrap",
+        "platform-core",
+        "platform-mesh",
+        "platform-gateway",
+        "app-auth-provision-and-securitypolicy",
+        "platform-operations",
+        "platform-alerting",
+        "velero-backup-restore",
+        "platform-observability",
+        "self-managed-queue-topics-acl",
+        "queue-credentials-provision",
+        "platform-queue",
+        "trace-drain-switch",
+        "platform-delivery",
+        "argocd-external-secrets-provision",
+        "application-namespace",
+        "database-bootstrap",
+        "operator-image-publish",
+        "application-runtime",
+        "application-mesh",
+        "application-dashboards",
+        "migration-and-seed",
+        "prod-minimum-argo-bootstrap",
+        "prod-edge-publication"
+      ],
+      "blockers": []
+    },
+    "BU16": {
+      "roots": [],
+      "hooks": [
+        "incident-quiescence-and-baseline",
+        "out-of-state-pitr-inventory",
+        "reviewed-cleanup",
+        "service-absence-audit"
+      ],
+      "blockers": []
+    }
+  },
+  "roots": {
+    "terraform/environments/prod/bootstrap/state": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Preserve restore identity, State or Cognito credentials."
+    },
+    "terraform/environments/prod/account-baseline": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [
+        "terraform/environments/prod/bootstrap/state"
+      ],
+      "reason": "Preserve restore identity, State or Cognito credentials."
+    },
+    "terraform/environments/prod/account-baseline-dns": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Preserve restore identity, State or Cognito credentials."
+    },
+    "terraform/environments/prod/network/vpc": {
+      "mode": "adapter",
+      "engine": "prod-network-v2",
+      "dependencies": [
+        "terraform/environments/prod/network/log-storage"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/eks": {
+      "mode": "adapter",
+      "engine": "prod-eks-v1",
+      "dependencies": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/platform/private-api"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/data": {
+      "mode": "adapter",
+      "engine": "prod-later-runtime-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/delivery",
+        "terraform/environments/prod/retained/data"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/delivery": {
+      "mode": "adapter",
+      "engine": "prod-later-runtime-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/account-baseline",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/platform/app-auth",
+        "terraform/environments/prod/retained/delivery"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/identity": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/alerting": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/app-auth": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Preserve restore identity, State or Cognito credentials."
+    },
+    "terraform/environments/prod/platform/core": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/account-baseline-dns"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/edge": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/gateway"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/gateway": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/account-baseline-dns",
+        "terraform/environments/prod/network/vpc"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/observability": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/account-baseline",
+        "terraform/environments/prod/retained/observability-foundation"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/operations": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/retained/operations"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/private-api": {
+      "mode": "adapter",
+      "engine": "prod-eks-v1",
+      "dependencies": [
+        "terraform/environments/prod/network/vpc"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/queue": {
+      "mode": "adapter",
+      "engine": "prod-later-runtime-v1",
+      "dependencies": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/retained/queue-managed"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/queue-association": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/queue"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/platform/queue-secrets": {
+      "mode": "adapter",
+      "engine": "prod-registered-root-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "reason": "Static source/State/saved-plan provider; exact retained and consumer guards remain mandatory."
+    },
+    "terraform/environments/prod/network/log-storage": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain all Prod network log S3 objects, versions, bucket policy, access and encryption."
+    },
+    "terraform/environments/prod/retained/operations": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain S3/data/KMS/credential/asset identity producer; source-compatible runtime split is required."
+    },
+    "terraform/environments/prod/retained/observability-foundation": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain S3/data/KMS/credential/asset identity producer; source-compatible runtime split is required."
+    },
+    "terraform/environments/prod/retained/queue-managed": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain S3/data/KMS/credential/asset identity producer; source-compatible runtime split is required."
+    },
+    "terraform/environments/prod/retained/delivery": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain S3/data/KMS/credential/asset identity producer; source-compatible runtime split is required."
+    },
+    "terraform/environments/prod/retained/data": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [],
+      "reason": "Retain S3/data/KMS/credential/asset identity producer; source-compatible runtime split is required."
+    },
+    "terraform/environments/prod/bootstrap/ci-identity": {
+      "mode": "retain",
+      "engine": null,
+      "dependencies": [
+        "terraform/environments/prod/bootstrap/state"
+      ],
+      "reason": "Protected account-local GitHub CI identities/OIDC retained; ordinary roles never read this private State."
+    }
+  },
+  "hooks": {
+    "cluster-private-api-check": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-network-probes-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/private-api"
+      ],
+      "required_by": []
+    },
+    "cluster-owned-external-inventory": {
+      "status": "integrated",
+      "reason": "Exact source-bound provider completion readback; no independent no-op receipt.",
+      "engine": "prod-eks-v1",
+      "roots": [
+        "terraform/environments/prod/eks"
+      ]
+    },
+    "node-addon-readiness": {
+      "status": "integrated",
+      "reason": "Exact source-bound provider completion readback; no independent no-op receipt.",
+      "engine": "prod-eks-v1",
+      "roots": [
+        "terraform/environments/prod/eks"
+      ]
+    },
+    "node-network-probes": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-network-probes-v1",
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "hook:cluster-private-api-check"
+      ],
+      "required_by": []
+    },
+    "minimum-argo-bootstrap": {
+      "status": "alias",
+      "reason": "gitops/gitops-lifecycle.py:run -> operations-access.verify_bootstrap_receipt",
+      "provider_hooks": [
+        "platform-core"
+      ],
+      "retained_roots": []
+    },
+    "platform-core": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-gitops-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/core",
+        "hook:cluster-private-api-check"
+      ],
+      "required_by": []
+    },
+    "platform-mesh": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-gitops-v1",
+      "dependencies": [
+        "hook:platform-core"
+      ],
+      "required_by": []
+    },
+    "platform-gateway": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-gitops-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/gateway",
+        "hook:platform-mesh"
+      ],
+      "required_by": []
+    },
+    "app-auth-provision-and-securitypolicy": {
+      "status": "alias",
+      "reason": "gitops/lifecycle_hooks.py:GATEWAY includes gateway-auth; Cognito and verifier Secret root retained",
+      "provider_hooks": [
+        "platform-gateway"
+      ],
+      "retained_roots": [
+        "platform/app-auth"
+      ]
+    },
+    "platform-operations": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/operations",
+        "hook:platform-core",
+        "hook:platform-mesh"
+      ],
+      "required_by": []
+    },
+    "platform-alerting": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/alerting",
+        "hook:platform-observability"
+      ],
+      "required_by": []
+    },
+    "velero-backup-restore": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-velero-v1",
+      "dependencies": [
+        "hook:platform-operations"
+      ],
+      "required_by": []
+    },
+    "platform-observability": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/observability",
+        "hook:self-managed-queue-topics-acl",
+        "hook:platform-operations"
+      ],
+      "required_by": []
+    },
+    "self-managed-queue-topics-acl": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:platform-operations",
+        "hook:platform-mesh"
+      ],
+      "required_by": []
+    },
+    "queue-credentials-provision": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:cluster-private-api-check"
+      ],
+      "required_by": []
+    },
+    "platform-queue": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/queue-secrets",
+        "terraform/environments/prod/platform/queue-association",
+        "hook:queue-credentials-provision",
+        "hook:platform-observability"
+      ],
+      "required_by": []
+    },
+    "trace-drain-switch": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:platform-queue",
+        "hook:platform-observability",
+        "hook:self-managed-queue-topics-acl"
+      ],
+      "required_by": []
+    },
+    "platform-delivery": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/delivery",
+        "hook:argocd-external-secrets-provision",
+        "hook:platform-operations"
+      ],
+      "required_by": []
+    },
+    "argocd-external-secrets-provision": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:cluster-private-api-check"
+      ],
+      "required_by": []
+    },
+    "application-namespace": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:platform-delivery",
+        "hook:platform-mesh"
+      ],
+      "required_by": []
+    },
+    "database-bootstrap": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/identity",
+        "hook:application-namespace",
+        "hook:operator-image-publish",
+        "hook:platform-delivery"
+      ],
+      "required_by": []
+    },
+    "operator-image-publish": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:cluster-private-api-check"
+      ],
+      "required_by": []
+    },
+    "application-runtime": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:database-bootstrap",
+        "hook:platform-gateway",
+        "hook:platform-queue"
+      ],
+      "required_by": [
+        "terraform/environments/prod/platform/edge"
+      ]
+    },
+    "application-mesh": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:application-runtime"
+      ],
+      "required_by": [
+        "terraform/environments/prod/platform/edge"
+      ]
+    },
+    "application-dashboards": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:application-runtime",
+        "hook:platform-observability"
+      ],
+      "required_by": []
+    },
+    "migration-and-seed": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-application-v1",
+      "dependencies": [
+        "hook:application-runtime"
+      ],
+      "required_by": []
+    },
+    "prod-minimum-argo-bootstrap": {
+      "status": "alias",
+      "reason": "gitops/gitops-lifecycle.py:run -> operations-access.verify_bootstrap_receipt",
+      "provider_hooks": [
+        "platform-core"
+      ],
+      "retained_roots": []
+    },
+    "prod-edge-publication": {
+      "status": "integrated",
+      "reason": "Exact source-bound provider completion readback; no independent no-op receipt.",
+      "engine": "prod-registered-root-v1",
+      "roots": [
+        "terraform/environments/prod/platform/edge"
+      ]
+    },
+    "incident-quiescence-and-baseline": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-semantic-v1",
+      "dependencies": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/delivery",
+        "terraform/environments/prod/identity",
+        "terraform/environments/prod/platform/alerting",
+        "terraform/environments/prod/platform/core",
+        "terraform/environments/prod/platform/edge",
+        "terraform/environments/prod/platform/gateway",
+        "terraform/environments/prod/platform/observability",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/platform/private-api",
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/queue-association",
+        "terraform/environments/prod/platform/queue-secrets",
+        "hook:cluster-private-api-check",
+        "hook:platform-core",
+        "hook:platform-mesh",
+        "hook:platform-gateway",
+        "hook:platform-operations",
+        "hook:platform-alerting",
+        "hook:velero-backup-restore",
+        "hook:platform-observability",
+        "hook:self-managed-queue-topics-acl",
+        "hook:queue-credentials-provision",
+        "hook:platform-queue",
+        "hook:trace-drain-switch",
+        "hook:platform-delivery",
+        "hook:argocd-external-secrets-provision",
+        "hook:application-namespace",
+        "hook:database-bootstrap",
+        "hook:operator-image-publish",
+        "hook:application-runtime",
+        "hook:application-mesh",
+        "hook:application-dashboards",
+        "hook:migration-and-seed",
+        "hook:out-of-state-pitr-inventory",
+        "hook:reviewed-cleanup",
+        "hook:service-absence-audit"
+      ],
+      "required_by": []
+    },
+    "out-of-state-pitr-inventory": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-semantic-v1",
+      "dependencies": [
+        "terraform/environments/prod/data"
+      ],
+      "required_by": []
+    },
+    "reviewed-cleanup": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-semantic-v1",
+      "dependencies": [
+        "hook:service-absence-audit"
+      ],
+      "required_by": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/delivery",
+        "terraform/environments/prod/identity",
+        "terraform/environments/prod/platform/alerting",
+        "terraform/environments/prod/platform/core",
+        "terraform/environments/prod/platform/edge",
+        "terraform/environments/prod/platform/gateway",
+        "terraform/environments/prod/platform/observability",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/platform/private-api",
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/queue-association",
+        "terraform/environments/prod/platform/queue-secrets"
+      ]
+    },
+    "service-absence-audit": {
+      "status": "adapter",
+      "reason": "Exact immutable semantic action and authenticated completion receipt.",
+      "engine": "prod-semantic-v1",
+      "dependencies": [],
+      "required_by": []
+    }
+  }
+}

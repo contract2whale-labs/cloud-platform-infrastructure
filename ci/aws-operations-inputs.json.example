@@ -1,0 +1,80 @@
+{
+  "schema": 1,
+  "enabled": false,
+  "targets": {
+    "metrics": {
+      "account": "REPLACE_WITH_ACTUAL_12_DIGIT_ACCOUNT",
+      "region": "ap-northeast-2",
+      "approval_reference": "REPLACE_WITH_CURRENT_APPROVAL",
+      "exclusive_window": false,
+      "valid_until": 0,
+      "role": "cp-dev-observability-writer",
+      "arn": "arn:aws:iam::REPLACE_ACCOUNT:role/platform/cp-dev-observability-writer",
+      "role_id": "REPLACE_WITH_ACTUAL_ROLE_ID",
+      "policy_name": "REPLACE_WITH_PREPARED_INCIDENT_POLICY_NAME",
+      "object_arn": "arn:aws:s3:::cp-dev-observability-metrics-REPLACE_ACCOUNT-ap-northeast-2/dev/metrics/*",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Deny",
+            "Action": [
+              "s3:PutObject"
+            ],
+            "Resource": [
+              "arn:aws:s3:::cp-dev-observability-metrics-REPLACE_ACCOUNT-ap-northeast-2/dev/metrics/*"
+            ],
+            "Condition": {
+              "DateLessThan": {
+                "aws:CurrentTime": "REPLACE_WITH_ORIGINAL_DENY_EXPIRY"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "trace": {
+      "account": "REPLACE_WITH_ACTUAL_12_DIGIT_ACCOUNT",
+      "region": "ap-northeast-2",
+      "approval_reference": "REPLACE_WITH_CURRENT_APPROVAL",
+      "exclusive_window": false,
+      "valid_until": 0,
+      "role": "cp-dev-observability-writer",
+      "arn": "arn:aws:iam::REPLACE_ACCOUNT:role/platform/cp-dev-observability-writer",
+      "role_id": "REPLACE_WITH_ACTUAL_ROLE_ID",
+      "policy_name": "REPLACE_WITH_PREPARED_INCIDENT_POLICY_NAME",
+      "object_arn": "arn:aws:s3:::cp-dev-observability-traces-REPLACE_ACCOUNT-ap-northeast-2/dev/traces-epoch-3/*",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Deny",
+            "Action": [
+              "s3:PutObject"
+            ],
+            "Resource": [
+              "arn:aws:s3:::cp-dev-observability-traces-REPLACE_ACCOUNT-ap-northeast-2/dev/traces-epoch-3/*"
+            ],
+            "Condition": {
+              "DateLessThan": {
+                "aws:CurrentTime": "REPLACE_WITH_ORIGINAL_DENY_EXPIRY"
+              }
+            }
+          }
+        ]
+      }
+    },
+    "nodegroup": {
+      "account": "REPLACE_WITH_ACTUAL_12_DIGIT_ACCOUNT",
+      "region": "ap-northeast-2",
+      "approval_reference": "REPLACE_WITH_CURRENT_APPROVAL",
+      "exclusive_window": false,
+      "valid_until": 0,
+      "cluster": "contract2whale-dev-eks",
+      "nodegroup": "contract2whale-dev-eks-app",
+      "arn": "arn:aws:eks:ap-northeast-2:REPLACE_ACCOUNT:nodegroup/contract2whale-dev-eks/contract2whale-dev-eks-app/REPLACE_ACTUAL_UUID",
+      "approved_max": 3,
+      "incident_max": 2
+    }
+  }
+}

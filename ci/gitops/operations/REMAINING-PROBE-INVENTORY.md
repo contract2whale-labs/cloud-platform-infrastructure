@@ -1,0 +1,51 @@
+# Historical Kubernetes mutation source inventory
+
+Handler contract: add a module under gitops-ci-proposal/operations with IDS, snapshot(io,operation,r,c,marker[,store]) and apply(io,operation,target,r,mark). io exposes require,h,ops.run,kube,identity. snapshot must only read and return deterministic canonical target/action bytes; apply receives exact reviewed snapshot after version/hash/main/State/TTL verification. mark(active|recovery-required|idle,target) preserves nonexpiring private recovery state. Register IDs and dispatch branches in incident_ops.py, select derives IDs; synchronize workflow dropdown. Dev ordinary deployment differs from explicit incident/destructive review. Prod requires protected reviewer. No arbitrary runtime manifest/script/sql inputs.
+
+The listed gaps have since been implemented by platform_probe_ops, velero_ops, bootstrap_job_ops, managed_queue_ops and argo_reviewed_ops. This is historical source discovery, not the current blocker list. See PLATFORM-PROBES.md and ARGO-REVIEWED-OPERATIONS.md for current operations. Do not widen handlers silently to unreviewed Pods, PVCs or CRs. Keep source templates fixed and typed substitutions. Discovery and full owner UID/spec inventory must constrain cleanup.
+
+Source entries (dry-run-only calls are read-only, not mutation):
+
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:72` — `git add gitops/platform/mesh-policy gitops/clusters/dev/platform-applications/mesh-policy.yaml tests/e2e/mesh/checks tests/e2e/mesh/scripts/deploy-probes.sh tests/e2e/mesh/scripts/probe-connect.sh automation/platform-input-mappings.json`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:452` — `- 실패했을 때의 정리는 `deploy-probes.sh`가 출력하는 정리 명령으로 합니다. 실행 UUID label에 해당하는 Deployment만 지웁니다.`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:492` — `image: platform-probe                 # 예: public.ecr.aws/docker/library/python@sha256:<64자리> (deploy-probes.sh 가 치환)`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:609` — `**파일 위치:** `tests/e2e/mesh/scripts/deploy-probes.sh``
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:637` — `kubectl --context "$KUBE_CONTEXT" create -f "local-inputs/mesh-probes-$RUN_ID.yaml"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:642` — `echo "정리: kubectl --context $KUBE_CONTEXT -n team-mesh-check delete deploy -l platform.example/mesh-probe-run=$RUN_ID"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:643` — `echo "정리: kubectl --context $KUBE_CONTEXT -n team-mesh-outside delete deploy -l platform.example/mesh-probe-run=$RUN_ID"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:708` — `bash -n tests/e2e/mesh/scripts/deploy-probes.sh tests/e2e/mesh/scripts/probe-connect.sh`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/03-BU08B-T3-strict-mtls.md:875` — `KUBE_CONTEXT="$DEV_KUBE_CONTEXT" PROBE_IMAGE="$PROBE_IMAGE" bash tests/e2e/mesh/scripts/deploy-probes.sh`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/04-BU08B-T4-mtls-verify.md:639` — `kubectl --context "$DEV_KUBE_CONTEXT" -n team-mesh-check delete deployment -l "platform.example/mesh-probe-run=$MESH_PROBE_RUN_ID" --ignore-not-found`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU08B/04-BU08B-T4-mtls-verify.md:641` — `kubectl --context "$DEV_KUBE_CONTEXT" -n team-mesh-outside delete deployment -l "platform.example/mesh-probe-run=$MESH_PROBE_RUN_ID" --ignore-not-found`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10B/16-BU10B-T8B-collection-gate.md:387` — `kubectl --context "$DEV_KUBE_CONTEXT" create --field-manager=collection-boundary-diagnostic \`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10B/16-BU10B-T8B-collection-gate.md:526` — `kubectl --context "$DEV_KUBE_CONTEXT" delete \`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10B/24-BU10B-T14-alerting-path.md:1229` — `kubectl --context "$DEV_KUBE_CONTEXT" -n monitoring annotate externalsecret grafana-admin "force-sync=$(date +%s)" --overwrite`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md:151` — `http: {enabled: true}  # 예: true (4318; 전환 전 직접 시험용 — trace-probe.sh send 가 distributor 에 바로 보냄; ClusterIP 뿐)`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md:522` — `kubectl --context "$KUBE_CONTEXT" -n observability run "trace-probe-$RANDOM" --image=curlimages/curl:8.14.1 \`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md:567` — `*) echo "usage: trace-probe.sh send|query ..." >&2; exit 2 ;;`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md:1244` — `그 뒤 별도 승인한 소량의 trace 전송 job이 `trace-probe.sh send`로 **e2 distributor에 직접** 고유 `TRACE_E2_DIRECT`를 보냅니다. HTTP 200과 `partialSuccess`의 rejectedSpans=0을 스크립트가 확인하고, `TRACE_SENT`를 출력합니다. 같은 ID를 e2의 live 조회와 blocks 조회로 확인하고, 블록 생성 지연(404 재시도)은 전송 실패와 구분합니다. 이 단계에서는 gateway/active-query를 바꾸지 않습니다.`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md:1355` — `bash "$INFRA_ROOT/platform/environments/dev/queue/scripts/trace-probe.sh" send \`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU11/06-BU11-T6-prepare-platform.md:492` — `kubectl --context "$DEV_KUBE_CONTEXT" -n monitoring annotate externalsecret grafana-admin "force-sync=$(date +%s)" --overwrite`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU13/11-BU13-T9-tests-and-apply.md:2494` — `kubectl --context "$DEV_KUBE_CONTEXT" -n argocd annotate application commerce-web-dev commerce-api-dev argocd.argoproj.io/refresh=normal --overwrite`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/11-BU14-T8-deploy-manifests.md:1481` — `kubectl --context "$DEV_KUBE_CONTEXT" -n argocd annotate application commerce-api-dev commerce-web-dev argocd.argoproj.io/refresh=normal --overwrite`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/12-BU14-T10-delivery-workflows.md:870` — `kubectl --context "$DEV_KUBE_CONTEXT" -n argocd annotate application platform-dev argocd.argoproj.io/refresh=normal --overwrite`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/13-BU14-T8B-ambient-after-first-release.md:974` — `kubectl --context "$DEV_KUBE_CONTEXT" create -f "$MESH_REVIEW_DIR/application-strict.yaml" -o yaml > "$MESH_REVIEW_DIR/created-policy.yaml"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/13-BU14-T8B-ambient-after-first-release.md:1165` — `kubectl --context "$DEV_KUBE_CONTEXT" delete -f "$MESH_REVIEW_DIR/application-strict.yaml"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/17-BU14-T11-v2-and-evidence.md:380` — `kubectl --context "$DEV_KUBE_CONTEXT" create -f operations/jobs/seed-readback-dev.yaml`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU14/17-BU14-T11-v2-and-evidence.md:477` — `kubectl --context "$DEV_KUBE_CONTEXT" -n contract2whale-demo delete job seed-readback`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md:2328` — `http: {enabled: true}  # 예: true (4318; 전환 전 직접 시험용 — trace-probe.sh send 가 distributor 에 바로 보냄; ClusterIP 뿐)`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md:3670` — `kubectl --context "$KUBE_CONTEXT" -n observability run "trace-probe-$RANDOM" --image=curlimages/curl:8.14.1 \`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md:3715` — `*) echo "usage: trace-probe.sh send|query ..." >&2; exit 2 ;;`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md:4312` — `KUBE_CONTEXT="$PROD_KUBE_CONTEXT" bash scripts/trace-probe.sh send --endpoint http://platform-tempo-e2-distributor.monitoring:4318 --id "$TRACE_ID"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md:4770` — `KUBE_CONTEXT="$PROD_KUBE_CONTEXT" bash scripts/trace-probe.sh send --endpoint http://collection-gateway.observability:4318 --id "$ROUTED_TRACE_ID"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/07-BU15-T6-prod-operations.md:2145` — `kubectl --context "$PROD_KUBE_CONTEXT" -n velero create -f "$INFRA_ROOT/gitops/platform/velero-resources/overlays/prod/backup-request.yaml"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/07-BU15-T6-prod-operations.md:2203` — `kubectl --context "$PROD_KUBE_CONTEXT" -n velero create -f "$INFRA_ROOT/gitops/platform/velero-resources/overlays/prod/restore-request.yaml"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/07-BU15-T6-prod-operations.md:2417` — `kubectl --context "$PROD_KUBE_CONTEXT" -n backup-probe-restored delete pod writer --wait=true`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/07-BU15-T6-prod-operations.md:2419` — `kubectl --context "$PROD_KUBE_CONTEXT" -n backup-probe-restored delete pvc data --wait=true`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md:2194` — `kubectl create PrometheusRule -> expr: vector(time()) < PROBE_UNTIL, +600초`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md:2288` — `kubectl --context "$PROD_KUBE_CONTEXT" create -f operations/jobs/notification-probe-prod.yaml -o json > "$PROBE_DIR/created.json" 2> "$PROBE_DIR/create.err"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md:2429` — `kubectl --context "$PROD_KUBE_CONTEXT" -n monitoring delete prometheusrule prod-notification-probe --wait=true`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/12-BU15-T10A-application-mesh.md:900` — `kubectl --context "$PROD_KUBE_CONTEXT" create --save-config -f "$MESH_DRILL_DIR/prod-app-strict.yaml" -o json > "$MESH_DRILL_DIR/strict-created.json"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/12-BU15-T10A-application-mesh.md:1204` — `kubectl --context "$PROD_KUBE_CONTEXT" delete --raw="/apis/security.istio.io/v1/namespaces/contract2whale-demo/peerauthentications/prod-app-strict" -f "$MESH_DRILL_DIR/delete-options.json"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/13-BU15-T10B-second-release-and-canary.md:499` — `kubectl --context "$PROD_KUBE_CONTEXT" create --save-config -f operations/jobs/seed-readback-prod.yaml -o json > "$RELEASE_DIR/readback-created.json"`
+- `cumulative-lifecycle/course/전체교안/쉬운버전/BU15/13-BU15-T10B-second-release-and-canary.md:664` — `kubectl --context "$PROD_KUBE_CONTEXT" delete --raw="/apis/batch/v1/namespaces/contract2whale-demo/jobs/seed-readback" -f "$RELEASE_DIR/readback-delete-options.json"`

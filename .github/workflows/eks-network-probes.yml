@@ -1,0 +1,57 @@
+name: eks-network-probes
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  bu07-initial-probes:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    environment: infra-dev-apply
+    container:
+      image: ${{ vars.LIFECYCLE_TOOLCHAIN_IMAGE }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      PROBE_ENVIRONMENT: dev
+      PROBE_APPLY_ENVIRONMENT: infra-dev-apply
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      LIFECYCLE_TOOLCHAIN_IMAGE: ${{ vars.LIFECYCLE_TOOLCHAIN_IMAGE }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Check immutable runner and expected initial target
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$LIFECYCLE_TOOLCHAIN_IMAGE" =~ ^[a-z0-9][a-z0-9./:_-]*@sha256:[0-9a-f]{64}$ ]]
+          test "$AWS_ROLE_ARN" = "arn:aws:iam::$EXPECTED_ACCOUNT_ID:role/gha-infra-dev-apply"
+          for tool in aws kubectl session-manager-plugin python3 git gh; do command -v "$tool" >/dev/null; done
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+          mask-aws-account-id: true
+          role-duration-seconds: 3600
+      - name: Initial BU07 private network probes
+        shell: bash
+        run: python3 -I ci/initial-eks-network-probes.py

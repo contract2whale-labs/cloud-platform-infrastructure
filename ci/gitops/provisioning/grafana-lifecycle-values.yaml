@@ -1,0 +1,13 @@
+# Merge into monitoring/values/dev.yaml and independently reviewed lab prod.yaml.
+# Disposable course baseline only. Export manual/UI-only edits before Down;
+# they are not restored by Up. Real-production volumes remain retained.
+grafana:
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+      labelValue: '1'
+      searchNamespace: monitoring
+  # Marker checked along with exact reviewed source digest by the reset guard.
+  podAnnotations:
+    contract2whale.course/restore-mode: provisioned-lifecycle-baseline

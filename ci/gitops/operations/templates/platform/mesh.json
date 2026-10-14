@@ -1,0 +1,279 @@
+[
+  {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "mesh-server",
+      "namespace": "team-mesh-check"
+    },
+    "spec": {
+      "replicas": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "mesh-server"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "mesh-server"
+          }
+        },
+        "spec": {
+          "serviceAccountName": "mesh-server",
+          "automountServiceAccountToken": false,
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "probe",
+              "image": "platform-probe",
+              "command": [
+                "python3",
+                "-m",
+                "http.server",
+                "8080"
+              ],
+              "ports": [
+                {
+                  "name": "http",
+                  "containerPort": 8080
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "resources": {
+                "requests": {
+                  "cpu": "10m",
+                  "memory": "32Mi"
+                },
+                "limits": {
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "mesh-client",
+      "namespace": "team-mesh-check"
+    },
+    "spec": {
+      "replicas": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "mesh-client"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "mesh-client"
+          }
+        },
+        "spec": {
+          "serviceAccountName": "mesh-client",
+          "automountServiceAccountToken": false,
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "probe",
+              "image": "platform-probe",
+              "command": [
+                "python3",
+                "-c",
+                "import time; time.sleep(3600)"
+              ],
+              "ports": [
+                {
+                  "name": "http",
+                  "containerPort": 8080
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "resources": {
+                "requests": {
+                  "cpu": "10m",
+                  "memory": "32Mi"
+                },
+                "limits": {
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "mesh-stranger",
+      "namespace": "team-mesh-check"
+    },
+    "spec": {
+      "replicas": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "mesh-stranger"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "mesh-stranger"
+          }
+        },
+        "spec": {
+          "serviceAccountName": "mesh-stranger",
+          "automountServiceAccountToken": false,
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "probe",
+              "image": "platform-probe",
+              "command": [
+                "python3",
+                "-c",
+                "import time; time.sleep(3600)"
+              ],
+              "ports": [
+                {
+                  "name": "http",
+                  "containerPort": 8080
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "resources": {
+                "requests": {
+                  "cpu": "10m",
+                  "memory": "32Mi"
+                },
+                "limits": {
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  },
+  {
+    "apiVersion": "apps/v1",
+    "kind": "Deployment",
+    "metadata": {
+      "name": "mesh-outside",
+      "namespace": "team-mesh-outside"
+    },
+    "spec": {
+      "replicas": 1,
+      "selector": {
+        "matchLabels": {
+          "app": "mesh-outside"
+        }
+      },
+      "template": {
+        "metadata": {
+          "labels": {
+            "app": "mesh-outside"
+          }
+        },
+        "spec": {
+          "serviceAccountName": "mesh-outside",
+          "automountServiceAccountToken": false,
+          "securityContext": {
+            "runAsNonRoot": true,
+            "runAsUser": 1000,
+            "seccompProfile": {
+              "type": "RuntimeDefault"
+            }
+          },
+          "containers": [
+            {
+              "name": "probe",
+              "image": "platform-probe",
+              "command": [
+                "python3",
+                "-c",
+                "import time; time.sleep(3600)"
+              ],
+              "ports": [
+                {
+                  "name": "http",
+                  "containerPort": 8080
+                }
+              ],
+              "securityContext": {
+                "allowPrivilegeEscalation": false,
+                "readOnlyRootFilesystem": true,
+                "capabilities": {
+                  "drop": [
+                    "ALL"
+                  ]
+                }
+              },
+              "resources": {
+                "requests": {
+                  "cpu": "10m",
+                  "memory": "32Mi"
+                },
+                "limits": {
+                  "memory": "128Mi"
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  }
+]

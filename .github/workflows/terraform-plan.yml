@@ -1,49 +1,23 @@
 name: terraform-plan
-
-on:
-  pull_request:
-
+'on':
+  pull_request: null
 permissions:
   contents: read
-
 jobs:
   tf-pick-roots:
-    # fork 에서 온 PR 은 OIDC 를 받을 수 없으므로 실행하지 않습니다.
     if: github.event.pull_request.head.repo.full_name == github.repository
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{ steps.m.outputs.matrix }}
-      detail: ${{ steps.m.outputs.detail }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - id: m
-        env:
-          BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          REPO_PRIVATE: ${{ github.event.repository.private }}
-        run: |
-          set -euo pipefail
-          # private 저장소는 plan 원문(full), public 저장소는 변경 대상과 개수만(summary) 게시합니다.
-          if [ "$REPO_PRIVATE" = "true" ]; then echo "detail=full" >> "$GITHUB_OUTPUT"; else echo "detail=summary" >> "$GITHUB_OUTPUT"; fi
-          git diff --name-only "$BASE_SHA"...HEAD > changed.txt
-          # 디렉터리가 있는 등록 root 만 대상으로 삼습니다.
-          for p in $(jq -r '.roots[].path' ci/roots.json); do
-            if [ -d "$p" ]; then echo "$p"; fi
-          done > existing.txt
-          # 공통 module 이 바뀌면 존재하는 모든 root, 아니면 바뀐 root 만 고릅니다.
-          matrix="$(jq -c --rawfile ch changed.txt --rawfile ex existing.txt '
-            ($ch | split("\n")) as $f
-            | ($ex | split("\n")) as $e
-            | [ .roots[] | . as $r
-                | select($e | index($r.path))
-                | select(($f | any(startswith("terraform/modules/")))
-                         or ($f | any(startswith($r.path + "/"))))
-                | . + {key: (.path | sub("^terraform/environments/[^/]+/"; "") + "/terraform.tfstate")} ]' ci/roots.json)"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
-          echo "$matrix"
-
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        fetch-depth: 0
+        persist-credentials: false
+    - id: m
+      env:
+        BASE_SHA: ${{ github.event.pull_request.base.sha }}
+      run: python3 ci/deploy-select.py preview
   tf-plan:
     needs: tf-pick-roots
     if: needs.tf-pick-roots.outputs.matrix != '[]'
@@ -63,102 +37,54 @@ jobs:
       STATE_BUCKET: ${{ vars.STATE_BUCKET }}
       AWS_REGION: ${{ vars.AWS_REGION }}
       EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
-      # public 저장소에서는 Secret(로그에서 가려짐), private 저장소에서는 Variable 에 둡니다.
       TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
-      PLAN_DETAIL: ${{ needs.tf-pick-roots.outputs.detail }}
       GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.EXPECTED_APPLY_ROLE_ARN }}
+      TF_IN_AUTOMATION: 'true'
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
-        with:
-          terraform_version: 1.16.0
-          terraform_wrapper: false
-
-      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: 계정 확인
-        run: |
-          set -euo pipefail
-          test "$(aws sts get-caller-identity --query Account --output text)" = "$EXPECTED_ACCOUNT_ID"
-
-      - name: init
-        working-directory: ${{ matrix.root.path }}
-        run: |
-          set -euo pipefail
-          # 환경 변수 TF_VARS_JSON 에서 이 root 의 입력만 꺼내 terraform.tfvars.json 으로 만듭니다.
-          if [ -z "$TF_VARS_JSON" ]; then TF_VARS_JSON='{}'; fi
-          echo "$TF_VARS_JSON" | jq --arg k "${STATE_KEY%/terraform.tfstate}" '.[$k] // {}' > terraform.tfvars.json
-          {
-            echo "bucket              = \"$STATE_BUCKET\""
-            echo "key                 = \"$STATE_KEY\""
-            echo "region              = \"$AWS_REGION\""
-            echo "encrypt             = true"
-            echo "use_lockfile        = true"
-            echo "allowed_account_ids = [\"$EXPECTED_ACCOUNT_ID\"]"
-          } > backend.hcl
-          terraform init -input=false -lockfile=readonly -backend-config=backend.hcl
-
-      - name: plan
-        working-directory: ${{ matrix.root.path }}
-        run: |
-          set -euo pipefail
-          if [ "$PLAN_DETAIL" = "full" ]; then
-            terraform plan -input=false -lock-timeout=5m -out=change.tfplan
-          else
-            # public 저장소: plan 의 값이 공개 로그에 남지 않도록 출력을 파일로만 받습니다.
-            rc=0
-            terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
-              exit "$rc"
-            fi
-          fi
-          terraform show -no-color change.tfplan > plan.txt
-          grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
-
-      - name: PR 에 plan 게시
-        working-directory: ${{ matrix.root.path }}
-        run: |
-          set -euo pipefail
-          {
-            if [ "$PLAN_DETAIL" = "full" ]; then
-              echo "### terraform plan: $ROOT_PATH"
-              echo '~~~text'
-              head -c 60000 plan.txt
-              echo
-              echo '~~~'
-            else
-              echo "### terraform plan 요약: $ROOT_PATH"
-              echo "public 저장소라 변경 값은 게시하지 않고 변경 대상과 개수만 게시합니다."
-              echo '~~~text'
-              cat plan.summary.txt
-              echo '~~~'
-            fi
-          } > comment.md
-          gh pr comment "$PR_NUMBER" --body-file comment.md
-
-  # 필수 검사로 등록할 단일 결과 job 입니다. matrix job 이름은 매번 달라 필수 검사로 고를 수 없습니다.
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+        mask-aws-account-id: true
+    - name: Private PR preview plan
+      run: |
+        set -euo pipefail
+        python3 ci/saved-plan.py preview
+        cp "$GITHUB_STEP_SUMMARY" "$RUNNER_TEMP/plan-comment.md"
+    - name: PR에 안전한 검토 정보 게시
+      run: gh pr comment "$PR_NUMBER" --body-file "$RUNNER_TEMP/plan-comment.md"
   tf-plan-result:
-    needs: [tf-pick-roots, tf-plan]
+    needs:
+    - tf-pick-roots
+    - tf-plan
     if: always()
     runs-on: ubuntu-latest
     steps:
-      - name: tf-pick-roots/tf-plan 결과 확인
-        env:
-          RESULTS: ${{ join(needs.*.result, ' ') }}
-        run: |
-          set -euo pipefail
-          for r in $RESULTS; do
-            case "$r" in
-              success|skipped) ;;
-              *) echo "실패한 job 이 있습니다: $r"; exit 1 ;;
-            esac
-          done
+    - name: 실제로 실행된 PR plan 판정
+      env:
+        PICK_RESULT: ${{ needs.tf-pick-roots.result }}
+        PLAN_RESULT: ${{ needs.tf-plan.result }}
+        MATRIX: ${{ needs.tf-pick-roots.outputs.matrix }}
+      run: |
+        set -euo pipefail
+        # fork PR의 OIDC SKIP을 성공한 plan으로 표시하지 않습니다.
+        if [ "$PICK_RESULT" != "success" ]; then
+          echo "Root selection did not run successfully. A trusted same-repository PR plan is required."
+          exit 1
+        fi
+        if [ "$MATRIX" = "[]" ]; then
+          test "$PLAN_RESULT" = "skipped"
+        else
+          test "$PLAN_RESULT" = "success"
+        fi

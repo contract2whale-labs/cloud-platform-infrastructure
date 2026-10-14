@@ -1,0 +1,13 @@
+{
+  "schema": 1,
+  "environments": {
+    "dev": {
+      "prepared_chapter": null,
+      "roots": []
+    },
+    "prod": {
+      "prepared_chapter": null,
+      "roots": []
+    }
+  }
+}

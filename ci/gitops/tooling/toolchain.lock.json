@@ -1,0 +1,229 @@
+{
+  "schema_version": 1,
+  "platform": "linux/amd64",
+  "python": "3.12.14",
+  "base_image": "docker.io/library/python:3.12.14-slim-bookworm@sha256:392307d22300de8b5986851a12d9176dfc0fc073e65bf6523ebd7dcbeb23564e",
+  "apt_snapshot": "20261007T000000Z",
+  "tools": [
+    {
+      "name": "terraform",
+      "version": "1.16.0",
+      "url": "https://releases.hashicorp.com/terraform/1.16.0/terraform_1.16.0_linux_amd64.zip",
+      "sha256": "41d05b927aa174f15d1228c4eba832a323b716c68b415ef5a00179f46cc602d3",
+      "archive": "zip",
+      "member": "terraform",
+      "binary": "terraform",
+      "bytes": 36280326
+    },
+    {
+      "name": "helm",
+      "version": "3.21.2",
+      "url": "https://get.helm.sh/helm-v3.21.2-linux-amd64.tar.gz",
+      "sha256": "0a745198de24545d0055cd8414bc8d2ba10363ef5f5d38369ea1b399671cc083",
+      "archive": "tar",
+      "member": "linux-amd64/helm",
+      "binary": "helm",
+      "bytes": 17824916
+    },
+    {
+      "name": "kubectl",
+      "version": "1.36.4",
+      "url": "https://dl.k8s.io/release/v1.36.4/bin/linux/amd64/kubectl",
+      "sha256": "8b8f088da2dab964f853b38464033b1be15ede2839eca751482357c45abdd05a",
+      "archive": "raw",
+      "member": "",
+      "binary": "kubectl",
+      "bytes": 59572386
+    },
+    {
+      "name": "kustomize",
+      "version": "5.8.1",
+      "url": "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.8.1/kustomize_v5.8.1_linux_amd64.tar.gz",
+      "sha256": "029a7f0f4e1932c52a0476cf02a0fd855c0bb85694b82c338fc648dcb53a819d",
+      "archive": "tar",
+      "member": "kustomize",
+      "binary": "kustomize",
+      "bytes": 5171673
+    },
+    {
+      "name": "awscli",
+      "version": "2.36.44",
+      "url": "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-2.36.44.zip",
+      "sha256": "617845f42577b8c1deba29eb5195ced529ee98241ccf4dad922745a287722af4",
+      "archive": "aws",
+      "member": "",
+      "binary": "aws",
+      "bytes": 73430427
+    },
+    {
+      "name": "argocd",
+      "version": "3.5.2",
+      "url": "https://github.com/argoproj/argo-cd/releases/download/v3.5.2/argocd-linux-amd64",
+      "sha256": "d87058531d2aed735100636dd7664bdd49b862588993b571385c49494f9832c1",
+      "archive": "raw",
+      "member": "",
+      "binary": "argocd",
+      "bytes": 249661350
+    },
+    {
+      "name": "argo-rollouts",
+      "version": "1.10.0",
+      "url": "https://github.com/argoproj/argo-rollouts/releases/download/v1.10.0/kubectl-argo-rollouts-linux-amd64",
+      "sha256": "57a464e80c3e716076c9760e1d15ff06b853e3bcab3e22e30f4dba8a3e9f29b2",
+      "archive": "raw",
+      "member": "",
+      "binary": "kubectl-argo-rollouts",
+      "bytes": 141635843
+    },
+    {
+      "name": "kubeconform",
+      "version": "0.8.0",
+      "url": "https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz",
+      "sha256": "9bc2bffbf71f261128533edaf912153948b7ff238f9a531ae6d34466ec287883",
+      "archive": "tar",
+      "member": "kubeconform",
+      "binary": "kubeconform",
+      "bytes": 7534236
+    },
+    {
+      "name": "cosign",
+      "version": "3.1.3",
+      "url": "https://github.com/sigstore/cosign/releases/download/v3.1.3/cosign-linux-amd64",
+      "sha256": "4629c757b7618056f8ddd7e2625ae9fdd94c0372a65049520bc7d9df9efc7f71",
+      "archive": "raw",
+      "member": "",
+      "binary": "cosign",
+      "bytes": 141178250
+    },
+    {
+      "name": "syft",
+      "version": "1.51.1",
+      "url": "https://github.com/anchore/syft/releases/download/v1.51.1/syft_1.51.1_linux_amd64.tar.gz",
+      "sha256": "8fcb33017a0dc1058298c923c436d19dfa68ae93968e0b423248542e3afb9fc3",
+      "archive": "tar",
+      "member": "syft",
+      "binary": "syft",
+      "bytes": 29203595
+    },
+    {
+      "name": "trivy",
+      "version": "0.74.0",
+      "url": "https://github.com/aquasecurity/trivy/releases/download/v0.74.0/trivy_0.74.0_Linux-64bit.tar.gz",
+      "sha256": "2ae6fe3ee734b7fdf11335663e18c75ea12dccc76062f09f164a3b0f8be4371a",
+      "archive": "tar",
+      "member": "trivy",
+      "binary": "trivy",
+      "bytes": 50419107
+    },
+    {
+      "name": "istioctl",
+      "version": "1.30.4",
+      "url": "https://github.com/istio/istio/releases/download/1.30.4/istioctl-1.30.4-linux-amd64.tar.gz",
+      "sha256": "feda625a00dfc69135f4692442ef66eb2fa8aea848b483348c330a1138fe392f",
+      "archive": "tar",
+      "member": "istioctl",
+      "binary": "istioctl",
+      "bytes": 29059025
+    },
+    {
+      "name": "nodejs",
+      "version": "24.21.0",
+      "url": "https://nodejs.org/dist/v24.21.0/node-v24.21.0-linux-x64.tar.xz",
+      "sha256": "fd8e59d5a511510f6a298afb548f18c7d2b1be404d8b4a27d94fbe49f56cb2d6",
+      "archive": "node",
+      "member": "",
+      "binary": "node",
+      "bytes": 31890184
+    },
+    {
+      "name": "golang",
+      "version": "1.26.5",
+      "url": "https://go.dev/dl/go1.26.5.linux-amd64.tar.gz",
+      "sha256": "5c2c3b16caefa1d968a94c1daca04a7ca301a496d9b086e17ad77bb81393f053",
+      "archive": "go",
+      "member": "",
+      "binary": "go",
+      "bytes": 66879095
+    },
+    {
+      "name": "kyverno",
+      "version": "1.19.0",
+      "url": "https://github.com/kyverno/kyverno/releases/download/v1.19.0/kyverno-cli_v1.19.0_linux_x86_64.tar.gz",
+      "sha256": "f5b4dc73c8e2f3f66e8e0034dc370e6eb6c4617eff7d5ae3838d2200034eb421",
+      "archive": "tar",
+      "member": "kyverno",
+      "binary": "kyverno",
+      "bytes": 53326448
+    },
+    {
+      "name": "actionlint",
+      "version": "1.7.12",
+      "url": "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_1.7.12_linux_amd64.tar.gz",
+      "sha256": "8aca8db96f1b94770f1b0d72b6dddcb1ebb8123cb3712530b08cc387b349a3d8",
+      "archive": "tar",
+      "member": "actionlint",
+      "binary": "actionlint",
+      "bytes": 2353908
+    },
+    {
+      "name": "tflint",
+      "version": "0.64.0",
+      "url": "https://github.com/terraform-linters/tflint/releases/download/v0.64.0/tflint_linux_amd64.zip",
+      "sha256": "cca9d13e2e1d7a2c627af60ff899a3c9b74212899416aeb96ec764d2ef954537",
+      "archive": "zip",
+      "member": "tflint",
+      "binary": "tflint",
+      "bytes": 17105397
+    },
+    {
+      "name": "zizmor",
+      "version": "1.30.1",
+      "url": "https://github.com/zizmorcore/zizmor/releases/download/v1.30.1/zizmor-x86_64-unknown-linux-gnu.tar.gz",
+      "sha256": "e65324f4430c2717591937edcec90ccbefaf14c174f8ec9415e03ca875b46e1a",
+      "archive": "tar",
+      "member": "zizmor",
+      "binary": "zizmor",
+      "bytes": 9169512
+    },
+    {
+      "name": "yq",
+      "version": "4.53.6",
+      "url": "https://github.com/mikefarah/yq/releases/download/v4.53.6/yq_linux_amd64",
+      "sha256": "c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385",
+      "archive": "raw",
+      "member": "",
+      "binary": "yq",
+      "bytes": 14180512
+    },
+    {
+      "name": "promtool",
+      "version": "3.9.1",
+      "url": "https://github.com/prometheus/prometheus/releases/download/v3.9.1/prometheus-3.9.1.linux-amd64.tar.gz",
+      "sha256": "86a6999dd6aacbd994acde93c77cfa314d4be1c8e7b7c58f444355c77b32c584",
+      "archive": "tar",
+      "member": "prometheus-3.9.1.linux-amd64/promtool",
+      "binary": "promtool",
+      "bytes": 131949217
+    },
+    {
+      "name": "session-manager-plugin",
+      "version": "1.2.835.0",
+      "url": "https://s3.amazonaws.com/session-manager-downloads/plugin/1.2.835.0/ubuntu_64bit/session-manager-plugin.deb",
+      "sha256": "7c6dcad12518571cc7959a713e6a8ae1bdf6ed66fd9bee37dc189e39ca58ae03",
+      "archive": "deb",
+      "member": "",
+      "binary": "session-manager-plugin",
+      "bytes": 4062058
+    },
+    {
+      "name": "gh",
+      "version": "2.83.0",
+      "url": "https://github.com/cli/cli/releases/download/v2.83.0/gh_2.83.0_linux_amd64.tar.gz",
+      "sha256": "a5cf6cdb40fc67751adf561126b3314044779cea81ba4f254fbe8e9a69f1676f",
+      "archive": "tar",
+      "member": "gh_2.83.0_linux_amd64/bin/gh",
+      "binary": "gh",
+      "bytes": 18175244
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+global:
+  nodeSelector:
+    workload: system
+  logging:
+    format: json
+crds:
+  install: true
+  keep: true
+configs:
+  cm:
+    admin.enabled: true
+    exec.enabled: false
+    application.resourceTrackingMethod: annotation
+    kustomize.buildOptions: --enable-helm
+    timeout.reconciliation: 180s
+  params:
+    server.insecure: true
+  repositories:
+    cert-manager:
+      name: cert-manager
+      type: helm
+      url: quay.io/jetstack/charts
+      enableOCI: "true"
+controller:
+  replicas: 1
+  resources:
+    requests: {cpu: 250m, memory: 512Mi}
+    limits: {memory: 1Gi}
+repoServer:
+  replicas: 1
+  resources:
+    requests: {cpu: 100m, memory: 256Mi}
+    limits: {memory: 512Mi}
+server:
+  replicas: 1
+  service:
+    type: ClusterIP
+  resources:
+    requests: {cpu: 100m, memory: 128Mi}
+    limits: {memory: 256Mi}
+redis:
+  enabled: true
+  resources:
+    requests: {cpu: 50m, memory: 64Mi}
+    limits: {memory: 128Mi}
+applicationSet:
+  replicas: 1
+  resources:
+    requests: {cpu: 50m, memory: 128Mi}
+    limits: {memory: 256Mi}
+dex:
+  enabled: false
+notifications:
+  enabled: false

@@ -1,0 +1,37 @@
+{
+  "environments": {
+    "prod": {
+      "velero-lab-backup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "lab-probe-overwrite-and-24h-backup",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "velero-lab-restore": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "lab-probe-overwrite-and-24h-backup",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "velero-lab-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "delete-exact-disposable-restored-pvc-and-volume",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "apiVersion": "v1",
+  "kind": "ConfigMap",
+  "metadata": {
+    "name": "database-bootstrap-reviewedrequest001",
+    "namespace": "contract2whale-demo",
+    "labels": {
+      "app.kubernetes.io/name": "database-bootstrap",
+      "app.kubernetes.io/part-of": "contract2whale",
+      "contract2whale.course/run-id": "a3d58c60-12ef-4cf1-8ed9-76f16b880001"
+    },
+    "annotations": {
+      "argocd.argoproj.io/sync-options": "Prune=confirm",
+      "argocd.argoproj.io/sync-wave": "0"
+    }
+  },
+  "immutable": true,
+  "data": {
+    "DATA_ENVIRONMENT": "dev",
+    "DATA_ACCOUNT_ID": "111111111111",
+    "DATA_REGION": "ap-northeast-2",
+    "DATA_DB_ADDRESS": "example-dev-database.ap-northeast-2.rds.amazonaws.com",
+    "DATA_DB_PORT": "5432",
+    "DATA_DB_NAME": "commercedb",
+    "DATA_DB_SCHEMA": "public",
+    "DATA_DB_ENGINE_VERSION": "17",
+    "DATA_REDIS_ADDRESS": "example-dev-cache.apn2.cache.amazonaws.com",
+    "DATA_REDIS_PORT": "6379",
+    "DATA_REDIS_TLS": "true",
+    "DATA_DB_MIGRATION_ROLE": "commerce_migrator",
+    "DATA_DB_RUNTIME_ROLE": "commerce_runtime",
+    "DATA_MASTER_SECRET_ARN": "arn:aws:secretsmanager:ap-northeast-2:111111111111:secret:rds!cluster-example",
+    "DATA_MIGRATION_SECRET_ARN": "arn:aws:secretsmanager:ap-northeast-2:111111111111:secret:commerce/dev/migration-example",
+    "DATA_RUNTIME_SECRET_ARN": "arn:aws:secretsmanager:ap-northeast-2:111111111111:secret:commerce/dev/runtime-example",
+    "DATA_APP_SECRET_ARN": "arn:aws:secretsmanager:ap-northeast-2:111111111111:secret:commerce/dev/application-example"
+  }
+}

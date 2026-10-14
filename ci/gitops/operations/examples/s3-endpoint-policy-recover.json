@@ -1,0 +1,11 @@
+{
+  "source_sha": "REPLACE_WITH_REVIEWED_40_HEX_INFRASTRUCTURE_COMMIT",
+  "expires_at": "2000-01-01T00:00:00Z",
+  "change_request": "REPLACE_WITH_CURRENT_SECURITY_APPROVAL_REFERENCE",
+  "data_decision": "restore-reviewed-s3-gateway-endpoint-policy",
+  "endpoint_id": "REPLACE_WITH_ACTUAL_STATE_OWNED_S3_GATEWAY_ENDPOINT_ID",
+  "vpc_id": "REPLACE_WITH_ACTUAL_DEV_VPC_ID",
+  "policy_sha256": "REPLACE_WITH_SHA256_OF_COMMITTED_FIXED_POLICY_FILE",
+  "policy_expansion_approved": false,
+  "reconcile_source_change": "REPLACE_WITH_FOLLOWUP_SOURCE_RECONCILIATION_CHANGE"
+}

@@ -1,0 +1,35 @@
+[
+  {
+    "apiVersion": "monitoring.coreos.com/v1",
+    "kind": "PrometheusRule",
+    "metadata": {
+      "name": "prod-notification-probe",
+      "namespace": "monitoring",
+      "labels": {
+        "release": "platform-monitoring",
+        "platform-course-probe-id": "<기록한 실제 PROBE_ID UUID>"
+      }
+    },
+    "spec": {
+      "groups": [
+        {
+          "name": "prod-notification-probe",
+          "rules": [
+            {
+              "alert": "ProdNotificationProbe",
+              "expr": "vector(time()) < <기록한 실제 종료 epoch 초>",
+              "for": "30s",
+              "labels": {
+                "severity": "warning"
+              },
+              "annotations": {
+                "summary": "Prod notification path probe",
+                "description": "Temporary probe that stops firing at the recorded epoch second."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  }
+]

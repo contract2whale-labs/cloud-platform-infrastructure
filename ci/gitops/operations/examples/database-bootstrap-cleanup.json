@@ -1,0 +1,12 @@
+{
+  "source_sha": "REPLACE_WITH_REVIEWED_40_HEX_INFRASTRUCTURE_COMMIT",
+  "expires_at": "2000-01-01T00:00:00Z",
+  "change_request": "REPLACE_WITH_CURRENT_APPROVAL_REFERENCE",
+  "data_decision": "remove-completed-bootstrap-job-and-configmap",
+  "bootstrap_run_id": "REPLACE_WITH_ORIGINAL_SUCCESSFUL_BOOTSTRAP_UUID",
+  "creation_receipt": {
+    "key": "REPLACE_WITH_EXACT_CI_RECEIPT_KEY",
+    "version": "REPLACE_WITH_IMMUTABLE_OBJECT_VERSION",
+    "sha256": "REPLACE_WITH_EXACT_RECEIPT_SHA256"
+  }
+}

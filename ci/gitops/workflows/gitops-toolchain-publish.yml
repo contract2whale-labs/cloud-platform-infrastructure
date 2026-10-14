@@ -1,0 +1,41 @@
+name: gitops-toolchain-publish
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    environment: gitops-toolchain-publish
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - name: Build locked tooling and publish immutable digest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          image="ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/platform-toolchain"
+          tag="$image:source-$GITHUB_SHA"
+          log="$RUNNER_TEMP/toolchain-build.log"
+          trap 'rm -f "$log"; docker logout ghcr.io >/dev/null 2>&1 || true' EXIT
+          printf '%s' "$GH_TOKEN" | docker login ghcr.io -u "$GITHUB_ACTOR" --password-stdin > "$log" 2>&1
+          docker build --platform linux/amd64 -t "$tag" ci/gitops/tooling >> "$log" 2>&1
+          docker run --rm --entrypoint python3 "$tag" -c 'import yaml' >> "$log" 2>&1
+          docker push "$tag" >> "$log" 2>&1
+          digest=$(docker image inspect "$tag" --format '{{index .RepoDigests 0}}')
+          [[ "$digest" =~ ^ghcr.io/.+@sha256:[0-9a-f]{64}$ ]]
+          docker pull "$digest" >> "$log" 2>&1
+          # Only immutable public source/tool fingerprints, never cloud outputs/secrets.
+          printf 'source_sha: %s\noperator_image: %s\n' "$GITHUB_SHA" "$digest" >> "$GITHUB_STEP_SUMMARY"
+          docker run --rm --entrypoint python3 "$digest" -c 'import hashlib,json,pathlib,shutil;print(json.dumps({x:hashlib.sha256(pathlib.Path(shutil.which(x)).read_bytes()).hexdigest() for x in ("aws","kubectl","argocd","helm","session-manager-plugin","gh","cosign")}))' >> "$GITHUB_STEP_SUMMARY"
+          printf '\nUse register-toolchain.py with these reviewed fingerprints. Set protected repository variable LIFECYCLE_TOOLCHAIN_IMAGE to operator_image for common BU06+ lifecycle jobs.\n' >> "$GITHUB_STEP_SUMMARY"

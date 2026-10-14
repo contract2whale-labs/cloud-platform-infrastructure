@@ -1,0 +1,115 @@
+name: gitops-access-bootstrap
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        options: [dev, prod]
+        required: true
+      mode:
+        description: First cluster install or reviewed same-cluster access expansion
+        type: choice
+        options: [initial, access-refresh]
+        default: initial
+        required: true
+      previous_receipt_version:
+        description: Exact current complete receipt version for access-refresh
+        type: string
+      previous_receipt_sha256:
+        description: Exact current complete receipt SHA-256 for access-refresh
+        type: string
+      bundle_sha256:
+        description: Reviewed access-manifest.json SHA-256
+        type: string
+        required: true
+      checkpoint_version:
+        description: Exact private course checkpoint version, if present
+        type: string
+      checkpoint_sha256:
+        description: Exact private course checkpoint content SHA-256, if present
+        type: string
+      generation:
+        description: Retained course generation, if present
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
+jobs:
+  select:
+    runs-on: ubuntu-24.04
+    outputs:
+      image: ${{ steps.registry.outputs.image }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - id: registry
+        shell: bash
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, pathlib, re
+          c=json.loads(pathlib.Path('ci/gitops/operations.json').read_text())
+          assert c.get('enabled') is True
+          image=c['operator_image']
+          assert re.fullmatch(r'.+@sha256:[0-9a-f]{64}',image)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as out:out.write('image='+image+'\n')
+          PYTHON
+  bootstrap:
+    needs: select
+    if: github.ref == 'refs/heads/main'
+    environment: gitops-${{ inputs.environment }}-bootstrap
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    container:
+      image: ${{ needs.select.outputs.image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+        with:
+          role-to-assume: ${{ vars.GITOPS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          mask-aws-account-id: true
+          role-duration-seconds: 3600
+      - name: Install exact fresh-cluster access and chart
+        env:
+          TARGET: ${{ inputs.environment }}
+          ACCESS_MODE: ${{ inputs.mode }}
+          PREVIOUS_RECEIPT_VERSION: ${{ inputs.previous_receipt_version }}
+          PREVIOUS_RECEIPT_SHA: ${{ inputs.previous_receipt_sha256 }}
+          BUNDLE_SHA: ${{ inputs.bundle_sha256 }}
+          CHECKPOINT_VERSION: ${{ inputs.checkpoint_version }}
+          CHECKPOINT_SHA: ${{ inputs.checkpoint_sha256 }}
+          GENERATION: ${{ inputs.generation }}
+          ACCESS_INSTALL_ENVIRONMENT: gitops-${{ inputs.environment }}-bootstrap
+          AWS_ROLE_ARN: ${{ vars.GITOPS_ROLE_ARN }}
+          GH_TOKEN: ${{ github.token }}
+          ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+          ARGOCD_SERVER_SECRETKEY: ${{ secrets.ARGOCD_SERVER_SECRETKEY }}
+          GITOPS_REPO_SSH_KEY: ${{ secrets.GITOPS_REPO_SSH_KEY }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          args=(--mode "$ACCESS_MODE" --bundle "cumulative-lifecycle/operations-access-proposal/bundles/$TARGET" --expected-bundle-sha256 "$BUNDLE_SHA")
+          if [[ "$ACCESS_MODE" == access-refresh ]]; then
+            args+=(--previous-receipt-version "$PREVIOUS_RECEIPT_VERSION" --previous-receipt-sha256 "$PREVIOUS_RECEIPT_SHA")
+          fi
+          if [[ -n "$CHECKPOINT_VERSION$CHECKPOINT_SHA$GENERATION" ]]; then
+            args+=(--checkpoint-version "$CHECKPOINT_VERSION" --checkpoint-sha256 "$CHECKPOINT_SHA" --generation "$GENERATION")
+          fi
+          python3 cumulative-lifecycle/operations-access-proposal/install-rbac.py "${args[@]}"

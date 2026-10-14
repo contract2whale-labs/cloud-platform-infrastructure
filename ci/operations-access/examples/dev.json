@@ -1,0 +1,70 @@
+{
+  "environment": "dev",
+  "account_id": "111111111111",
+  "region": "ap-northeast-2",
+  "repository_id": "12345678",
+  "cluster_name": "contract2whale-dev-eks",
+  "relay_id": "i-0123456789abcdef0",
+  "state_bucket": "course-private-state-example",
+  "evidence_bucket": "course-private-evidence-example",
+  "operator_evidence_bucket": "course-private-evidence-example",
+  "state_kms_arn": "arn:aws:kms:ap-northeast-2:111111111111:key/11111111-1111-1111-1111-111111111111",
+  "evidence_kms_arn": "arn:aws:kms:ap-northeast-2:111111111111:key/22222222-2222-2222-2222-222222222222",
+  "operator_evidence_kms_arn": "arn:aws:kms:ap-northeast-2:111111111111:key/22222222-2222-2222-2222-222222222222",
+  "state_keys": [
+    "bootstrap/ci-identity/terraform.tfstate",
+    "network/vpc/terraform.tfstate",
+    "eks/terraform.tfstate",
+    "platform/private-api/terraform.tfstate",
+    "platform/queue/terraform.tfstate",
+    "data/terraform.tfstate",
+    "delivery/terraform.tfstate",
+    "platform/observability/terraform.tfstate"
+  ],
+  "ecr_arns": [
+    "arn:aws:ecr:ap-northeast-2:111111111111:repository/commerce-web",
+    "arn:aws:ecr:ap-northeast-2:111111111111:repository/commerce-api"
+  ],
+  "rds_arns": [
+    "arn:aws:rds:ap-northeast-2:111111111111:db:contract2whale-dev"
+  ],
+  "rds_snapshot_arns": [],
+  "secret_metadata_arns": [
+    "arn:aws:secretsmanager:ap-northeast-2:111111111111:secret:contract2whale/dev/runtime-ABC123"
+  ],
+  "lambda_arns": [],
+  "msk": {
+    "cluster_name": "contract2whale-dev-queue",
+    "cluster_arn": "arn:aws:kafka:ap-northeast-2:111111111111:cluster/contract2whale-dev-queue/12345678-1234-1234-1234-123456789012-2",
+    "kms_arn": "arn:aws:kms:ap-northeast-2:111111111111:key/33333333-3333-3333-3333-333333333333"
+  },
+  "application_names": [
+    "platform-root-dev",
+    "delivery-root-dev",
+    "platform-dev",
+    "commerce-api-dev",
+    "commerce-web-dev",
+    "platform-tempo-e3-dev"
+  ],
+  "bootstrap_cluster_objects": {
+    "customresourcedefinitions": [
+      "applications.argoproj.io",
+      "applicationsets.argoproj.io",
+      "appprojects.argoproj.io"
+    ],
+    "clusterroles": [
+      "argocd-application-controller",
+      "argocd-server"
+    ],
+    "clusterrolebindings": [
+      "argocd-application-controller",
+      "argocd-server"
+    ]
+  },
+  "bootstrap_chart_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "bootstrap_render_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "reviewed_source_sha": "cccccccccccccccccccccccccccccccccccccccc",
+  "s3_gateway_endpoint_arns": [
+    "arn:aws:ec2:ap-northeast-2:111111111111:vpc-endpoint/vpce-0123456789abcdef0"
+  ]
+}

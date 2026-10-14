@@ -1,292 +1,837 @@
 name: terraform-lifecycle
-run-name: BU02 VPC ${{ inputs.operation }} · ${{ inputs.source_sha }}
+run-name: ${{ inputs.environment }} ${{ inputs.operation }} · completed ${{ inputs.completed_chapter }}
 'on':
   workflow_dispatch:
     inputs:
       operation:
-        description: Dev VPC와 NAT 삭제 또는 같은 구성 재생성
+        description: 완료한 장까지 누적 Down / 보존한 소스·입력으로 Up
+        required: true
         type: choice
+        options:
+        - down
+        - up
+      environment:
+        description: Account-isolated Dev / Prod. Unsupported source/adapters stop before credentials.
         required: true
-        options: [down, up]
-      source_sha:
-        description: Down과 Up에 똑같이 넣을 main의 40자리 commit SHA
+        type: choice
+        default: dev
+        options:
+        - dev
+        - prod
+      completed_chapter:
+        description: 실제로 완료한 장. 미구현 단계가 포함되면 AWS 접근 전에 중단합니다.
+        required: true
         type: string
-        required: true
+        default: BU02
 permissions:
   contents: read
+  packages: read
 concurrency:
   group: terraform-infra-${{ github.repository_id }}
   cancel-in-progress: false
-env:
-  ROOT: terraform/environments/dev/network/vpc
-  BUCKET: company-dev-tfstate-004161356469
-  AWS_REGION: ap-northeast-2
-  ACCOUNT: '004161356469'
-  TF_IN_AUTOMATION: 'true'
-  TF_INPUT: 'false'
-  TF_WORKSPACE: default
-  TF_DATA_DIR: /tmp/bu02-vpc-tfdata
-  PRIVATE: /tmp/bu02-vpc-private
-  SOURCE_SHA: ${{ inputs.source_sha }}
-  OPERATION: ${{ inputs.operation }}
-defaults:
-  run:
-    shell: bash
 jobs:
-  plan:
-    if: github.ref == 'refs/heads/main' && github.repository == 'contract2whale-labs/cloud-platform-infrastructure'
+  settings:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    environment: infra-dev-plan
+    permissions:
+      contents: read
+      actions: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OPERATION: ${{ inputs.operation }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      LIFECYCLE_TOOLCHAIN_IMAGE: ${{ vars.LIFECYCLE_TOOLCHAIN_IMAGE }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - run: python3 ci/terraform-lifecycle.py settings
+      id: selection
+    outputs:
+      plan_environment: ${{ steps.selection.outputs.plan_environment }}
+      apply_environment: ${{ steps.selection.outputs.apply_environment }}
+      destroy_environment: ${{ steps.selection.outputs.destroy_environment }}
+      registry_sha256: ${{ steps.selection.outputs.registry_sha256 }}
+      completed_chapter: ${{ steps.selection.outputs.completed_chapter }}
+      root_count: ${{ steps.selection.outputs.root_count }}
+      up_level_count: ${{ steps.selection.outputs.up_level_count }}
+      toolchain_image: ${{ steps.selection.outputs.toolchain_image }}
+      privileged_destroy: ${{ steps.selection.outputs.privileged_destroy }}
+  checkpoint:
+    needs:
+    - settings
+    - lifecycle-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.apply_environment }}
     permissions:
       contents: read
       id-token: write
+      packages: read
     env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
       TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
-    outputs:
-      key: ${{ steps.plan.outputs.key }}
-      version: ${{ steps.plan.outputs.version }}
-      sha256: ${{ steps.plan.outputs.sha256 }}
-      input_sha256: ${{ steps.plan.outputs.input_sha256 }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: ${{ inputs.source_sha }}
-          fetch-depth: 0
-          persist-credentials: false
-      - name: main 소스와 고정 범위 확인
-        run: |
-          set -euo pipefail
-          [[ "$SOURCE_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$OPERATION" == down || "$OPERATION" == up ]]
-          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          git merge-base --is-ancestor "$SOURCE_SHA" origin/main
-          git ls-files --error-unmatch "$ROOT/.terraform.lock.hcl" >/dev/null
-          test -z "$(find "$ROOT" -maxdepth 1 -type f \( -name '*.tfvars' -o -name '*.tfvars.json' \))"
-      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
-        with:
-          terraform_version: 1.16.0
-          terraform_wrapper: false
-      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ap-northeast-2
-          allowed-account-ids: '004161356469'
-      - name: 비공개 saved plan 작성
-        id: plan
-        run: |
-          set -euo pipefail
-          umask 077
-          mkdir -p "$PRIVATE"
-          trap 'echo "::error::비공개 plan 단계 실패. 전체 Terraform 로그를 공개하지 마세요."' ERR
-          test "$(aws sts get-caller-identity --query Account --output text)" = "$ACCOUNT"
-          test "$(aws s3api get-bucket-versioning --bucket "$BUCKET" --expected-bucket-owner "$ACCOUNT" --query Status --output text)" = Enabled
-          aws s3api get-public-access-block --bucket "$BUCKET" --expected-bucket-owner "$ACCOUNT" > "$PRIVATE/block.json"
-          jq -e '.PublicAccessBlockConfiguration | [.BlockPublicAcls,.IgnorePublicAcls,.BlockPublicPolicy,.RestrictPublicBuckets] | all(. == true)' "$PRIVATE/block.json" >/dev/null
-          jq -ceS '.["network/vpc"] | select(type == "object")' <<< "$TF_VARS_JSON" > "$PRIVATE/inputs.json"
-          test -s "$PRIVATE/inputs.json"
-          terraform -chdir="$ROOT" init -input=false -no-color -lockfile=readonly \
-            -backend-config="bucket=$BUCKET" -backend-config="key=network/vpc/terraform.tfstate" \
-            -backend-config="region=$AWS_REGION" -backend-config="encrypt=true" \
-            -backend-config='allowed_account_ids=["004161356469"]' \
-            -backend-config="use_lockfile=true" > "$PRIVATE/init.log" 2>&1
-          test "$(terraform -chdir="$ROOT" workspace show)" = default
-          terraform -chdir="$ROOT" state pull > "$PRIVATE/state.json" 2> "$PRIVATE/state.log"
-          # Down은 부분 삭제 및 빈 State 재시도를 허용하고, Up은 빈 AWS State만 받습니다.
-          python3 - <<'PY'
-          import json, os, subprocess
-          from pathlib import Path
-          p = Path(os.environ["PRIVATE"])
-          allowed = set("aws_vpc aws_subnet aws_internet_gateway aws_eip aws_nat_gateway aws_route aws_route_table aws_route_table_association aws_default_route_table aws_default_security_group aws_default_network_acl aws_network_acl aws_network_acl_rule terraform_data".split())
-          state = json.loads((p / "state.json").read_text())
-          rs = [r for r in state.get("resources", []) if r.get("mode") == "managed" and r.get("instances")]
-          assert all(r["type"] in allowed for r in rs), "VPC 외 State 자원: 중단"
-          if os.environ["OPERATION"] == "down":
-              # State is the ownership boundary; absent resources are reconciled by plan refresh.
-              instances = [(r["type"], i["attributes"]) for r in rs for i in r["instances"]]
-              vpc_ids = {a["id"] for t, a in instances if t == "aws_vpc"}
-              vpc_ids |= {a["vpc_id"] for _, a in instances if a.get("vpc_id")}
-              nat_ids = {a["id"] for t, a in instances if t == "aws_nat_gateway"}
-              eip_ids = {a["id"] for t, a in instances if t == "aws_eip"}
-              assert len(vpc_ids) <= 1, "여러 VPC가 섞인 State: 중단"
-
-              def ec2(command, *args):
-                  raw = subprocess.check_output(
-                      ["aws", "ec2", command, *args, "--region", os.environ["AWS_REGION"], "--output", "json"],
-                      stderr=subprocess.DEVNULL,
-                  )
-                  return json.loads(raw)
-
-              if vpc_ids or nat_ids or eip_ids:
-                  # A regional read avoids treating access errors as resource absence.
-                  nats = ec2("describe-nat-gateways")["NatGateways"]
-                  live_nats = [n for n in nats if n["State"] != "deleted"]
-                  owned_nats = [n for n in live_nats if n["NatGatewayId"] in nat_ids]
-                  vpc_ids |= {n["VpcId"] for n in owned_nats}
-                  assert len(vpc_ids) <= 1, "State NAT의 VPC 불일치: 중단"
-                  assert all(n["NatGatewayId"] in nat_ids for n in live_nats if n["VpcId"] in vpc_ids), "State 밖 NAT: 중단"
-                  owned_enis = {a["NetworkInterfaceId"] for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("NetworkInterfaceId")}
-                  owned_eip_enis = {(a["AllocationId"], a["NetworkInterfaceId"]) for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("AllocationId") and a.get("NetworkInterfaceId")}
-                  assert all(a["AllocationId"] in eip_ids for n in owned_nats for a in n.get("NatGatewayAddresses", []) if a.get("AllocationId")), "State 밖 NAT EIP: 중단"
-                  for vpc_id in sorted(vpc_ids):
-                      live_vpcs = ec2("describe-vpcs", "--filters", "Name=vpc-id,Values=" + vpc_id)["Vpcs"]
-                      if not live_vpcs:
-                          continue
-                      enis = ec2("describe-network-interfaces", "--filters", "Name=vpc-id,Values=" + vpc_id)["NetworkInterfaces"]
-                      assert all(e.get("InterfaceType") == "nat_gateway" and e["NetworkInterfaceId"] in owned_enis for e in enis), "State 밖 ENI 의존성: 중단"
-                  if eip_ids:
-                      addresses = ec2("describe-addresses", "--filters", "Name=allocation-id,Values=" + ",".join(sorted(eip_ids)))["Addresses"]
-                      assert all(a["AllocationId"] in eip_ids for a in addresses)
-                      for a in addresses:
-                          unassociated = not a.get("AssociationId") and not a.get("NetworkInterfaceId")
-                          owned_nat = (a["AllocationId"], a.get("NetworkInterfaceId")) in owned_eip_enis
-                          assert unassociated or owned_nat, "State EIP가 외부 자원에 연결됨: 중단"
-          else:
-              assert not any(r["type"].startswith("aws_") for r in rs), "Up 전에 Down 완료 필요"
-          PY
-          args=()
-          if [ "$OPERATION" = down ]; then args+=(-destroy); fi
-          terraform -chdir="$ROOT" plan "${args[@]}" -input=false -no-color -lock-timeout=5m \
-            -var-file="$PRIVATE/inputs.json" -out="$PRIVATE/saved.tfplan" > "$PRIVATE/plan.log" 2>&1
-          terraform -chdir="$ROOT" show -json "$PRIVATE/saved.tfplan" > "$PRIVATE/plan.json" 2> "$PRIVATE/show.log"
-          # 실제 plan의 자원 종류, 변경 방향, 유효 계정·환경 입력을 다시 제한합니다.
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          p = Path(os.environ["PRIVATE"])
-          plan = json.loads((p / "plan.json").read_text())
-          allowed = set("aws_vpc aws_subnet aws_internet_gateway aws_eip aws_nat_gateway aws_route aws_route_table aws_route_table_association aws_default_route_table aws_default_security_group aws_default_network_acl aws_network_acl aws_network_acl_rule terraform_data".split())
-          actions = {"delete", "no-op", "read"} if os.environ["OPERATION"] == "down" else {"create", "no-op", "read"}
-          changes = [r for r in plan.get("resource_changes", []) if r.get("mode") == "managed"]
-          assert (changes or os.environ["OPERATION"] == "down") and all(r["type"] in allowed and set(r["change"]["actions"]) <= actions for r in changes), "범위 밖 plan: 중단"
-          for k, v in {"environment":"dev", "region":"ap-northeast-2", "expected_account_id":"004161356469", "state_bucket_name":os.environ["BUCKET"]}.items():
-              if k in plan.get("variables", {}):
-                  assert plan["variables"][k]["value"] == v, "대상 입력 불일치"
-          PY
-          KEY="bu02-vpc-lifecycle/$GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT/saved.tfplan"
-          VERSION="$(aws s3api put-object --bucket "$BUCKET" --key "$KEY" --body "$PRIVATE/saved.tfplan" --if-none-match '*' --expected-bucket-owner "$ACCOUNT" --query VersionId --output text)"
-          test -n "$VERSION" && test "$VERSION" != None && test "$VERSION" != null
-          SHA="$(sha256sum "$PRIVATE/saved.tfplan" | cut -d ' ' -f 1)"
-          INPUT_SHA="$(sha256sum "$PRIVATE/inputs.json" | cut -d ' ' -f 1)"
-          echo "key=$KEY" >> "$GITHUB_OUTPUT"
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
-          echo "sha256=$SHA" >> "$GITHUB_OUTPUT"
-          echo "input_sha256=$INPUT_SHA" >> "$GITHUB_OUTPUT"
-          # 공개 로그에는 검토용 식별자만 남깁니다. plan·State 본문은 출력하지 않습니다.
-          {
-            echo "operation=$OPERATION"
-            echo "source_sha=$SOURCE_SHA"
-            echo "key=$KEY"
-            echo "version=$VERSION"
-            echo "sha256=$SHA"
-            echo "input_sha256=$INPUT_SHA"
-            echo "이 S3 버전의 plan 전체를 비공개로 검토한 뒤 현재 run을 승인하세요."
-          } | tee -a "$GITHUB_STEP_SUMMARY"
-      - name: 실패 로그를 비공개 S3에 보관
-        if: failure()
-        run: |
-          set -euo pipefail
-          test -d "$PRIVATE" || exit 0
-          for f in "$PRIVATE"/*.log; do
-            test -f "$f" || continue
-            echo "== $(basename "$f")"
-            cat "$f"
-          done > "$PRIVATE/diagnostics.txt"
-          test -s "$PRIVATE/diagnostics.txt" || exit 0
-          KEY="bu02-vpc-lifecycle/$GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT/diagnostics/plan.log"
-          aws s3api put-object --bucket "$BUCKET" --key "$KEY" --body "$PRIVATE/diagnostics.txt" \
-            --if-none-match '*' --expected-bucket-owner "$ACCOUNT" >/dev/null
-          echo "비공개 실패 로그: s3://$BUCKET/$KEY"
-      - name: 러너 임시 파일 정리
-        if: always()
-        run: rm -rf "$PRIVATE" "$TF_DATA_DIR"
-  review:
-    needs: plan
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Cumulative chapter start
+      run: python3 -I ci/run-lifecycle.py start
+    if: ${{ !cancelled() && needs.settings.result == 'success' && (inputs.operation == 'up' || needs.settings.outputs.privileged_destroy
+      != 'true') && (inputs.environment == 'dev' || needs.lifecycle-preview.result == 'success') }}
+    name: Checkpoint metadata only · ${{ inputs.environment }} ${{ inputs.completed_chapter }} · source
+      ${{ needs.lifecycle-preview.outputs.snapshot_sha || github.sha }}
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  down-plan:
+    needs:
+    - settings
+    - checkpoint
     runs-on: ubuntu-latest
-    environment: infra-dev-destroy
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.plan_environment }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.EXPECTED_APPLY_ROLE_ARN }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Cumulative chapter plan
+      run: python3 -I ci/run-lifecycle.py plan
+    if: inputs.operation == 'down' && needs.settings.outputs.privileged_destroy != 'true'
+    outputs:
+      bundle_key: ${{ steps.lifecycle.outputs.bundle_key }}
+      bundle_version: ${{ steps.lifecycle.outputs.bundle_version }}
+      bundle_sha: ${{ steps.lifecycle.outputs.bundle_sha }}
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  down-review:
+    needs:
+    - settings
+    - down-plan
+    if: inputs.operation == 'down' && needs.settings.outputs.privileged_destroy != 'true'
+    runs-on: ubuntu-latest
+    environment: ${{ needs.settings.outputs.destroy_environment }}
     permissions: {}
     steps:
-      - name: 이 run의 정확한 plan 검토 승인
-        run: echo "비공개 saved plan 검토 후 Environment 승인이 완료되었습니다."
-  apply:
-    needs: [plan, review]
+    - name: Approve the exact private bundle
+      run: echo "Required Environment approval received. Every applied binary must match the reviewed
+        bundle; no replan is permitted after this gate."
+  down-apply:
+    needs:
+    - settings
+    - down-plan
+    - down-review
     runs-on: ubuntu-latest
-    timeout-minutes: 90
-    environment: infra-dev-apply
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.apply_environment }}
     permissions:
       contents: read
       id-token: write
+      packages: read
     env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
       TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
-      PLAN_KEY: ${{ needs.plan.outputs.key }}
-      PLAN_VERSION: ${{ needs.plan.outputs.version }}
-      PLAN_SHA: ${{ needs.plan.outputs.sha256 }}
-      INPUT_SHA: ${{ needs.plan.outputs.input_sha256 }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      BUNDLE_KEY: ${{ needs.down-plan.outputs.bundle_key }}
+      BUNDLE_VERSION: ${{ needs.down-plan.outputs.bundle_version }}
+      EXPECTED_BUNDLE_SHA: ${{ needs.down-plan.outputs.bundle_sha }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          ref: ${{ inputs.source_sha }}
-          persist-credentials: false
-      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
-        with:
-          terraform_version: 1.16.0
-          terraform_wrapper: false
-      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ap-northeast-2
-          allowed-account-ids: '004161356469'
-      - name: 승인한 S3 버전만 적용
-        run: |
-          set -euo pipefail
-          umask 077
-          mkdir -p "$PRIVATE"
-          trap 'echo "::error::적용 중단. State와 실제 AWS 상태를 먼저 확인하세요. 강제 삭제하지 마세요."' ERR
-          test "$(git rev-parse HEAD)" = "$SOURCE_SHA"
-          test "$(aws sts get-caller-identity --query Account --output text)" = "$ACCOUNT"
-          test "$PLAN_KEY" = "bu02-vpc-lifecycle/$GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT/saved.tfplan"
-          jq -ceS '.["network/vpc"] | select(type == "object")' <<< "$TF_VARS_JSON" > "$PRIVATE/inputs.json"
-          test "$(sha256sum "$PRIVATE/inputs.json" | cut -d ' ' -f 1)" = "$INPUT_SHA"
-          aws s3api get-object --bucket "$BUCKET" --key "$PLAN_KEY" --version-id "$PLAN_VERSION" \
-            --expected-bucket-owner "$ACCOUNT" "$PRIVATE/saved.tfplan" > "$PRIVATE/download.json"
-          test "$(sha256sum "$PRIVATE/saved.tfplan" | cut -d ' ' -f 1)" = "$PLAN_SHA"
-          terraform -chdir="$ROOT" init -input=false -no-color -lockfile=readonly \
-            -backend-config="bucket=$BUCKET" -backend-config="key=network/vpc/terraform.tfstate" \
-            -backend-config="region=$AWS_REGION" -backend-config="encrypt=true" \
-            -backend-config='allowed_account_ids=["004161356469"]' \
-            -backend-config="use_lockfile=true" > "$PRIVATE/init.log" 2>&1
-          test "$(terraform -chdir="$ROOT" workspace show)" = default
-          # 재계획하지 않습니다. Terraform은 잠금을 잡고 오래된 saved plan도 거부합니다.
-          terraform -chdir="$ROOT" apply -input=false -no-color -lock-timeout=5m \
-            "$PRIVATE/saved.tfplan" > "$PRIVATE/apply.log" 2>&1
-          terraform -chdir="$ROOT" state pull > "$PRIVATE/after.json" 2> "$PRIVATE/state.log"
-          python3 - <<'PY'
-          import json, os
-          from pathlib import Path
-          state = json.loads((Path(os.environ["PRIVATE"]) / "after.json").read_text())
-          rs = [r for r in state.get("resources", []) if r.get("mode") == "managed" and r.get("instances")]
-          if os.environ["OPERATION"] == "down":
-              assert not rs, "State 잔여 자원 확인 필요"
-          else:
-              assert sum(len(r["instances"]) for r in rs if r["type"] == "aws_vpc") == 1
-              assert any(r["type"] == "aws_nat_gateway" for r in rs)
-          PY
-          echo "BU02 VPC $OPERATION 적용과 State 확인 완료."
-      - name: 실패 로그를 비공개 S3에 보관
-        if: failure()
-        run: |
-          set -euo pipefail
-          test -d "$PRIVATE" || exit 0
-          for f in "$PRIVATE"/*.log; do
-            test -f "$f" || continue
-            echo "== $(basename "$f")"
-            cat "$f"
-          done > "$PRIVATE/diagnostics.txt"
-          test -s "$PRIVATE/diagnostics.txt" || exit 0
-          KEY="bu02-vpc-lifecycle/$GITHUB_RUN_ID/$GITHUB_RUN_ATTEMPT/diagnostics/apply.log"
-          aws s3api put-object --bucket "$BUCKET" --key "$KEY" --body "$PRIVATE/diagnostics.txt" \
-            --if-none-match '*' --expected-bucket-owner "$ACCOUNT" >/dev/null
-          echo "비공개 실패 로그: s3://$BUCKET/$KEY"
-      - name: 러너 임시 파일 정리
-        if: always()
-        run: rm -rf "$PRIVATE" "$TF_DATA_DIR"
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Cumulative chapter apply
+      run: python3 -I ci/run-lifecycle.py apply
+    if: inputs.operation == 'down' && needs.settings.outputs.privileged_destroy != 'true'
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  up:
+    needs:
+    - settings
+    - checkpoint
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.apply_environment }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      ARGOCD_SERVER_SECRETKEY: ${{ secrets.ARGOCD_SERVER_SECRETKEY }}
+      GITOPS_REPO_SSH_KEY: ${{ secrets.GITOPS_REPO_SSH_KEY }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Cumulative chapter up
+      run: python3 -I ci/run-lifecycle.py up
+    if: inputs.operation == 'up' && inputs.environment == 'dev'
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  prod-up-01:
+    needs:
+    - settings
+    - checkpoint
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.checkpoint.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 1 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 1
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-02:
+    needs:
+    - settings
+    - prod-up-01
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-01.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 2 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 2
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-03:
+    needs:
+    - settings
+    - prod-up-02
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-02.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 3 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 3
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-04:
+    needs:
+    - settings
+    - prod-up-03
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-03.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 4 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 4
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-05:
+    needs:
+    - settings
+    - prod-up-04
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-04.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 5 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 5
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-06:
+    needs:
+    - settings
+    - prod-up-05
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-05.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 6 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 6
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-07:
+    needs:
+    - settings
+    - prod-up-06
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-06.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 7 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 7
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-08:
+    needs:
+    - settings
+    - prod-up-07
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-07.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 8 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 8
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-09:
+    needs:
+    - settings
+    - prod-up-08
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-08.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 9 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 9
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-10:
+    needs:
+    - settings
+    - prod-up-09
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-09.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 10 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 10
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-11:
+    needs:
+    - settings
+    - prod-up-10
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-10.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 11 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 11
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-12:
+    needs:
+    - settings
+    - prod-up-11
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-11.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 12 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 12
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-13:
+    needs:
+    - settings
+    - prod-up-12
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-12.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 13 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 13
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-14:
+    needs:
+    - settings
+    - prod-up-13
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-13.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 14 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 14
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-15:
+    needs:
+    - settings
+    - prod-up-14
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-14.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 15 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 15
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-16:
+    needs:
+    - settings
+    - prod-up-15
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-15.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 16 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 16
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-17:
+    needs:
+    - settings
+    - prod-up-16
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-16.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 17 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 17
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-18:
+    needs:
+    - settings
+    - prod-up-17
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-17.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 18 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 18
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-19:
+    needs:
+    - settings
+    - prod-up-18
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-18.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 19 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 19
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-20:
+    needs:
+    - settings
+    - prod-up-19
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-19.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 20 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 20
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-21:
+    needs:
+    - settings
+    - prod-up-20
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-20.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 21 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 21
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-22:
+    needs:
+    - settings
+    - prod-up-21
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-21.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 22 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 22
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-23:
+    needs:
+    - settings
+    - prod-up-22
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-22.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 23 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 23
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  prod-up-24:
+    needs:
+    - settings
+    - prod-up-23
+    if: ${{ !cancelled() && inputs.environment == 'prod' && inputs.operation == 'up' && needs.settings.result
+      == 'success' && needs.prod-up-23.result == 'success' && fromJSON(needs.settings.outputs.up_level_count)
+      >= 24 }}
+    uses: ./.github/workflows/terraform-lifecycle-level.yml
+    permissions:
+      contents: read
+      id-token: write
+    with:
+      completed_chapter: ${{ inputs.completed_chapter }}
+      level: 24
+      toolchain_image: ${{ needs.settings.outputs.toolchain_image }}
+    secrets: inherit
+  lifecycle-preview:
+    needs:
+    - settings
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: ${{ needs.settings.outputs.plan_environment }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.EXPECTED_APPLY_ROLE_ARN }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Read actual source before checkpoint approval
+      run: python3 -I ci/run-lifecycle.py preview
+    if: inputs.environment == 'prod' || (inputs.operation == 'down' && needs.settings.outputs.privileged_destroy
+      == 'true')
+    outputs:
+      snapshot_sha: ${{ steps.lifecycle.outputs.snapshot_sha }}
+      generation: ${{ steps.lifecycle.outputs.generation }}
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  privileged-prepare:
+    needs:
+    - settings
+    - lifecycle-preview
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.destroy_environment }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Capture checkpoints and prepare exact teardown plans
+      run: python3 -I ci/run-lifecycle.py prepare
+    if: inputs.operation == 'down' && needs.settings.outputs.privileged_destroy == 'true'
+    outputs:
+      bundle_key: ${{ steps.lifecycle.outputs.bundle_key }}
+      bundle_version: ${{ steps.lifecycle.outputs.bundle_version }}
+      bundle_sha: ${{ steps.lifecycle.outputs.bundle_sha }}
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+    name: Privileged inventory + saved plans · source ${{ needs.lifecycle-preview.outputs.snapshot_sha
+      }}
+  privileged-apply:
+    needs:
+    - settings
+    - privileged-prepare
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: ${{ needs.settings.outputs.destroy_environment }}
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: ${{ inputs.operation }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: ${{ inputs.environment }}
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      BUNDLE_KEY: ${{ needs.privileged-prepare.outputs.bundle_key }}
+      BUNDLE_VERSION: ${{ needs.privileged-prepare.outputs.bundle_version }}
+      EXPECTED_BUNDLE_SHA: ${{ needs.privileged-prepare.outputs.bundle_sha }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Reverify inventory and apply reviewed binaries
+      run: python3 -I ci/run-lifecycle.py destroy-apply
+    if: inputs.operation == 'down' && needs.settings.outputs.privileged_destroy == 'true'
+    container:
+      image: ${{ needs.settings.outputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+    name: Privileged exact saved-plan apply · second approval

@@ -1,0 +1,2257 @@
+{
+  "schema": 1,
+  "engine": "registered-root-v1",
+  "engines": {
+    "dev": "dev-registered-root-v1",
+    "prod": "prod-registered-root-v1"
+  },
+  "kind": "registered-root-lifecycle",
+  "formatter": {
+    "version": "1.16.0",
+    "platform": "linux_amd64",
+    "binary_sha256": "a10d837c0df2810662152c378b1797d2f9b4c4620fcd166eb05730c1ce182128",
+    "command": [
+      "terraform",
+      "fmt",
+      "-no-color",
+      "-"
+    ]
+  },
+  "source_matching": "exact file membership; each hash is raw or pinned-fmt bytes within one complete reviewed snapshot",
+  "supported_environments": [
+    "dev",
+    "prod"
+  ],
+  "enabled_environments": [],
+  "registration": "inactive until exact registry adapter and authenticated hooks are installed",
+  "roots": {
+    "terraform/environments/dev/platform/core": {
+      "module": "core",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.cert_manager": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.cert_manager": "aws_iam_role",
+        "module.component.aws_iam_role_policy.dns01": "aws_iam_role_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "course",
+          "files": {
+            "modules/core/main.tf": "c04bbd41abcb0743da39e98dbf0e2d19188719d7ce98db145b1bea2b6a1dfd0b",
+            "modules/core/outputs.tf": "8f5f5fd175d2667ad948406af4b4d67cd68cef3d80a9a29dadba2b711aed1712",
+            "modules/core/variables.tf": "a6a287f6600cb24b1ce0aa7ff60faf008320a08741a9ea81e34228552b593c59",
+            "modules/core/versions.tf": "9e042b0e7a89de18fdbebc655706e0fcce2ebb7890b35617eb302935a0e1098b",
+            "terraform/environments/dev/platform/core/backend.tf": "817ce2924201ceadb3a6a8e8c88e3372fdd0caa6809e572975ca226174f5186b",
+            "terraform/environments/dev/platform/core/locals.tf": "f28e9ba81698fd5fe649ef017a8bd70232629f14e35421d288205ec0f2f4f4ba",
+            "terraform/environments/dev/platform/core/main.tf": "2498dd45a0923eab9d43325a573d5357986406234bdc6c8934e61b8a0348fccb",
+            "terraform/environments/dev/platform/core/outputs.tf": "09862d1aff0a35c25b82c2bd6e2d38618d7f7f93cbd3f2c39896be1cb11ce417",
+            "terraform/environments/dev/platform/core/providers.tf": "3ffff85f3860bd49c6a637f7a11a1faf9365caa86f4d0d3fd486dce05fc337dc",
+            "terraform/environments/dev/platform/core/remote-state.tf": "bd9b180c532e3b5d9225ba79f7e4db3e2b36f503c81da7063c30fc79b889a6ca",
+            "terraform/environments/dev/platform/core/variables.tf": "59e3a821087d22917634ac3abdae0d90d6382f9888a74cd4d4ebf1069adaaa86",
+            "terraform/environments/dev/platform/core/versions.tf": "200a04d4be58b17b45b775fec4d3b4a404b792337d78259731f5c69b76b49353"
+          },
+          "formatted_files": {
+            "modules/core/main.tf": "c04bbd41abcb0743da39e98dbf0e2d19188719d7ce98db145b1bea2b6a1dfd0b",
+            "modules/core/outputs.tf": "8f5f5fd175d2667ad948406af4b4d67cd68cef3d80a9a29dadba2b711aed1712",
+            "modules/core/variables.tf": "a6a287f6600cb24b1ce0aa7ff60faf008320a08741a9ea81e34228552b593c59",
+            "modules/core/versions.tf": "9e042b0e7a89de18fdbebc655706e0fcce2ebb7890b35617eb302935a0e1098b",
+            "terraform/environments/dev/platform/core/backend.tf": "817ce2924201ceadb3a6a8e8c88e3372fdd0caa6809e572975ca226174f5186b",
+            "terraform/environments/dev/platform/core/locals.tf": "f28e9ba81698fd5fe649ef017a8bd70232629f14e35421d288205ec0f2f4f4ba",
+            "terraform/environments/dev/platform/core/main.tf": "2498dd45a0923eab9d43325a573d5357986406234bdc6c8934e61b8a0348fccb",
+            "terraform/environments/dev/platform/core/outputs.tf": "09862d1aff0a35c25b82c2bd6e2d38618d7f7f93cbd3f2c39896be1cb11ce417",
+            "terraform/environments/dev/platform/core/providers.tf": "3ffff85f3860bd49c6a637f7a11a1faf9365caa86f4d0d3fd486dce05fc337dc",
+            "terraform/environments/dev/platform/core/remote-state.tf": "bd9b180c532e3b5d9225ba79f7e4db3e2b36f503c81da7063c30fc79b889a6ca",
+            "terraform/environments/dev/platform/core/variables.tf": "59e3a821087d22917634ac3abdae0d90d6382f9888a74cd4d4ebf1069adaaa86",
+            "terraform/environments/dev/platform/core/versions.tf": "200a04d4be58b17b45b775fec4d3b4a404b792337d78259731f5c69b76b49353"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU08/02-BU08-T5-root-and-tests.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/01-BU09-T1-controller-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/02-BU09-T2-exposure-mode.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/05-BU09-T5-edge-module.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/06-BU09-T6-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/08-BU09-T8-verify-exposure.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/13-BU09-T14-approved-dev-access.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/08-BU10A-T8-account-alerts.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/09-BU10A-T9-alerting-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU08-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU09-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10A-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/account-baseline-dns"
+      ],
+      "required_down_hooks": [
+        "hook:platform-core"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/gateway": {
+      "module": "gateway",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.controller": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_policy.lbc": "aws_iam_policy",
+        "module.component.aws_iam_role.controller": "aws_iam_role",
+        "module.component.aws_iam_role_policy.dns": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy_attachment.lbc": "aws_iam_role_policy_attachment",
+        "module.component.aws_route53_zone.internal": "aws_route53_zone",
+        "module.component.aws_security_group.nlb": "aws_security_group",
+        "module.component.aws_vpc_security_group_egress_rule.vpc": "aws_vpc_security_group_egress_rule",
+        "module.component.aws_vpc_security_group_ingress_rule.clients": "aws_vpc_security_group_ingress_rule",
+        "module.component.aws_vpc_security_group_ingress_rule.cloudfront": "aws_vpc_security_group_ingress_rule",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "modules/gateway/exposure.tf": "e80f49b884826ce504b1c4a7b3d141ba6a58c5cd945c286d5c264b8b70373b29",
+            "modules/gateway/main.tf": "d7566b36b5d84e672a9c405343bb180a07a43973d8cb0c16c8eb7a41c056926b",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/dev/platform/gateway/backend.tf": "a75a3755627f6ca6a1223c8877195fde87ff34268cc5fcccccd7fc9030f6bdc2",
+            "terraform/environments/dev/platform/gateway/locals.tf": "e211d97b1f24a815165295178c910678109295a27e116303d4a2f7f3f513ad27",
+            "terraform/environments/dev/platform/gateway/main.tf": "c37ebbe232a55899d88c2046ad7847facefa92c1119a5d63267ee0818c2d19cd",
+            "terraform/environments/dev/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/dev/platform/gateway/providers.tf": "db1bcc1e89a8ffeb7d82c3478cc6ba511f5c424b00fe6b87f600f1978fbd7c62",
+            "terraform/environments/dev/platform/gateway/remote-state.tf": "2b911bc39009f2364591eb947f38456d67e5faf8f10e80347c845b6151bae630",
+            "terraform/environments/dev/platform/gateway/variables.tf": "b3c322b8f317dc7ef4eb63cdb0536d1daebf4d067bd645aef3773ea607e1d470",
+            "terraform/environments/dev/platform/gateway/versions.tf": "9c29e68fa4d0a7b74aac1109cddbb9a2712777938702937750bfd4819ceb3037"
+          },
+          "formatted_files": {
+            "modules/gateway/exposure.tf": "e80f49b884826ce504b1c4a7b3d141ba6a58c5cd945c286d5c264b8b70373b29",
+            "modules/gateway/main.tf": "d7566b36b5d84e672a9c405343bb180a07a43973d8cb0c16c8eb7a41c056926b",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/dev/platform/gateway/backend.tf": "a75a3755627f6ca6a1223c8877195fde87ff34268cc5fcccccd7fc9030f6bdc2",
+            "terraform/environments/dev/platform/gateway/locals.tf": "e211d97b1f24a815165295178c910678109295a27e116303d4a2f7f3f513ad27",
+            "terraform/environments/dev/platform/gateway/main.tf": "c37ebbe232a55899d88c2046ad7847facefa92c1119a5d63267ee0818c2d19cd",
+            "terraform/environments/dev/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/dev/platform/gateway/providers.tf": "db1bcc1e89a8ffeb7d82c3478cc6ba511f5c424b00fe6b87f600f1978fbd7c62",
+            "terraform/environments/dev/platform/gateway/remote-state.tf": "2b911bc39009f2364591eb947f38456d67e5faf8f10e80347c845b6151bae630",
+            "terraform/environments/dev/platform/gateway/variables.tf": "b3c322b8f317dc7ef4eb63cdb0536d1daebf4d067bd645aef3773ea607e1d470",
+            "terraform/environments/dev/platform/gateway/versions.tf": "9c29e68fa4d0a7b74aac1109cddbb9a2712777938702937750bfd4819ceb3037"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "modules/gateway/exposure.tf": "1bd180681b2b0bc034de4bf2de91e44f7c616bbaed4d2d9d9e1832700fdfa147",
+            "modules/gateway/main.tf": "75d5038d05ad942b0ff05815056d49e7485ded3f25ac223f2003e37118be2a1c",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/dev/platform/gateway/backend.tf": "90cb810b156bdd883373eadba8665ce757dfda6ba45a055aeffbcc8548e35864",
+            "terraform/environments/dev/platform/gateway/locals.tf": "e211d97b1f24a815165295178c910678109295a27e116303d4a2f7f3f513ad27",
+            "terraform/environments/dev/platform/gateway/main.tf": "c37ebbe232a55899d88c2046ad7847facefa92c1119a5d63267ee0818c2d19cd",
+            "terraform/environments/dev/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/dev/platform/gateway/providers.tf": "db1bcc1e89a8ffeb7d82c3478cc6ba511f5c424b00fe6b87f600f1978fbd7c62",
+            "terraform/environments/dev/platform/gateway/remote-state.tf": "5d6fbd6c38d91aa3461b90a7bcda1e9347981cc7cd6d3d283e0abb1f79a418bc",
+            "terraform/environments/dev/platform/gateway/variables.tf": "e8fd3967d24e646f1b3b53eb9b179596294e48eefbba7587fa3691fa036a2f53",
+            "terraform/environments/dev/platform/gateway/versions.tf": "9c29e68fa4d0a7b74aac1109cddbb9a2712777938702937750bfd4819ceb3037"
+          },
+          "formatted_files": {
+            "modules/gateway/exposure.tf": "1bd180681b2b0bc034de4bf2de91e44f7c616bbaed4d2d9d9e1832700fdfa147",
+            "modules/gateway/main.tf": "75d5038d05ad942b0ff05815056d49e7485ded3f25ac223f2003e37118be2a1c",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/dev/platform/gateway/backend.tf": "90cb810b156bdd883373eadba8665ce757dfda6ba45a055aeffbcc8548e35864",
+            "terraform/environments/dev/platform/gateway/locals.tf": "e211d97b1f24a815165295178c910678109295a27e116303d4a2f7f3f513ad27",
+            "terraform/environments/dev/platform/gateway/main.tf": "c37ebbe232a55899d88c2046ad7847facefa92c1119a5d63267ee0818c2d19cd",
+            "terraform/environments/dev/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/dev/platform/gateway/providers.tf": "db1bcc1e89a8ffeb7d82c3478cc6ba511f5c424b00fe6b87f600f1978fbd7c62",
+            "terraform/environments/dev/platform/gateway/remote-state.tf": "5d6fbd6c38d91aa3461b90a7bcda1e9347981cc7cd6d3d283e0abb1f79a418bc",
+            "terraform/environments/dev/platform/gateway/variables.tf": "e8fd3967d24e646f1b3b53eb9b179596294e48eefbba7587fa3691fa036a2f53",
+            "terraform/environments/dev/platform/gateway/versions.tf": "9c29e68fa4d0a7b74aac1109cddbb9a2712777938702937750bfd4819ceb3037"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/06-BU09-T6-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/08-BU09-T8-verify-exposure.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/13-BU09-T14-approved-dev-access.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/08-BU10A-T8-account-alerts.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/09-BU10A-T9-alerting-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU09-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10A-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/account-baseline-dns",
+        "terraform/environments/dev/network/vpc"
+      ],
+      "required_down_hooks": [
+        "hook:platform-gateway"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/dev-app-access": {
+      "module": null,
+      "allowed_addresses": {
+        "aws_iam_role.dev_app_session": "aws_iam_role",
+        "aws_iam_role_policy.dev_app_session": "aws_iam_role_policy",
+        "aws_ssm_document.dev_app_https": "aws_ssm_document",
+        "aws_vpc_security_group_ingress_rule.relay_to_nlb": "aws_vpc_security_group_ingress_rule",
+        "terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "terraform/environments/dev/platform/dev-app-access/backend.tf": "35bdce1a0e2270546c411704aa167f05bfe15715f1ea7ea61b5f29b338508f86",
+            "terraform/environments/dev/platform/dev-app-access/locals.tf": "6a17992a0ae90255d03518d12682d6e7c1f987243816844340696fa503f8ad59",
+            "terraform/environments/dev/platform/dev-app-access/main.tf": "44e2eb32b9c1b2b008ca29e62340b497541c56bf59b50e557d0a12182bffe220",
+            "terraform/environments/dev/platform/dev-app-access/outputs.tf": "40ba0af3710bf4adca4b0c2bb6d7e5c33514b8516a8502f93913c0f62ed7d1d7",
+            "terraform/environments/dev/platform/dev-app-access/providers.tf": "65d3ee307acc975848b83c1bc09baf8ccc473b3f946fa00ed3066f84f05fe151",
+            "terraform/environments/dev/platform/dev-app-access/remote-state.tf": "8590abc77a0b084aab03901e38f7133fa3196cea0e3746774b894a8eb33287aa",
+            "terraform/environments/dev/platform/dev-app-access/variables.tf": "23f16b7ad387fc49545143204cc53ed55a30cb72ee35f71f3493a649b0de2209",
+            "terraform/environments/dev/platform/dev-app-access/versions.tf": "911747052c9362e7c4269f50844697c16ed258a90b4de5e689f6878d3662d5c1"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/dev-app-access/backend.tf": "35bdce1a0e2270546c411704aa167f05bfe15715f1ea7ea61b5f29b338508f86",
+            "terraform/environments/dev/platform/dev-app-access/locals.tf": "6a17992a0ae90255d03518d12682d6e7c1f987243816844340696fa503f8ad59",
+            "terraform/environments/dev/platform/dev-app-access/main.tf": "44e2eb32b9c1b2b008ca29e62340b497541c56bf59b50e557d0a12182bffe220",
+            "terraform/environments/dev/platform/dev-app-access/outputs.tf": "40ba0af3710bf4adca4b0c2bb6d7e5c33514b8516a8502f93913c0f62ed7d1d7",
+            "terraform/environments/dev/platform/dev-app-access/providers.tf": "65d3ee307acc975848b83c1bc09baf8ccc473b3f946fa00ed3066f84f05fe151",
+            "terraform/environments/dev/platform/dev-app-access/remote-state.tf": "8590abc77a0b084aab03901e38f7133fa3196cea0e3746774b894a8eb33287aa",
+            "terraform/environments/dev/platform/dev-app-access/variables.tf": "23f16b7ad387fc49545143204cc53ed55a30cb72ee35f71f3493a649b0de2209",
+            "terraform/environments/dev/platform/dev-app-access/versions.tf": "911747052c9362e7c4269f50844697c16ed258a90b4de5e689f6878d3662d5c1"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "terraform/environments/dev/platform/dev-app-access/backend.tf": "35bdce1a0e2270546c411704aa167f05bfe15715f1ea7ea61b5f29b338508f86",
+            "terraform/environments/dev/platform/dev-app-access/locals.tf": "6a17992a0ae90255d03518d12682d6e7c1f987243816844340696fa503f8ad59",
+            "terraform/environments/dev/platform/dev-app-access/main.tf": "44e2eb32b9c1b2b008ca29e62340b497541c56bf59b50e557d0a12182bffe220",
+            "terraform/environments/dev/platform/dev-app-access/outputs.tf": "40ba0af3710bf4adca4b0c2bb6d7e5c33514b8516a8502f93913c0f62ed7d1d7",
+            "terraform/environments/dev/platform/dev-app-access/providers.tf": "65d3ee307acc975848b83c1bc09baf8ccc473b3f946fa00ed3066f84f05fe151",
+            "terraform/environments/dev/platform/dev-app-access/remote-state.tf": "8590abc77a0b084aab03901e38f7133fa3196cea0e3746774b894a8eb33287aa",
+            "terraform/environments/dev/platform/dev-app-access/variables.tf": "25a64f40d816e3577a5da0d99521c0908fc976892daf4852157d8bfefaf859de",
+            "terraform/environments/dev/platform/dev-app-access/versions.tf": "2be59b88bd80cb69afaf8690dceffaabcdaf62d987a83396a41b209cf644ec6c"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/dev-app-access/backend.tf": "35bdce1a0e2270546c411704aa167f05bfe15715f1ea7ea61b5f29b338508f86",
+            "terraform/environments/dev/platform/dev-app-access/locals.tf": "6a17992a0ae90255d03518d12682d6e7c1f987243816844340696fa503f8ad59",
+            "terraform/environments/dev/platform/dev-app-access/main.tf": "44e2eb32b9c1b2b008ca29e62340b497541c56bf59b50e557d0a12182bffe220",
+            "terraform/environments/dev/platform/dev-app-access/outputs.tf": "40ba0af3710bf4adca4b0c2bb6d7e5c33514b8516a8502f93913c0f62ed7d1d7",
+            "terraform/environments/dev/platform/dev-app-access/providers.tf": "65d3ee307acc975848b83c1bc09baf8ccc473b3f946fa00ed3066f84f05fe151",
+            "terraform/environments/dev/platform/dev-app-access/remote-state.tf": "8590abc77a0b084aab03901e38f7133fa3196cea0e3746774b894a8eb33287aa",
+            "terraform/environments/dev/platform/dev-app-access/variables.tf": "25a64f40d816e3577a5da0d99521c0908fc976892daf4852157d8bfefaf859de",
+            "terraform/environments/dev/platform/dev-app-access/versions.tf": "2be59b88bd80cb69afaf8690dceffaabcdaf62d987a83396a41b209cf644ec6c"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/13-BU09-T14-approved-dev-access.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/08-BU10A-T8-account-alerts.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/09-BU10A-T9-alerting-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU09-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10A-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/platform/private-api",
+        "terraform/environments/dev/platform/gateway"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": true,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/alerting": {
+      "module": "alerting",
+      "allowed_addresses": {
+        "module.component.aws_cloudwatch_event_rule.ec2_state_change": "aws_cloudwatch_event_rule",
+        "module.component.aws_cloudwatch_event_target.ec2_state_change": "aws_cloudwatch_event_target",
+        "module.component.aws_cloudwatch_log_metric_filter.armed_sample_deletion": "aws_cloudwatch_log_metric_filter",
+        "module.component.aws_cloudwatch_log_metric_filter.pool_acquire_timeout": "aws_cloudwatch_log_metric_filter",
+        "module.component.aws_cloudwatch_metric_alarm.armed_sample_deletion": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_cloudwatch_metric_alarm.pool_acquire_timeout": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_eks_pod_identity_association.alertmanager": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.alertmanager": "aws_iam_role",
+        "module.component.aws_iam_role_policy.publish": "aws_iam_role_policy",
+        "module.component.aws_sns_topic.alerts": "aws_sns_topic",
+        "module.component.aws_sns_topic_policy.alerts": "aws_sns_topic_policy",
+        "module.component.aws_sns_topic_subscription.email": "aws_sns_topic_subscription",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/dev/platform/alerting/backend.tf": "3a3c5360d49422b90ffe7ff67cae78b486e9197decf374214f8d535028d5c3a4",
+            "terraform/environments/dev/platform/alerting/locals.tf": "9df0c5f69ff2bef45ccfab6cfa2f900b8ba75deccdf1674a3dd60db636067996",
+            "terraform/environments/dev/platform/alerting/main.tf": "43d42fccdf2527d831850ab07917f7cb5546dff47dd11d2e6bf68d47f9a7e6cf",
+            "terraform/environments/dev/platform/alerting/outputs.tf": "2bc3c110ffb156ae6959b9370a1a1fed57f84f5be2400ebfd4baaea6b8f6cf6a",
+            "terraform/environments/dev/platform/alerting/providers.tf": "609030edd17857e0d50e955c69ef1d3e50fc3aaec789120764f888c4ef025adb",
+            "terraform/environments/dev/platform/alerting/remote-state.tf": "1e04d2f644762ef22a26c7581f6cc37ffeca39af5979ebb29ec6a8877c2f631a",
+            "terraform/environments/dev/platform/alerting/variables.tf": "3b34f4cb6245c18f9e1f2ae4b799a01bf106ba7a0d1aff4627ace16a949c2409",
+            "terraform/environments/dev/platform/alerting/versions.tf": "920c4200d1518a5ea4120252d40092e296eaf7558769491e19f5bf4ab7723fb9"
+          },
+          "formatted_files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/dev/platform/alerting/backend.tf": "3a3c5360d49422b90ffe7ff67cae78b486e9197decf374214f8d535028d5c3a4",
+            "terraform/environments/dev/platform/alerting/locals.tf": "9df0c5f69ff2bef45ccfab6cfa2f900b8ba75deccdf1674a3dd60db636067996",
+            "terraform/environments/dev/platform/alerting/main.tf": "43d42fccdf2527d831850ab07917f7cb5546dff47dd11d2e6bf68d47f9a7e6cf",
+            "terraform/environments/dev/platform/alerting/outputs.tf": "2bc3c110ffb156ae6959b9370a1a1fed57f84f5be2400ebfd4baaea6b8f6cf6a",
+            "terraform/environments/dev/platform/alerting/providers.tf": "609030edd17857e0d50e955c69ef1d3e50fc3aaec789120764f888c4ef025adb",
+            "terraform/environments/dev/platform/alerting/remote-state.tf": "1e04d2f644762ef22a26c7581f6cc37ffeca39af5979ebb29ec6a8877c2f631a",
+            "terraform/environments/dev/platform/alerting/variables.tf": "3b34f4cb6245c18f9e1f2ae4b799a01bf106ba7a0d1aff4627ace16a949c2409",
+            "terraform/environments/dev/platform/alerting/versions.tf": "920c4200d1518a5ea4120252d40092e296eaf7558769491e19f5bf4ab7723fb9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/dev/platform/alerting/backend.tf": "3a3c5360d49422b90ffe7ff67cae78b486e9197decf374214f8d535028d5c3a4",
+            "terraform/environments/dev/platform/alerting/locals.tf": "9df0c5f69ff2bef45ccfab6cfa2f900b8ba75deccdf1674a3dd60db636067996",
+            "terraform/environments/dev/platform/alerting/main.tf": "43d42fccdf2527d831850ab07917f7cb5546dff47dd11d2e6bf68d47f9a7e6cf",
+            "terraform/environments/dev/platform/alerting/outputs.tf": "2bc3c110ffb156ae6959b9370a1a1fed57f84f5be2400ebfd4baaea6b8f6cf6a",
+            "terraform/environments/dev/platform/alerting/providers.tf": "3930baafb78528108748568f7c29766116e87073da4c896591e921bc2b391f5b",
+            "terraform/environments/dev/platform/alerting/remote-state.tf": "e33f59d403f4e0d673527de57fa942e81270a3eac54dfaa9ea49502564f11f8a",
+            "terraform/environments/dev/platform/alerting/variables.tf": "3b34f4cb6245c18f9e1f2ae4b799a01bf106ba7a0d1aff4627ace16a949c2409",
+            "terraform/environments/dev/platform/alerting/versions.tf": "920c4200d1518a5ea4120252d40092e296eaf7558769491e19f5bf4ab7723fb9"
+          },
+          "formatted_files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/dev/platform/alerting/backend.tf": "3a3c5360d49422b90ffe7ff67cae78b486e9197decf374214f8d535028d5c3a4",
+            "terraform/environments/dev/platform/alerting/locals.tf": "9df0c5f69ff2bef45ccfab6cfa2f900b8ba75deccdf1674a3dd60db636067996",
+            "terraform/environments/dev/platform/alerting/main.tf": "43d42fccdf2527d831850ab07917f7cb5546dff47dd11d2e6bf68d47f9a7e6cf",
+            "terraform/environments/dev/platform/alerting/outputs.tf": "2bc3c110ffb156ae6959b9370a1a1fed57f84f5be2400ebfd4baaea6b8f6cf6a",
+            "terraform/environments/dev/platform/alerting/providers.tf": "3930baafb78528108748568f7c29766116e87073da4c896591e921bc2b391f5b",
+            "terraform/environments/dev/platform/alerting/remote-state.tf": "e33f59d403f4e0d673527de57fa942e81270a3eac54dfaa9ea49502564f11f8a",
+            "terraform/environments/dev/platform/alerting/variables.tf": "3b34f4cb6245c18f9e1f2ae4b799a01bf106ba7a0d1aff4627ace16a949c2409",
+            "terraform/environments/dev/platform/alerting/versions.tf": "920c4200d1518a5ea4120252d40092e296eaf7558769491e19f5bf4ab7723fb9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/09-BU10A-T9-alerting-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10A-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/platform/operations"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": [
+        "hook:platform-alerting"
+      ]
+    },
+    "terraform/environments/dev/platform/queue-secrets": {
+      "module": null,
+      "allowed_addresses": {
+        "aws_iam_role.queue_secret_reader": "aws_iam_role",
+        "aws_iam_role_policy.controller_assume_queue_reader": "aws_iam_role_policy",
+        "aws_iam_role_policy.read_queue_credentials": "aws_iam_role_policy",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "terraform/environments/dev/platform/queue-secrets/main.tf": "7c0ebebe4dcd45c9d89a0e96ad0bcd5aeb05576b7ca632d82ad1aa5012adb244",
+            "terraform/environments/dev/platform/queue-secrets/outputs.tf": "fae4c1025c065d5b8c69e8cc3966afb317f8714e7622a1d9fd278b64d9651b57",
+            "terraform/environments/dev/platform/queue-secrets/providers.tf": "e6bc25ada273cb12886543c4400bdf118f4c00dc699902f5d3890cb289b37746",
+            "terraform/environments/dev/platform/queue-secrets/variables.tf": "647f0758f1594c6503d2a1202d87b29edda1ff10b905e9e38d057b1cffa6d920",
+            "terraform/environments/dev/platform/queue-secrets/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/queue-secrets/main.tf": "7c0ebebe4dcd45c9d89a0e96ad0bcd5aeb05576b7ca632d82ad1aa5012adb244",
+            "terraform/environments/dev/platform/queue-secrets/outputs.tf": "fae4c1025c065d5b8c69e8cc3966afb317f8714e7622a1d9fd278b64d9651b57",
+            "terraform/environments/dev/platform/queue-secrets/providers.tf": "e6bc25ada273cb12886543c4400bdf118f4c00dc699902f5d3890cb289b37746",
+            "terraform/environments/dev/platform/queue-secrets/variables.tf": "647f0758f1594c6503d2a1202d87b29edda1ff10b905e9e38d057b1cffa6d920",
+            "terraform/environments/dev/platform/queue-secrets/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/platform/queue",
+        "terraform/environments/dev/platform/operations"
+      ],
+      "required_down_hooks": [
+        "hook:platform-queue"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/queue-association": {
+      "module": null,
+      "allowed_addresses": {
+        "aws_msk_scram_secret_association.queue_user": "aws_msk_scram_secret_association",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "terraform/environments/dev/platform/queue-association/main.tf": "7557265a6f464b00f42e092b0d3f3585d0bc7f79a9b062e628a1cad15e528767",
+            "terraform/environments/dev/platform/queue-association/outputs.tf": "8466ff69096c19535f41e3d8b2c447be700078c7f3df7fabe84f0686ba789aef",
+            "terraform/environments/dev/platform/queue-association/providers.tf": "03e38c8284a475db0a626250bbf313135cee30aa466e97c7fed3d218bd7f255d",
+            "terraform/environments/dev/platform/queue-association/variables.tf": "2f0ce9c077ca6b51dc9253f2701527b788d06ef65e9304eb6877dcf21a23d3d4",
+            "terraform/environments/dev/platform/queue-association/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/queue-association/main.tf": "7557265a6f464b00f42e092b0d3f3585d0bc7f79a9b062e628a1cad15e528767",
+            "terraform/environments/dev/platform/queue-association/outputs.tf": "8466ff69096c19535f41e3d8b2c447be700078c7f3df7fabe84f0686ba789aef",
+            "terraform/environments/dev/platform/queue-association/providers.tf": "03e38c8284a475db0a626250bbf313135cee30aa466e97c7fed3d218bd7f255d",
+            "terraform/environments/dev/platform/queue-association/variables.tf": "2f0ce9c077ca6b51dc9253f2701527b788d06ef65e9304eb6877dcf21a23d3d4",
+            "terraform/environments/dev/platform/queue-association/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/platform/queue"
+      ],
+      "required_down_hooks": [
+        "hook:platform-queue"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/identity": {
+      "module": "tenant-pod-identity",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.migration": "aws_eks_pod_identity_association",
+        "module.component.aws_eks_pod_identity_association.operator": "aws_eks_pod_identity_association",
+        "module.component.aws_eks_pod_identity_association.runtime": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.operator": "aws_iam_role",
+        "module.component.aws_iam_role.runtime": "aws_iam_role",
+        "module.component.aws_iam_role.secrets_reader": "aws_iam_role",
+        "module.component.aws_iam_role_policy.migration": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.operator": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.runtime": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.secrets_reader": "aws_iam_role_policy",
+        "module.component.terraform_data.guard": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/dev/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/dev/identity/locals.tf": "1ce7f1e3050a607d50fa5b803d8a84dc1b05a7da6f03c5701044f6dda612083f",
+            "terraform/environments/dev/identity/main.tf": "bac1a8435c22b4393f17f5aad47f94fd3469e29427a82b977ce0f8bf28ef72b9",
+            "terraform/environments/dev/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/dev/identity/providers.tf": "dea58a7534949c76065c5700a56e6da976b60c74a3bd1b9ccc58768c134a0fac",
+            "terraform/environments/dev/identity/remote-state.tf": "12d1edeff86daea09a3ed69ce898d6480b91c5479b75baa7aa7f5c8fb1d6e6c3",
+            "terraform/environments/dev/identity/variables.tf": "6c1b50e0485e3984ab14719ae46fc102a71e6c7a3030c11b914e6f785c05cb23",
+            "terraform/environments/dev/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatted_files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/dev/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/dev/identity/locals.tf": "1ce7f1e3050a607d50fa5b803d8a84dc1b05a7da6f03c5701044f6dda612083f",
+            "terraform/environments/dev/identity/main.tf": "bac1a8435c22b4393f17f5aad47f94fd3469e29427a82b977ce0f8bf28ef72b9",
+            "terraform/environments/dev/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/dev/identity/providers.tf": "dea58a7534949c76065c5700a56e6da976b60c74a3bd1b9ccc58768c134a0fac",
+            "terraform/environments/dev/identity/remote-state.tf": "12d1edeff86daea09a3ed69ce898d6480b91c5479b75baa7aa7f5c8fb1d6e6c3",
+            "terraform/environments/dev/identity/variables.tf": "6c1b50e0485e3984ab14719ae46fc102a71e6c7a3030c11b914e6f785c05cb23",
+            "terraform/environments/dev/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/dev/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/dev/identity/locals.tf": "1ce7f1e3050a607d50fa5b803d8a84dc1b05a7da6f03c5701044f6dda612083f",
+            "terraform/environments/dev/identity/main.tf": "964cc929cab050e317939b56bc33316faa41987b7c466e78dab101d3716da746",
+            "terraform/environments/dev/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/dev/identity/providers.tf": "dea58a7534949c76065c5700a56e6da976b60c74a3bd1b9ccc58768c134a0fac",
+            "terraform/environments/dev/identity/remote-state.tf": "e2a529fb9409e0ab123989b9f9f087725d6c2c041e3a46ee69ac4920ecc5ea06",
+            "terraform/environments/dev/identity/variables.tf": "6c1b50e0485e3984ab14719ae46fc102a71e6c7a3030c11b914e6f785c05cb23",
+            "terraform/environments/dev/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatted_files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/dev/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/dev/identity/locals.tf": "1ce7f1e3050a607d50fa5b803d8a84dc1b05a7da6f03c5701044f6dda612083f",
+            "terraform/environments/dev/identity/main.tf": "964cc929cab050e317939b56bc33316faa41987b7c466e78dab101d3716da746",
+            "terraform/environments/dev/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/dev/identity/providers.tf": "dea58a7534949c76065c5700a56e6da976b60c74a3bd1b9ccc58768c134a0fac",
+            "terraform/environments/dev/identity/remote-state.tf": "e2a529fb9409e0ab123989b9f9f087725d6c2c041e3a46ee69ac4920ecc5ea06",
+            "terraform/environments/dev/identity/variables.tf": "6c1b50e0485e3984ab14719ae46fc102a71e6c7a3030c11b914e6f785c05cb23",
+            "terraform/environments/dev/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/data",
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/platform/operations"
+      ],
+      "required_down_hooks": [
+        "hook:application-runtime",
+        "hook:migration-and-seed"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/edge": {
+      "module": "edge",
+      "allowed_addresses": {
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "modules/edge/main.tf": "7d30dd336ce4e4ee8f5ffbef04204bf5a42ed7fc6d87ce8a0567188f8225a9d2",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/dev/platform/edge/backend.tf": "ad55a47191eb6b6655db7c034cefdb26117a04e6eb2ed1cf0e780ae10ea97131",
+            "terraform/environments/dev/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/dev/platform/edge/main.tf": "c6a5b43cb4f129c8c26ad7fb05a68f88e17e28c9c90daa5dd352a595e6ce969f",
+            "terraform/environments/dev/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/dev/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/dev/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/dev/platform/edge/variables.tf": "b73dec8eef51d3fb1b56b418939a2ddeeee2e8964ed1af94428daf00fc60a886",
+            "terraform/environments/dev/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatted_files": {
+            "modules/edge/main.tf": "7d30dd336ce4e4ee8f5ffbef04204bf5a42ed7fc6d87ce8a0567188f8225a9d2",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/dev/platform/edge/backend.tf": "ad55a47191eb6b6655db7c034cefdb26117a04e6eb2ed1cf0e780ae10ea97131",
+            "terraform/environments/dev/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/dev/platform/edge/main.tf": "c6a5b43cb4f129c8c26ad7fb05a68f88e17e28c9c90daa5dd352a595e6ce969f",
+            "terraform/environments/dev/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/dev/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/dev/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/dev/platform/edge/variables.tf": "b73dec8eef51d3fb1b56b418939a2ddeeee2e8964ed1af94428daf00fc60a886",
+            "terraform/environments/dev/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "modules/edge/main.tf": "a67b1a452aec39945aa6e2b4d36d1416037f1be6ce954e239494e59110454b2c",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/dev/platform/edge/backend.tf": "fdfd9dcff9d67826817d6d0d9c9a7769567f56aa782a2792b1bea93153ad43af",
+            "terraform/environments/dev/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/dev/platform/edge/main.tf": "c6a5b43cb4f129c8c26ad7fb05a68f88e17e28c9c90daa5dd352a595e6ce969f",
+            "terraform/environments/dev/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/dev/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/dev/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/dev/platform/edge/variables.tf": "4bdb7e37739efae37e97a7551d262165a1c8dbe1c9a2a1295bc1a758ed893967",
+            "terraform/environments/dev/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatted_files": {
+            "modules/edge/main.tf": "a67b1a452aec39945aa6e2b4d36d1416037f1be6ce954e239494e59110454b2c",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/dev/platform/edge/backend.tf": "fdfd9dcff9d67826817d6d0d9c9a7769567f56aa782a2792b1bea93153ad43af",
+            "terraform/environments/dev/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/dev/platform/edge/main.tf": "c6a5b43cb4f129c8c26ad7fb05a68f88e17e28c9c90daa5dd352a595e6ce969f",
+            "terraform/environments/dev/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/dev/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/dev/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/dev/platform/edge/variables.tf": "4bdb7e37739efae37e97a7551d262165a1c8dbe1c9a2a1295bc1a758ed893967",
+            "terraform/environments/dev/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/06-BU09-T6-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/08-BU09-T8-verify-exposure.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU09/13-BU09-T14-approved-dev-access.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/08-BU10A-T8-account-alerts.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10A/09-BU10A-T9-alerting-roots.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/04-BU10C-T3-permissions-and-topics.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU10C/05-BU10C-T4-parallel-config-and-smoke.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/05-BU13-T4-tenant-pod-identity.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU13/06-BU13-T5-root-and-version.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU09-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10A-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU10C-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU13-파트3.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/platform/gateway"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": true,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/platform/core": {
+      "module": "core",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.cert_manager": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.cert_manager": "aws_iam_role",
+        "module.component.aws_iam_role_policy.dns01": "aws_iam_role_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "course",
+          "files": {
+            "modules/core/main.tf": "c04bbd41abcb0743da39e98dbf0e2d19188719d7ce98db145b1bea2b6a1dfd0b",
+            "modules/core/outputs.tf": "8f5f5fd175d2667ad948406af4b4d67cd68cef3d80a9a29dadba2b711aed1712",
+            "modules/core/variables.tf": "a6a287f6600cb24b1ce0aa7ff60faf008320a08741a9ea81e34228552b593c59",
+            "modules/core/versions.tf": "9e042b0e7a89de18fdbebc655706e0fcce2ebb7890b35617eb302935a0e1098b",
+            "terraform/environments/prod/platform/core/backend.tf": "e6d24fab7c6c781340e27b6d0c9b3d84c1cd332dbd4f3ca9eae431c40b1f05df",
+            "terraform/environments/prod/platform/core/locals.tf": "7d7f999ff399bf0ae23d23e180759a147c8dfb246e7f0a46eb474c0c7f14f8fc",
+            "terraform/environments/prod/platform/core/main.tf": "5ec2bb575b235998e00fca39b106b8f213c476348b82ef1c91523823dd216808",
+            "terraform/environments/prod/platform/core/outputs.tf": "955c3c64df3be28ee0e1b2b52d987ecd4ac6edd7a54fb1a8ddb54501c8cf92a8",
+            "terraform/environments/prod/platform/core/providers.tf": "fe1e6ac0f8d0df21796998c09f236973ae1266973f95113fc25de45746e4100b",
+            "terraform/environments/prod/platform/core/remote-state.tf": "d20f0f50e08e6016faf460d1782758715f58fae71d1b595a9a2240fa1fef0726",
+            "terraform/environments/prod/platform/core/variables.tf": "2ab597e1c3ce3117bf3f8e31777320cd8045b92779b08e5a85dfd53c8f7e5cfd",
+            "terraform/environments/prod/platform/core/versions.tf": "fa6f7629028037800dc3b950aba6375c54f9787f55a501e5df1ddc49bb47da44"
+          },
+          "formatted_files": {
+            "modules/core/main.tf": "c04bbd41abcb0743da39e98dbf0e2d19188719d7ce98db145b1bea2b6a1dfd0b",
+            "modules/core/outputs.tf": "8f5f5fd175d2667ad948406af4b4d67cd68cef3d80a9a29dadba2b711aed1712",
+            "modules/core/variables.tf": "a6a287f6600cb24b1ce0aa7ff60faf008320a08741a9ea81e34228552b593c59",
+            "modules/core/versions.tf": "9e042b0e7a89de18fdbebc655706e0fcce2ebb7890b35617eb302935a0e1098b",
+            "terraform/environments/prod/platform/core/backend.tf": "e6d24fab7c6c781340e27b6d0c9b3d84c1cd332dbd4f3ca9eae431c40b1f05df",
+            "terraform/environments/prod/platform/core/locals.tf": "7d7f999ff399bf0ae23d23e180759a147c8dfb246e7f0a46eb474c0c7f14f8fc",
+            "terraform/environments/prod/platform/core/main.tf": "5ec2bb575b235998e00fca39b106b8f213c476348b82ef1c91523823dd216808",
+            "terraform/environments/prod/platform/core/outputs.tf": "955c3c64df3be28ee0e1b2b52d987ecd4ac6edd7a54fb1a8ddb54501c8cf92a8",
+            "terraform/environments/prod/platform/core/providers.tf": "fe1e6ac0f8d0df21796998c09f236973ae1266973f95113fc25de45746e4100b",
+            "terraform/environments/prod/platform/core/remote-state.tf": "d20f0f50e08e6016faf460d1782758715f58fae71d1b595a9a2240fa1fef0726",
+            "terraform/environments/prod/platform/core/variables.tf": "2ab597e1c3ce3117bf3f8e31777320cd8045b92779b08e5a85dfd53c8f7e5cfd",
+            "terraform/environments/prod/platform/core/versions.tf": "fa6f7629028037800dc3b950aba6375c54f9787f55a501e5df1ddc49bb47da44"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/account-baseline-dns"
+      ],
+      "required_down_hooks": [
+        "hook:platform-core"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/platform/gateway": {
+      "module": "gateway",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.controller": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_policy.lbc": "aws_iam_policy",
+        "module.component.aws_iam_role.controller": "aws_iam_role",
+        "module.component.aws_iam_role_policy.dns": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy_attachment.lbc": "aws_iam_role_policy_attachment",
+        "module.component.aws_route53_zone.internal": "aws_route53_zone",
+        "module.component.aws_security_group.nlb": "aws_security_group",
+        "module.component.aws_vpc_security_group_egress_rule.vpc": "aws_vpc_security_group_egress_rule",
+        "module.component.aws_vpc_security_group_ingress_rule.clients": "aws_vpc_security_group_ingress_rule",
+        "module.component.aws_vpc_security_group_ingress_rule.cloudfront": "aws_vpc_security_group_ingress_rule",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "course",
+          "files": {
+            "modules/gateway/exposure.tf": "1bd180681b2b0bc034de4bf2de91e44f7c616bbaed4d2d9d9e1832700fdfa147",
+            "modules/gateway/main.tf": "75d5038d05ad942b0ff05815056d49e7485ded3f25ac223f2003e37118be2a1c",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/prod/platform/gateway/backend.tf": "ba6eaf773d6ba7a2e7f18369bf3c1ef1a87b7f1adb6068f6c9f9f38ceb371ce0",
+            "terraform/environments/prod/platform/gateway/locals.tf": "f85779771be1a2caa5045a2bff6e33deea52d2ce10660476f5e36c1c28c033ed",
+            "terraform/environments/prod/platform/gateway/main.tf": "9f0515e944866ba893b4e1d374c8ee7d03ca2e50a9bcb36763905bad308665fe",
+            "terraform/environments/prod/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/prod/platform/gateway/providers.tf": "23dc279cf3d0c060980470617037ffdeb8098e5a73c6dba2f448ac9f0455ce59",
+            "terraform/environments/prod/platform/gateway/remote-state.tf": "d1b8f7c65f7f0b76571d8f164ff658e9cfac511a6005fc50596cfcbae1d5094b",
+            "terraform/environments/prod/platform/gateway/variables.tf": "489c238a83add788783a40e7c40105efcf11b7b53683541c63dbd633080ff975",
+            "terraform/environments/prod/platform/gateway/versions.tf": "4146a57a2dee26b8404018cc9b26a30f9be2b44a4202ac917bacddb810f42036"
+          },
+          "formatted_files": {
+            "modules/gateway/exposure.tf": "1bd180681b2b0bc034de4bf2de91e44f7c616bbaed4d2d9d9e1832700fdfa147",
+            "modules/gateway/main.tf": "75d5038d05ad942b0ff05815056d49e7485ded3f25ac223f2003e37118be2a1c",
+            "modules/gateway/outputs.tf": "6b2c255fe971072e665a9ce7dc0211b81124b1a4eb8117a25c128cadde09029e",
+            "modules/gateway/variables.tf": "eba4a04ca25d756e1481d22bb452cddf85d2850c2b345eb3026c51ea8aeded89",
+            "modules/gateway/versions.tf": "128789152e3ffe07ce287403d6542f592fb331e32161a9027b4cbdd9ce53e892",
+            "terraform/environments/prod/platform/gateway/backend.tf": "ba6eaf773d6ba7a2e7f18369bf3c1ef1a87b7f1adb6068f6c9f9f38ceb371ce0",
+            "terraform/environments/prod/platform/gateway/locals.tf": "f85779771be1a2caa5045a2bff6e33deea52d2ce10660476f5e36c1c28c033ed",
+            "terraform/environments/prod/platform/gateway/main.tf": "9f0515e944866ba893b4e1d374c8ee7d03ca2e50a9bcb36763905bad308665fe",
+            "terraform/environments/prod/platform/gateway/outputs.tf": "dd42f1a93b114568d69359c669817973e24af102d3ffd73fca9c1c0377c56fa0",
+            "terraform/environments/prod/platform/gateway/providers.tf": "23dc279cf3d0c060980470617037ffdeb8098e5a73c6dba2f448ac9f0455ce59",
+            "terraform/environments/prod/platform/gateway/remote-state.tf": "d1b8f7c65f7f0b76571d8f164ff658e9cfac511a6005fc50596cfcbae1d5094b",
+            "terraform/environments/prod/platform/gateway/variables.tf": "489c238a83add788783a40e7c40105efcf11b7b53683541c63dbd633080ff975",
+            "terraform/environments/prod/platform/gateway/versions.tf": "4146a57a2dee26b8404018cc9b26a30f9be2b44a4202ac917bacddb810f42036"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/03-BU15-T3-prod-core-gateway.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/account-baseline-dns",
+        "terraform/environments/prod/network/vpc"
+      ],
+      "required_down_hooks": [
+        "hook:platform-gateway"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/platform/alerting": {
+      "module": "alerting",
+      "allowed_addresses": {
+        "module.component.aws_cloudwatch_event_rule.ec2_state_change": "aws_cloudwatch_event_rule",
+        "module.component.aws_cloudwatch_event_target.ec2_state_change": "aws_cloudwatch_event_target",
+        "module.component.aws_cloudwatch_log_metric_filter.armed_sample_deletion": "aws_cloudwatch_log_metric_filter",
+        "module.component.aws_cloudwatch_log_metric_filter.pool_acquire_timeout": "aws_cloudwatch_log_metric_filter",
+        "module.component.aws_cloudwatch_metric_alarm.armed_sample_deletion": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_cloudwatch_metric_alarm.pool_acquire_timeout": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_eks_pod_identity_association.alertmanager": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.alertmanager": "aws_iam_role",
+        "module.component.aws_iam_role_policy.publish": "aws_iam_role_policy",
+        "module.component.aws_sns_topic.alerts": "aws_sns_topic",
+        "module.component.aws_sns_topic_policy.alerts": "aws_sns_topic_policy",
+        "module.component.aws_sns_topic_subscription.email": "aws_sns_topic_subscription",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "course",
+          "files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/prod/platform/alerting/backend.tf": "1b8c9ef20c29de178f1ba965904aa7ba3fb141c4372e42015f46d9597bd4922b",
+            "terraform/environments/prod/platform/alerting/locals.tf": "c69474f1cb52f6624425c533ee98e85f0a194531b16c152cd7973d6ced24edf3",
+            "terraform/environments/prod/platform/alerting/main.tf": "23761e7840e368c299ca3e70036981288ab04bf91d7a3b4f79636fda02af3bf0",
+            "terraform/environments/prod/platform/alerting/outputs.tf": "b66a9b3922fac2315d6cf9e99b4a46b35c03446234adc3d7a6f82664c90a7000",
+            "terraform/environments/prod/platform/alerting/providers.tf": "fc1ba85b7cd3f7fd394a6bd0db4972eba9609365734e5c820d2420e8a54f5367",
+            "terraform/environments/prod/platform/alerting/remote-state.tf": "186b4849f956ba851037d744b99f5bf9f99f2a2014ed447329820c0b00f85827",
+            "terraform/environments/prod/platform/alerting/variables.tf": "02e68a2ede6822c5a95097118560035b2b200105aed310b123d46e4aacc50548",
+            "terraform/environments/prod/platform/alerting/versions.tf": "5762d498bb8453d8ed915a01365674a2e77075309d44f2ba84ed644b539cb3c1"
+          },
+          "formatted_files": {
+            "modules/alerting/alarms.tf": "97ebc917a023fc554331aa99220f0634aecd1c0e4e2bc1943aa51a0eab04250c",
+            "modules/alerting/main.tf": "2720d56edfb9e130627c0d68db6b86ae0d2c87b711576d4d53e41012b28df533",
+            "modules/alerting/outputs.tf": "aaad286d348c8025cd29e98cd6fbdb5ab89790e1dcfd153cf0ea13e18367d056",
+            "modules/alerting/variables.tf": "385bf16ce1b4ee78df2bff315c7f638986d362c669d4222e18d5415ad79b6e5d",
+            "modules/alerting/versions.tf": "8b007f0012aceac8494059c6cb19f6b59d8f8ca86868c0ab18c096dbd129764c",
+            "terraform/environments/prod/platform/alerting/backend.tf": "1b8c9ef20c29de178f1ba965904aa7ba3fb141c4372e42015f46d9597bd4922b",
+            "terraform/environments/prod/platform/alerting/locals.tf": "c69474f1cb52f6624425c533ee98e85f0a194531b16c152cd7973d6ced24edf3",
+            "terraform/environments/prod/platform/alerting/main.tf": "23761e7840e368c299ca3e70036981288ab04bf91d7a3b4f79636fda02af3bf0",
+            "terraform/environments/prod/platform/alerting/outputs.tf": "b66a9b3922fac2315d6cf9e99b4a46b35c03446234adc3d7a6f82664c90a7000",
+            "terraform/environments/prod/platform/alerting/providers.tf": "fc1ba85b7cd3f7fd394a6bd0db4972eba9609365734e5c820d2420e8a54f5367",
+            "terraform/environments/prod/platform/alerting/remote-state.tf": "186b4849f956ba851037d744b99f5bf9f99f2a2014ed447329820c0b00f85827",
+            "terraform/environments/prod/platform/alerting/variables.tf": "02e68a2ede6822c5a95097118560035b2b200105aed310b123d46e4aacc50548",
+            "terraform/environments/prod/platform/alerting/versions.tf": "5762d498bb8453d8ed915a01365674a2e77075309d44f2ba84ed644b539cb3c1"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": [
+        "hook:platform-alerting"
+      ]
+    },
+    "terraform/environments/prod/platform/queue-secrets": {
+      "module": null,
+      "allowed_addresses": {
+        "aws_iam_role.queue_secret_reader": "aws_iam_role",
+        "aws_iam_role_policy.controller_assume_queue_reader": "aws_iam_role_policy",
+        "aws_iam_role_policy.read_queue_credentials": "aws_iam_role_policy",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "terraform/environments/prod/platform/queue-secrets/main.tf": "7c0ebebe4dcd45c9d89a0e96ad0bcd5aeb05576b7ca632d82ad1aa5012adb244",
+            "terraform/environments/prod/platform/queue-secrets/outputs.tf": "fae4c1025c065d5b8c69e8cc3966afb317f8714e7622a1d9fd278b64d9651b57",
+            "terraform/environments/prod/platform/queue-secrets/providers.tf": "e6bc25ada273cb12886543c4400bdf118f4c00dc699902f5d3890cb289b37746",
+            "terraform/environments/prod/platform/queue-secrets/variables.tf": "ace1d306165bfd91eec382a22bbc963d50d41d6a71ea087251d152016c4bd148",
+            "terraform/environments/prod/platform/queue-secrets/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatted_files": {
+            "terraform/environments/prod/platform/queue-secrets/main.tf": "7c0ebebe4dcd45c9d89a0e96ad0bcd5aeb05576b7ca632d82ad1aa5012adb244",
+            "terraform/environments/prod/platform/queue-secrets/outputs.tf": "fae4c1025c065d5b8c69e8cc3966afb317f8714e7622a1d9fd278b64d9651b57",
+            "terraform/environments/prod/platform/queue-secrets/providers.tf": "e6bc25ada273cb12886543c4400bdf118f4c00dc699902f5d3890cb289b37746",
+            "terraform/environments/prod/platform/queue-secrets/variables.tf": "ace1d306165bfd91eec382a22bbc963d50d41d6a71ea087251d152016c4bd148",
+            "terraform/environments/prod/platform/queue-secrets/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/platform/queue",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "required_down_hooks": [
+        "hook:platform-queue"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/platform/queue-association": {
+      "module": null,
+      "allowed_addresses": {
+        "aws_msk_scram_secret_association.queue_user": "aws_msk_scram_secret_association",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "terraform/environments/prod/platform/queue-association/main.tf": "7557265a6f464b00f42e092b0d3f3585d0bc7f79a9b062e628a1cad15e528767",
+            "terraform/environments/prod/platform/queue-association/outputs.tf": "8466ff69096c19535f41e3d8b2c447be700078c7f3df7fabe84f0686ba789aef",
+            "terraform/environments/prod/platform/queue-association/providers.tf": "03e38c8284a475db0a626250bbf313135cee30aa466e97c7fed3d218bd7f255d",
+            "terraform/environments/prod/platform/queue-association/variables.tf": "330c6fa0d2caddefe8beefc36e3c386b2453ff2006d7e1a19014e93ba3729860",
+            "terraform/environments/prod/platform/queue-association/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatted_files": {
+            "terraform/environments/prod/platform/queue-association/main.tf": "7557265a6f464b00f42e092b0d3f3585d0bc7f79a9b062e628a1cad15e528767",
+            "terraform/environments/prod/platform/queue-association/outputs.tf": "8466ff69096c19535f41e3d8b2c447be700078c7f3df7fabe84f0686ba789aef",
+            "terraform/environments/prod/platform/queue-association/providers.tf": "03e38c8284a475db0a626250bbf313135cee30aa466e97c7fed3d218bd7f255d",
+            "terraform/environments/prod/platform/queue-association/variables.tf": "330c6fa0d2caddefe8beefc36e3c386b2453ff2006d7e1a19014e93ba3729860",
+            "terraform/environments/prod/platform/queue-association/versions.tf": "d657e5d8d4679967c43891f93e923216b4481f75bc1d5a8edc1959a2829c5ba9"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/06-BU15-T5-prod-msk-tempo.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/08-BU15-T7-prod-alerting.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/platform/queue"
+      ],
+      "required_down_hooks": [
+        "hook:platform-queue"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/identity": {
+      "module": "tenant-pod-identity",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.migration": "aws_eks_pod_identity_association",
+        "module.component.aws_eks_pod_identity_association.operator": "aws_eks_pod_identity_association",
+        "module.component.aws_eks_pod_identity_association.runtime": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.operator": "aws_iam_role",
+        "module.component.aws_iam_role.runtime": "aws_iam_role",
+        "module.component.aws_iam_role.secrets_reader": "aws_iam_role",
+        "module.component.aws_iam_role_policy.migration": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.operator": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.runtime": "aws_iam_role_policy",
+        "module.component.aws_iam_role_policy.secrets_reader": "aws_iam_role_policy",
+        "module.component.terraform_data.guard": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "provided-tooling",
+          "files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/prod/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/prod/identity/locals.tf": "79aa167dca2410b1c609991d42cb83f937c937323922f5f0ab4f5225ad39e08a",
+            "terraform/environments/prod/identity/main.tf": "cebb525bfc2197dbfcd55c3d5c92f3e8457df4e489a61e5363e26bb502c54b0e",
+            "terraform/environments/prod/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/prod/identity/providers.tf": "d33fc08d1cb7f69e89736a9abd23058d1aa6b0f02cf6b2dcdabdb758cb35fed9",
+            "terraform/environments/prod/identity/remote-state.tf": "1283955e24f45250237b05534704f426a2eb824591097e8f9ac7511a8d9baa8e",
+            "terraform/environments/prod/identity/variables.tf": "aebb1dd4863883e002ee07475a6c2469333d947994d63684f65b134d455835a5",
+            "terraform/environments/prod/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatted_files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/prod/identity/backend.tf": "1fdc0256c298b4ce19ce65514afcd46108d063c76b9a5a7cf05a5cfb59812bb1",
+            "terraform/environments/prod/identity/locals.tf": "79aa167dca2410b1c609991d42cb83f937c937323922f5f0ab4f5225ad39e08a",
+            "terraform/environments/prod/identity/main.tf": "cebb525bfc2197dbfcd55c3d5c92f3e8457df4e489a61e5363e26bb502c54b0e",
+            "terraform/environments/prod/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/prod/identity/providers.tf": "d33fc08d1cb7f69e89736a9abd23058d1aa6b0f02cf6b2dcdabdb758cb35fed9",
+            "terraform/environments/prod/identity/remote-state.tf": "1283955e24f45250237b05534704f426a2eb824591097e8f9ac7511a8d9baa8e",
+            "terraform/environments/prod/identity/variables.tf": "aebb1dd4863883e002ee07475a6c2469333d947994d63684f65b134d455835a5",
+            "terraform/environments/prod/identity/versions.tf": "ebc4a0b1801c0fef643efa6dc7298d00e36ec852f6482085879f9a4f97a0d38f"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "provided-tooling",
+              "checkpoint": "provided-tooling/assets/infrastructure"
+            }
+          ]
+        },
+        {
+          "origin": "course",
+          "files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/prod/identity/backend.tf": "e902ace5f1295e10bb19db597b22978468cea3698a2fe22f26dea25bb8f5d3ab",
+            "terraform/environments/prod/identity/locals.tf": "f0f0679de1f335f4ee393487fc560b0b93b03016538e5503ac10b66546e9091e",
+            "terraform/environments/prod/identity/main.tf": "d26c066573e0d4138d1a92eeafd6c76383f3ac9a295ca79acad115cf072461cf",
+            "terraform/environments/prod/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/prod/identity/providers.tf": "d33fc08d1cb7f69e89736a9abd23058d1aa6b0f02cf6b2dcdabdb758cb35fed9",
+            "terraform/environments/prod/identity/remote-state.tf": "34af2e418a1528984e3aee51e058c73bbfc9a4ae23895bc3609dfe5bc747aabc",
+            "terraform/environments/prod/identity/variables.tf": "aebb1dd4863883e002ee07475a6c2469333d947994d63684f65b134d455835a5",
+            "terraform/environments/prod/identity/versions.tf": "41655fd3dd16364ed324aedb2c8cf23724eb2457a7baf4bd92dd36051a98dd0d"
+          },
+          "formatted_files": {
+            "modules/tenant-pod-identity/main.tf": "fd0741d91ee388f085cbf46f5539fb1541a950b6a8c4b9f0871f03072b8cdc69",
+            "modules/tenant-pod-identity/outputs.tf": "acc3493dac784dbbdb735ebc99556a237cf4fd2e024d313950440406d55aa829",
+            "modules/tenant-pod-identity/variables.tf": "843b1641bd8466f73b95a7d7df81a483499513ec9454b6a0f02c056919cb8783",
+            "modules/tenant-pod-identity/versions.tf": "6c534dcf1cf35df8e9b2afddb1871c037262cae7f9d2831156f1a47023bea11f",
+            "terraform/environments/prod/identity/backend.tf": "e902ace5f1295e10bb19db597b22978468cea3698a2fe22f26dea25bb8f5d3ab",
+            "terraform/environments/prod/identity/locals.tf": "f0f0679de1f335f4ee393487fc560b0b93b03016538e5503ac10b66546e9091e",
+            "terraform/environments/prod/identity/main.tf": "d26c066573e0d4138d1a92eeafd6c76383f3ac9a295ca79acad115cf072461cf",
+            "terraform/environments/prod/identity/outputs.tf": "312353a98edc27a7092297400d379af263a2ed1cf3b49415a72a9fe7636363a8",
+            "terraform/environments/prod/identity/providers.tf": "d33fc08d1cb7f69e89736a9abd23058d1aa6b0f02cf6b2dcdabdb758cb35fed9",
+            "terraform/environments/prod/identity/remote-state.tf": "34af2e418a1528984e3aee51e058c73bbfc9a4ae23895bc3609dfe5bc747aabc",
+            "terraform/environments/prod/identity/variables.tf": "aebb1dd4863883e002ee07475a6c2469333d947994d63684f65b134d455835a5",
+            "terraform/environments/prod/identity/versions.tf": "41655fd3dd16364ed324aedb2c8cf23724eb2457a7baf4bd92dd36051a98dd0d"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/09-BU15-T8-prod-data.md"
+            },
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/data",
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations"
+      ],
+      "required_down_hooks": [
+        "hook:application-runtime",
+        "hook:migration-and-seed"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": false,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/prod/platform/edge": {
+      "module": "edge",
+      "allowed_addresses": {
+        "module.component.aws_acm_certificate.viewer": "aws_acm_certificate",
+        "module.component.aws_acm_certificate_validation.viewer": "aws_acm_certificate_validation",
+        "module.component.aws_cloudfront_cache_policy.disabled": "aws_cloudfront_cache_policy",
+        "module.component.aws_cloudfront_distribution.app": "aws_cloudfront_distribution",
+        "module.component.aws_cloudfront_origin_request_policy.viewer": "aws_cloudfront_origin_request_policy",
+        "module.component.aws_cloudfront_vpc_origin.gateway": "aws_cloudfront_vpc_origin",
+        "module.component.aws_cloudwatch_log_group.waf": "aws_cloudwatch_log_group",
+        "module.component.aws_route53_record.app_ipv4": "aws_route53_record",
+        "module.component.aws_route53_record.app_ipv6": "aws_route53_record",
+        "module.component.aws_route53_record.validation": "aws_route53_record",
+        "module.component.aws_wafv2_web_acl.edge": "aws_wafv2_web_acl",
+        "module.component.aws_wafv2_web_acl_logging_configuration.edge": "aws_wafv2_web_acl_logging_configuration",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "course",
+          "files": {
+            "modules/edge/main.tf": "a67b1a452aec39945aa6e2b4d36d1416037f1be6ce954e239494e59110454b2c",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/prod/platform/edge/backend.tf": "fdfd9dcff9d67826817d6d0d9c9a7769567f56aa782a2792b1bea93153ad43af",
+            "terraform/environments/prod/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/prod/platform/edge/main.tf": "0e74cfe018f330dc12e6f76f263876fc1e10aff2d3e90a1da8a6fd3895dccece",
+            "terraform/environments/prod/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/prod/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/prod/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/prod/platform/edge/variables.tf": "4bdb7e37739efae37e97a7551d262165a1c8dbe1c9a2a1295bc1a758ed893967",
+            "terraform/environments/prod/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatted_files": {
+            "modules/edge/main.tf": "a67b1a452aec39945aa6e2b4d36d1416037f1be6ce954e239494e59110454b2c",
+            "modules/edge/outputs.tf": "d25bb21fb82063795499f41d43ee5a7c84e19e706a5486442239ec60530472fd",
+            "modules/edge/variables.tf": "6b621ad232da12391ab5b59d820434f8b9c170d5e841d118e0318056d15c0b0b",
+            "modules/edge/versions.tf": "fdaecb976c9743f70428895e62983c83dd75a3945bc4e57b6891470fdbdccd3d",
+            "terraform/environments/prod/platform/edge/backend.tf": "fdfd9dcff9d67826817d6d0d9c9a7769567f56aa782a2792b1bea93153ad43af",
+            "terraform/environments/prod/platform/edge/locals.tf": "63d731b39a199d50705f3559dfee99ec8182b2dfabe9cf55a09028d7500ba4e4",
+            "terraform/environments/prod/platform/edge/main.tf": "0e74cfe018f330dc12e6f76f263876fc1e10aff2d3e90a1da8a6fd3895dccece",
+            "terraform/environments/prod/platform/edge/outputs.tf": "53985d9e24fe8f1fbf0a53b00f4e92ca67840e592a764ef82a66e63aa5cc14bd",
+            "terraform/environments/prod/platform/edge/providers.tf": "67a52f34f401b7bfc159e52e8661c15328d9629a74dfc3b4f208a6f67a63dc33",
+            "terraform/environments/prod/platform/edge/remote-state.tf": "96c4cddbe438184f4c2f2ef8b6ccbbb0f02cc17032eb1f29f23654b9eae245d0",
+            "terraform/environments/prod/platform/edge/variables.tf": "4bdb7e37739efae37e97a7551d262165a1c8dbe1c9a2a1295bc1a758ed893967",
+            "terraform/environments/prod/platform/edge/versions.tf": "770cc8b50947a9a609505c89701af61037fc0447c6b300ce03487c225e956628"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "course",
+              "checkpoint": "course/전체교안/쉬운버전/BU15/14-BU15-T11-public-service.md"
+            },
+            {
+              "origin": "part3",
+              "checkpoint": "course/파트3/BU15-파트3.md"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/platform/gateway"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "enabled_edge": true,
+      "dev_session_proof": false,
+      "conditional_down_hooks": []
+    },
+    "terraform/environments/dev/platform/operations": {
+      "module": "runtime-operations",
+      "allowed_addresses": {
+        "module.component.aws_autoscaling_group_tag.discovery": "aws_autoscaling_group_tag",
+        "module.component.aws_cloudwatch_log_group.platform": "aws_cloudwatch_log_group",
+        "module.component.aws_eks_pod_identity_association.controller": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.controller": "aws_iam_role",
+        "module.component.aws_iam_role_policy.controller": "aws_iam_role_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/dev/platform/operations/backend.tf": "b4074b060937dfcabc92b7c654b2e92ce08652479d6bba04eddec11840544002",
+            "terraform/environments/dev/platform/operations/locals.tf": "5e10af3923016fcf43096fc743c6d63a89b842da02a72951948e210c5fbf0173",
+            "terraform/environments/dev/platform/operations/main.tf": "b428dac7adb58aef804ad4aa0ddfdd02e492582450bdcc34cba20c1adf2019b0",
+            "terraform/environments/dev/platform/operations/outputs.tf": "6949d0fb9422e284a098010d7f364d56924ab12812456c082dc64de777344517",
+            "terraform/environments/dev/platform/operations/providers.tf": "2839da02cba47911c4579bd294cffe21ddb62c1a00fd24af0194933aa79f7238",
+            "terraform/environments/dev/platform/operations/remote-state.tf": "927af3b8986a70f3479ef5d446628dcf74bbccb5cf16bae7445eef0710add64f",
+            "terraform/environments/dev/platform/operations/retained-state.tf": "4b583bedcde99a52ec70996c2ed72297835efafdacf19bdfb71ac67f94186754",
+            "terraform/environments/dev/platform/operations/variables.tf": "3a42869834c7fbe5b3d3c48a74bd30ab66550c0eee3899785c4791ec4df3eb27",
+            "terraform/environments/dev/platform/operations/versions.tf": "3afeabbac17f60c0fccb1af84e9e5f7304451116895ed37505e32477ad451b42",
+            "modules/runtime-operations/backup-storage.tf": "273f6c02290dc67852dda5a09b01989592d74686168083373ee6ef4b8a82986a",
+            "modules/runtime-operations/main.tf": "8b55b0a570e09f47cda6f74fb4ba2e8be00c7c53fdf8fffca7e0d72922b5871d",
+            "modules/runtime-operations/outputs.tf": "20681fe99032cfd1b487386b2a54237e0452a7cc79ff4d604f708db4ff7d77d8",
+            "modules/runtime-operations/pod-identity.tf": "3d1b62034b59c30278750d574496644fbe56d4fdd73468d8c178ef775cd0183b",
+            "modules/runtime-operations/providers.tf": "249ca4144985a54e6a2d30a5f77e0c84c89fbf1c85ecfaa21b4a9de2f9bc1890",
+            "modules/runtime-operations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-operations/variables.tf": "e745f1c3fbcc45163b57122f5ce920c65af68568b7869b86b39de8184491ba2d",
+            "modules/runtime-operations/versions.tf": "d1844a5f0fd64430ddb4e8e6bb3b1686b2d64079bc408166f28071c5329daa32"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/operations/backend.tf": "b4074b060937dfcabc92b7c654b2e92ce08652479d6bba04eddec11840544002",
+            "terraform/environments/dev/platform/operations/locals.tf": "5e10af3923016fcf43096fc743c6d63a89b842da02a72951948e210c5fbf0173",
+            "terraform/environments/dev/platform/operations/main.tf": "b428dac7adb58aef804ad4aa0ddfdd02e492582450bdcc34cba20c1adf2019b0",
+            "terraform/environments/dev/platform/operations/outputs.tf": "6949d0fb9422e284a098010d7f364d56924ab12812456c082dc64de777344517",
+            "terraform/environments/dev/platform/operations/providers.tf": "2839da02cba47911c4579bd294cffe21ddb62c1a00fd24af0194933aa79f7238",
+            "terraform/environments/dev/platform/operations/remote-state.tf": "927af3b8986a70f3479ef5d446628dcf74bbccb5cf16bae7445eef0710add64f",
+            "terraform/environments/dev/platform/operations/retained-state.tf": "7b7f305d4ec9e89b85625a5236f75e3f172f840517cd7e26649e06d9c3b9e6ea",
+            "terraform/environments/dev/platform/operations/variables.tf": "3a42869834c7fbe5b3d3c48a74bd30ab66550c0eee3899785c4791ec4df3eb27",
+            "terraform/environments/dev/platform/operations/versions.tf": "3afeabbac17f60c0fccb1af84e9e5f7304451116895ed37505e32477ad451b42",
+            "modules/runtime-operations/backup-storage.tf": "273f6c02290dc67852dda5a09b01989592d74686168083373ee6ef4b8a82986a",
+            "modules/runtime-operations/main.tf": "8b55b0a570e09f47cda6f74fb4ba2e8be00c7c53fdf8fffca7e0d72922b5871d",
+            "modules/runtime-operations/outputs.tf": "20681fe99032cfd1b487386b2a54237e0452a7cc79ff4d604f708db4ff7d77d8",
+            "modules/runtime-operations/pod-identity.tf": "3d1b62034b59c30278750d574496644fbe56d4fdd73468d8c178ef775cd0183b",
+            "modules/runtime-operations/providers.tf": "249ca4144985a54e6a2d30a5f77e0c84c89fbf1c85ecfaa21b4a9de2f9bc1890",
+            "modules/runtime-operations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-operations/variables.tf": "e745f1c3fbcc45163b57122f5ce920c65af68568b7869b86b39de8184491ba2d",
+            "modules/runtime-operations/versions.tf": "d1844a5f0fd64430ddb4e8e6bb3b1686b2d64079bc408166f28071c5329daa32"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/retained/operations"
+      ],
+      "required_down_hooks": [
+        "hook:platform-operations"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": false,
+      "enabled_edge": false,
+      "course_member": true
+    },
+    "terraform/environments/dev/platform/observability": {
+      "module": "runtime-observability-foundation",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.signal": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_policy.observability_maintenance": "aws_iam_policy",
+        "module.component.aws_iam_policy.observability_reader": "aws_iam_policy",
+        "module.component.aws_iam_policy.observability_writer": "aws_iam_policy",
+        "module.component.aws_iam_role.observability_maintenance": "aws_iam_role",
+        "module.component.aws_iam_role.observability_reader": "aws_iam_role",
+        "module.component.aws_iam_role.observability_writer": "aws_iam_role",
+        "module.component.aws_iam_role_policy_attachment.observability_maintenance": "aws_iam_role_policy_attachment",
+        "module.component.aws_iam_role_policy_attachment.observability_reader": "aws_iam_role_policy_attachment",
+        "module.component.aws_iam_role_policy_attachment.observability_writer": "aws_iam_role_policy_attachment",
+        "module.component.aws_vpc_endpoint_policy.s3": "aws_vpc_endpoint_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/dev/platform/observability/backend.tf": "e35707487c65556e272306d63a65de3dbc18feed3448ba1671b85c2258e2fb03",
+            "terraform/environments/dev/platform/observability/locals.tf": "8b561b9a0e2db22f352db183235de449e87434d8a040ef8e8c1cc7d52c390b1d",
+            "terraform/environments/dev/platform/observability/main.tf": "79f44a0906d9297dd02f48a9c59713b62e97ed58a86908528147914bd497ccd6",
+            "terraform/environments/dev/platform/observability/outputs.tf": "581e7dc14bc83e0fab41bd506010561eac533f630928ec3a9caa91508a941f2c",
+            "terraform/environments/dev/platform/observability/providers.tf": "9f3e54ea719df7add7fca03aafc25314505f6232d6287798f7a285d90f4f4915",
+            "terraform/environments/dev/platform/observability/remote-state.tf": "af4153fb1e5909f4b91e923c1cd4b8bfc0b333f33b9066887730f5f5837e2b56",
+            "terraform/environments/dev/platform/observability/retained-state.tf": "6ad413d0f10b70307cc8ab85ca50642f2e4200e9b80d731015d6d77906be3dba",
+            "terraform/environments/dev/platform/observability/variables.tf": "bc504fcd6f575f5d4e26c11aeee2656942b0d7be0ef13d1c3afad16de7c473a3",
+            "terraform/environments/dev/platform/observability/versions.tf": "8eb69d37f591e9bb9d108f06ebbd9dddf6108c8be27e9b4feef68b6767755478",
+            "modules/runtime-observability-foundation/contract.tf": "28d52f66f7966466b353686018e8e62eee819c56a27eb7003d1d7390c603d6aa",
+            "modules/runtime-observability-foundation/identities.tf": "3912244a9936e1e337845cd82ec6c6218a3598ed9259c3c43f10cf4f97c17f34",
+            "modules/runtime-observability-foundation/main.tf": "e5b3c3eaea7f2e595d01d101c05d21b452982022f5fc4ebcbf83dc36ff4bf323",
+            "modules/runtime-observability-foundation/outputs.tf": "1eceb9cd89574a2cf6065f46310c0eb989b8d7c474a3695ad3c3c04c3e5fda45",
+            "modules/runtime-observability-foundation/providers.tf": "fb4ec34230026b52a6c2d539a7b6d3e2287ff56138472d0b76fd0492dcc022a0",
+            "modules/runtime-observability-foundation/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-observability-foundation/signal-variables.tf": "f0abe7c5b56cfd328c4db21a173e386cb03afb06fadcd5a35cab09fa87d129f1",
+            "modules/runtime-observability-foundation/storage-private-path.tf": "f17e1d231941bbba74340ff59203771b0b482e9a4ce9d155ff8f1802f762cdc9",
+            "modules/runtime-observability-foundation/storage-roles.tf": "2c01d77903845042f44e40c7588220bdda723ff0eaf14bfdffc1fe3a32c5bd51",
+            "modules/runtime-observability-foundation/variables.tf": "752635c0324c50030bad177261b76a74af741c88ae8b88243d5f18e2509b5160",
+            "modules/runtime-observability-foundation/versions.tf": "3800658edcf08829a156742687193cab5d2c72a63a47fc64bdb98e3bcab80631"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/platform/observability/backend.tf": "e35707487c65556e272306d63a65de3dbc18feed3448ba1671b85c2258e2fb03",
+            "terraform/environments/dev/platform/observability/locals.tf": "8b561b9a0e2db22f352db183235de449e87434d8a040ef8e8c1cc7d52c390b1d",
+            "terraform/environments/dev/platform/observability/main.tf": "79f44a0906d9297dd02f48a9c59713b62e97ed58a86908528147914bd497ccd6",
+            "terraform/environments/dev/platform/observability/outputs.tf": "581e7dc14bc83e0fab41bd506010561eac533f630928ec3a9caa91508a941f2c",
+            "terraform/environments/dev/platform/observability/providers.tf": "9f3e54ea719df7add7fca03aafc25314505f6232d6287798f7a285d90f4f4915",
+            "terraform/environments/dev/platform/observability/remote-state.tf": "af4153fb1e5909f4b91e923c1cd4b8bfc0b333f33b9066887730f5f5837e2b56",
+            "terraform/environments/dev/platform/observability/retained-state.tf": "bad2c602aabff23944b6b88b299e3433ca636ee1c9410253306d2b5c9cfb02ca",
+            "terraform/environments/dev/platform/observability/variables.tf": "bc504fcd6f575f5d4e26c11aeee2656942b0d7be0ef13d1c3afad16de7c473a3",
+            "terraform/environments/dev/platform/observability/versions.tf": "8eb69d37f591e9bb9d108f06ebbd9dddf6108c8be27e9b4feef68b6767755478",
+            "modules/runtime-observability-foundation/contract.tf": "28d52f66f7966466b353686018e8e62eee819c56a27eb7003d1d7390c603d6aa",
+            "modules/runtime-observability-foundation/identities.tf": "3912244a9936e1e337845cd82ec6c6218a3598ed9259c3c43f10cf4f97c17f34",
+            "modules/runtime-observability-foundation/main.tf": "e5b3c3eaea7f2e595d01d101c05d21b452982022f5fc4ebcbf83dc36ff4bf323",
+            "modules/runtime-observability-foundation/outputs.tf": "1eceb9cd89574a2cf6065f46310c0eb989b8d7c474a3695ad3c3c04c3e5fda45",
+            "modules/runtime-observability-foundation/providers.tf": "fb4ec34230026b52a6c2d539a7b6d3e2287ff56138472d0b76fd0492dcc022a0",
+            "modules/runtime-observability-foundation/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-observability-foundation/signal-variables.tf": "f0abe7c5b56cfd328c4db21a173e386cb03afb06fadcd5a35cab09fa87d129f1",
+            "modules/runtime-observability-foundation/storage-private-path.tf": "f17e1d231941bbba74340ff59203771b0b482e9a4ce9d155ff8f1802f762cdc9",
+            "modules/runtime-observability-foundation/storage-roles.tf": "2c01d77903845042f44e40c7588220bdda723ff0eaf14bfdffc1fe3a32c5bd51",
+            "modules/runtime-observability-foundation/variables.tf": "752635c0324c50030bad177261b76a74af741c88ae8b88243d5f18e2509b5160",
+            "modules/runtime-observability-foundation/versions.tf": "3800658edcf08829a156742687193cab5d2c72a63a47fc64bdb98e3bcab80631"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/eks",
+        "terraform/environments/dev/platform/operations",
+        "terraform/environments/dev/network/vpc",
+        "terraform/environments/dev/account-baseline",
+        "terraform/environments/dev/retained/observability-foundation"
+      ],
+      "required_down_hooks": [
+        "hook:platform-observability"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": false,
+      "enabled_edge": false,
+      "course_member": true
+    },
+    "terraform/environments/dev/account-integrations": {
+      "module": "runtime-account-integrations",
+      "allowed_addresses": {
+        "module.component.aws_cloudwatch_metric_alarm.log_queue_age": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_cloudwatch_metric_alarm.platform_log_volume": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_iam_role.external_log_consumer": "aws_iam_role",
+        "module.component.aws_iam_role_policy.external_log_consumer": "aws_iam_role_policy",
+        "module.component.aws_s3_bucket_notification.network_logs": "aws_s3_bucket_notification",
+        "module.component.aws_sns_topic.platform": "aws_sns_topic",
+        "module.component.aws_sns_topic_policy.platform": "aws_sns_topic_policy",
+        "module.component.aws_sns_topic_subscription.email": "aws_sns_topic_subscription",
+        "module.component.aws_sqs_queue.logs": "aws_sqs_queue",
+        "module.component.aws_sqs_queue_policy.logs": "aws_sqs_queue_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/dev/account-integrations/backend.tf": "a9cb34cdc4d2aa38bbba9faa22f685fa09e824c4cd5c5bbe7d6f9b8dbc025419",
+            "terraform/environments/dev/account-integrations/lifecycle-inputs.tf": "36026f8874e4013be17bbb80f9e726912bcdb4b416e0cfdbc869c8c1bf4ae550",
+            "terraform/environments/dev/account-integrations/locals.tf": "91296ff3b8e26bdd7f3cad7cf233357b0749ec4618f14f762fc8a6cca7ad1e0d",
+            "terraform/environments/dev/account-integrations/main.tf": "e91321917e2bc094cd5504fce0eb3e699db97795f17244539d85dd308c1a9f29",
+            "terraform/environments/dev/account-integrations/outputs.tf": "b0444678be57501e9f5448cfbb9b22de91cf2672d6f2b06fc77e20a92614e0e9",
+            "terraform/environments/dev/account-integrations/providers.tf": "19be6948cf987f1947a96670cf45e97d80203540a15f34c5983486cb0037dbbb",
+            "terraform/environments/dev/account-integrations/remote-state.tf": "d24340a4626ce06aa6af32385668454b6cc655a538cc105381dbd5e54590d482",
+            "terraform/environments/dev/account-integrations/retained-state.tf": "72e52b6e0704685b953005aa91114680d8c9354a7688d24e5952e4c40dcdcc63",
+            "terraform/environments/dev/account-integrations/variables.tf": "5dd090bff94755d686db2b10632e44fc575757913375c23bb0c41b9c0bed285a",
+            "terraform/environments/dev/account-integrations/versions.tf": "1a7e3965c1c13d8e7dfc482ae0312c2f9ecaa511775de0f5629a31fbba062d02",
+            "modules/runtime-account-integrations/alarms.tf": "d0db5ef9bf73319ce0884012b2b3f8e9f0aebb07fdbe3410f531db3b5ab3bee3",
+            "modules/runtime-account-integrations/external-log-consumer.tf": "d17198808a07090c7e2af06f7581a595e86207b1ffa7f09009d6230251f11df2",
+            "modules/runtime-account-integrations/main.tf": "71bb2ffbd5293ff041ccd4ad06574f98a11d5b7a3243e03582199e34c94a244d",
+            "modules/runtime-account-integrations/outputs.tf": "966e66a9ce9c5cf4f5d841c7f8cc4e15a6b5de9f6960f4dc22fb3138113fba1f",
+            "modules/runtime-account-integrations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-account-integrations/variables.tf": "eb4545bbf56a30453e274807e7660820c891652d5c3977ef0e26014dfe702423",
+            "modules/runtime-account-integrations/versions.tf": "e1035c90ea26cb09c6b2c912237d26decae10f0f9a7618c84af4500274419461"
+          },
+          "formatted_files": {
+            "terraform/environments/dev/account-integrations/backend.tf": "a9cb34cdc4d2aa38bbba9faa22f685fa09e824c4cd5c5bbe7d6f9b8dbc025419",
+            "terraform/environments/dev/account-integrations/lifecycle-inputs.tf": "36026f8874e4013be17bbb80f9e726912bcdb4b416e0cfdbc869c8c1bf4ae550",
+            "terraform/environments/dev/account-integrations/locals.tf": "91296ff3b8e26bdd7f3cad7cf233357b0749ec4618f14f762fc8a6cca7ad1e0d",
+            "terraform/environments/dev/account-integrations/main.tf": "e91321917e2bc094cd5504fce0eb3e699db97795f17244539d85dd308c1a9f29",
+            "terraform/environments/dev/account-integrations/outputs.tf": "b0444678be57501e9f5448cfbb9b22de91cf2672d6f2b06fc77e20a92614e0e9",
+            "terraform/environments/dev/account-integrations/providers.tf": "19be6948cf987f1947a96670cf45e97d80203540a15f34c5983486cb0037dbbb",
+            "terraform/environments/dev/account-integrations/remote-state.tf": "d24340a4626ce06aa6af32385668454b6cc655a538cc105381dbd5e54590d482",
+            "terraform/environments/dev/account-integrations/retained-state.tf": "49f67177810b680672ad412aa4b0d689e0e8353de8a893126f84bb40da3a255c",
+            "terraform/environments/dev/account-integrations/variables.tf": "5dd090bff94755d686db2b10632e44fc575757913375c23bb0c41b9c0bed285a",
+            "terraform/environments/dev/account-integrations/versions.tf": "1a7e3965c1c13d8e7dfc482ae0312c2f9ecaa511775de0f5629a31fbba062d02",
+            "modules/runtime-account-integrations/alarms.tf": "d0db5ef9bf73319ce0884012b2b3f8e9f0aebb07fdbe3410f531db3b5ab3bee3",
+            "modules/runtime-account-integrations/external-log-consumer.tf": "d17198808a07090c7e2af06f7581a595e86207b1ffa7f09009d6230251f11df2",
+            "modules/runtime-account-integrations/main.tf": "71bb2ffbd5293ff041ccd4ad06574f98a11d5b7a3243e03582199e34c94a244d",
+            "modules/runtime-account-integrations/outputs.tf": "966e66a9ce9c5cf4f5d841c7f8cc4e15a6b5de9f6960f4dc22fb3138113fba1f",
+            "modules/runtime-account-integrations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-account-integrations/variables.tf": "eb4545bbf56a30453e274807e7660820c891652d5c3977ef0e26014dfe702423",
+            "modules/runtime-account-integrations/versions.tf": "e1035c90ea26cb09c6b2c912237d26decae10f0f9a7618c84af4500274419461"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/dev/network/vpc",
+        "terraform/environments/dev/platform/operations",
+        "terraform/environments/dev/retained/account-integrations"
+      ],
+      "required_down_hooks": [],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": true,
+      "enabled_edge": false,
+      "course_member": true
+    },
+    "terraform/environments/prod/platform/operations": {
+      "module": "runtime-operations",
+      "allowed_addresses": {
+        "module.component.aws_autoscaling_group_tag.discovery": "aws_autoscaling_group_tag",
+        "module.component.aws_cloudwatch_log_group.platform": "aws_cloudwatch_log_group",
+        "module.component.aws_eks_pod_identity_association.controller": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_role.controller": "aws_iam_role",
+        "module.component.aws_iam_role_policy.controller": "aws_iam_role_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/prod/platform/operations/backend.tf": "ab702b33235b93c6ea7a75c83b9d98bd3c622ed46739a3a2c4111467d4766220",
+            "terraform/environments/prod/platform/operations/locals.tf": "5e10af3923016fcf43096fc743c6d63a89b842da02a72951948e210c5fbf0173",
+            "terraform/environments/prod/platform/operations/main.tf": "1d0a93e0f43a2b807c7b1661c4b947d7f9516fc2996913a0d52465999d0e7e4a",
+            "terraform/environments/prod/platform/operations/outputs.tf": "6949d0fb9422e284a098010d7f364d56924ab12812456c082dc64de777344517",
+            "terraform/environments/prod/platform/operations/providers.tf": "80afcbcb83f44af32bf84d1a5d91a40bde2a8fd833625abf216d4ffbd008cc3f",
+            "terraform/environments/prod/platform/operations/remote-state.tf": "927af3b8986a70f3479ef5d446628dcf74bbccb5cf16bae7445eef0710add64f",
+            "terraform/environments/prod/platform/operations/retained-state.tf": "4b583bedcde99a52ec70996c2ed72297835efafdacf19bdfb71ac67f94186754",
+            "terraform/environments/prod/platform/operations/variables.tf": "e388546807a4e5b8180eccaa59438a8de4b2ffaab84c7696cd1d6ef3c24e5666",
+            "terraform/environments/prod/platform/operations/versions.tf": "3afeabbac17f60c0fccb1af84e9e5f7304451116895ed37505e32477ad451b42",
+            "modules/runtime-operations/backup-storage.tf": "273f6c02290dc67852dda5a09b01989592d74686168083373ee6ef4b8a82986a",
+            "modules/runtime-operations/main.tf": "8b55b0a570e09f47cda6f74fb4ba2e8be00c7c53fdf8fffca7e0d72922b5871d",
+            "modules/runtime-operations/outputs.tf": "20681fe99032cfd1b487386b2a54237e0452a7cc79ff4d604f708db4ff7d77d8",
+            "modules/runtime-operations/pod-identity.tf": "3d1b62034b59c30278750d574496644fbe56d4fdd73468d8c178ef775cd0183b",
+            "modules/runtime-operations/providers.tf": "249ca4144985a54e6a2d30a5f77e0c84c89fbf1c85ecfaa21b4a9de2f9bc1890",
+            "modules/runtime-operations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-operations/variables.tf": "e745f1c3fbcc45163b57122f5ce920c65af68568b7869b86b39de8184491ba2d",
+            "modules/runtime-operations/versions.tf": "d1844a5f0fd64430ddb4e8e6bb3b1686b2d64079bc408166f28071c5329daa32"
+          },
+          "formatted_files": {
+            "terraform/environments/prod/platform/operations/backend.tf": "ab702b33235b93c6ea7a75c83b9d98bd3c622ed46739a3a2c4111467d4766220",
+            "terraform/environments/prod/platform/operations/locals.tf": "5e10af3923016fcf43096fc743c6d63a89b842da02a72951948e210c5fbf0173",
+            "terraform/environments/prod/platform/operations/main.tf": "1d0a93e0f43a2b807c7b1661c4b947d7f9516fc2996913a0d52465999d0e7e4a",
+            "terraform/environments/prod/platform/operations/outputs.tf": "6949d0fb9422e284a098010d7f364d56924ab12812456c082dc64de777344517",
+            "terraform/environments/prod/platform/operations/providers.tf": "80afcbcb83f44af32bf84d1a5d91a40bde2a8fd833625abf216d4ffbd008cc3f",
+            "terraform/environments/prod/platform/operations/remote-state.tf": "927af3b8986a70f3479ef5d446628dcf74bbccb5cf16bae7445eef0710add64f",
+            "terraform/environments/prod/platform/operations/retained-state.tf": "7b7f305d4ec9e89b85625a5236f75e3f172f840517cd7e26649e06d9c3b9e6ea",
+            "terraform/environments/prod/platform/operations/variables.tf": "e388546807a4e5b8180eccaa59438a8de4b2ffaab84c7696cd1d6ef3c24e5666",
+            "terraform/environments/prod/platform/operations/versions.tf": "3afeabbac17f60c0fccb1af84e9e5f7304451116895ed37505e32477ad451b42",
+            "modules/runtime-operations/backup-storage.tf": "273f6c02290dc67852dda5a09b01989592d74686168083373ee6ef4b8a82986a",
+            "modules/runtime-operations/main.tf": "8b55b0a570e09f47cda6f74fb4ba2e8be00c7c53fdf8fffca7e0d72922b5871d",
+            "modules/runtime-operations/outputs.tf": "20681fe99032cfd1b487386b2a54237e0452a7cc79ff4d604f708db4ff7d77d8",
+            "modules/runtime-operations/pod-identity.tf": "3d1b62034b59c30278750d574496644fbe56d4fdd73468d8c178ef775cd0183b",
+            "modules/runtime-operations/providers.tf": "249ca4144985a54e6a2d30a5f77e0c84c89fbf1c85ecfaa21b4a9de2f9bc1890",
+            "modules/runtime-operations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-operations/variables.tf": "e745f1c3fbcc45163b57122f5ce920c65af68568b7869b86b39de8184491ba2d",
+            "modules/runtime-operations/versions.tf": "d1844a5f0fd64430ddb4e8e6bb3b1686b2d64079bc408166f28071c5329daa32"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/retained/operations"
+      ],
+      "required_down_hooks": [
+        "hook:platform-operations"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": false,
+      "enabled_edge": false,
+      "course_member": true
+    },
+    "terraform/environments/prod/platform/observability": {
+      "module": "runtime-observability-foundation",
+      "allowed_addresses": {
+        "module.component.aws_eks_pod_identity_association.signal": "aws_eks_pod_identity_association",
+        "module.component.aws_iam_policy.observability_maintenance": "aws_iam_policy",
+        "module.component.aws_iam_policy.observability_reader": "aws_iam_policy",
+        "module.component.aws_iam_policy.observability_writer": "aws_iam_policy",
+        "module.component.aws_iam_role.observability_maintenance": "aws_iam_role",
+        "module.component.aws_iam_role.observability_reader": "aws_iam_role",
+        "module.component.aws_iam_role.observability_writer": "aws_iam_role",
+        "module.component.aws_iam_role_policy_attachment.observability_maintenance": "aws_iam_role_policy_attachment",
+        "module.component.aws_iam_role_policy_attachment.observability_reader": "aws_iam_role_policy_attachment",
+        "module.component.aws_iam_role_policy_attachment.observability_writer": "aws_iam_role_policy_attachment",
+        "module.component.aws_vpc_endpoint_policy.s3": "aws_vpc_endpoint_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/prod/platform/observability/backend.tf": "c92b4e8fa111c42cd54cb1682e83ee75b163d66d551577c7d8fc0e05b1683baf",
+            "terraform/environments/prod/platform/observability/locals.tf": "04a6c9eb8da89a49768e82bb9eaadfb222fb686e194b11037d914fd1202a652f",
+            "terraform/environments/prod/platform/observability/main.tf": "872766a1fa1a3ba50ad9c424824fdb7cf44ec4ee6f70b1f33a52fe23e12cb821",
+            "terraform/environments/prod/platform/observability/outputs.tf": "7a136d31e113e2f4ac71eb512bcf7bd3434587335b76e73094271b02a7b5a32e",
+            "terraform/environments/prod/platform/observability/providers.tf": "059728bbc74898ebf3f4981759b1d2dc870fda665830e9f9647c7220b7aacf7a",
+            "terraform/environments/prod/platform/observability/remote-state.tf": "a1c452e33c1c592900adefcd449dcf3b7325f8aca478687c21b7c9b8c941ec25",
+            "terraform/environments/prod/platform/observability/retained-state.tf": "6ad413d0f10b70307cc8ab85ca50642f2e4200e9b80d731015d6d77906be3dba",
+            "terraform/environments/prod/platform/observability/variables.tf": "319fc584cf8ddff88cef5bae6c01fb4c3e6339c334b22d736bda0fca433d4c5f",
+            "terraform/environments/prod/platform/observability/versions.tf": "8eb69d37f591e9bb9d108f06ebbd9dddf6108c8be27e9b4feef68b6767755478",
+            "modules/runtime-observability-foundation/contract.tf": "28d52f66f7966466b353686018e8e62eee819c56a27eb7003d1d7390c603d6aa",
+            "modules/runtime-observability-foundation/identities.tf": "3912244a9936e1e337845cd82ec6c6218a3598ed9259c3c43f10cf4f97c17f34",
+            "modules/runtime-observability-foundation/main.tf": "e5b3c3eaea7f2e595d01d101c05d21b452982022f5fc4ebcbf83dc36ff4bf323",
+            "modules/runtime-observability-foundation/outputs.tf": "1eceb9cd89574a2cf6065f46310c0eb989b8d7c474a3695ad3c3c04c3e5fda45",
+            "modules/runtime-observability-foundation/providers.tf": "fb4ec34230026b52a6c2d539a7b6d3e2287ff56138472d0b76fd0492dcc022a0",
+            "modules/runtime-observability-foundation/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-observability-foundation/signal-variables.tf": "f0abe7c5b56cfd328c4db21a173e386cb03afb06fadcd5a35cab09fa87d129f1",
+            "modules/runtime-observability-foundation/storage-private-path.tf": "f17e1d231941bbba74340ff59203771b0b482e9a4ce9d155ff8f1802f762cdc9",
+            "modules/runtime-observability-foundation/storage-roles.tf": "2c01d77903845042f44e40c7588220bdda723ff0eaf14bfdffc1fe3a32c5bd51",
+            "modules/runtime-observability-foundation/variables.tf": "752635c0324c50030bad177261b76a74af741c88ae8b88243d5f18e2509b5160",
+            "modules/runtime-observability-foundation/versions.tf": "3800658edcf08829a156742687193cab5d2c72a63a47fc64bdb98e3bcab80631"
+          },
+          "formatted_files": {
+            "terraform/environments/prod/platform/observability/backend.tf": "c92b4e8fa111c42cd54cb1682e83ee75b163d66d551577c7d8fc0e05b1683baf",
+            "terraform/environments/prod/platform/observability/locals.tf": "04a6c9eb8da89a49768e82bb9eaadfb222fb686e194b11037d914fd1202a652f",
+            "terraform/environments/prod/platform/observability/main.tf": "872766a1fa1a3ba50ad9c424824fdb7cf44ec4ee6f70b1f33a52fe23e12cb821",
+            "terraform/environments/prod/platform/observability/outputs.tf": "7a136d31e113e2f4ac71eb512bcf7bd3434587335b76e73094271b02a7b5a32e",
+            "terraform/environments/prod/platform/observability/providers.tf": "059728bbc74898ebf3f4981759b1d2dc870fda665830e9f9647c7220b7aacf7a",
+            "terraform/environments/prod/platform/observability/remote-state.tf": "a1c452e33c1c592900adefcd449dcf3b7325f8aca478687c21b7c9b8c941ec25",
+            "terraform/environments/prod/platform/observability/retained-state.tf": "bad2c602aabff23944b6b88b299e3433ca636ee1c9410253306d2b5c9cfb02ca",
+            "terraform/environments/prod/platform/observability/variables.tf": "319fc584cf8ddff88cef5bae6c01fb4c3e6339c334b22d736bda0fca433d4c5f",
+            "terraform/environments/prod/platform/observability/versions.tf": "8eb69d37f591e9bb9d108f06ebbd9dddf6108c8be27e9b4feef68b6767755478",
+            "modules/runtime-observability-foundation/contract.tf": "28d52f66f7966466b353686018e8e62eee819c56a27eb7003d1d7390c603d6aa",
+            "modules/runtime-observability-foundation/identities.tf": "3912244a9936e1e337845cd82ec6c6218a3598ed9259c3c43f10cf4f97c17f34",
+            "modules/runtime-observability-foundation/main.tf": "e5b3c3eaea7f2e595d01d101c05d21b452982022f5fc4ebcbf83dc36ff4bf323",
+            "modules/runtime-observability-foundation/outputs.tf": "1eceb9cd89574a2cf6065f46310c0eb989b8d7c474a3695ad3c3c04c3e5fda45",
+            "modules/runtime-observability-foundation/providers.tf": "fb4ec34230026b52a6c2d539a7b6d3e2287ff56138472d0b76fd0492dcc022a0",
+            "modules/runtime-observability-foundation/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-observability-foundation/signal-variables.tf": "f0abe7c5b56cfd328c4db21a173e386cb03afb06fadcd5a35cab09fa87d129f1",
+            "modules/runtime-observability-foundation/storage-private-path.tf": "f17e1d231941bbba74340ff59203771b0b482e9a4ce9d155ff8f1802f762cdc9",
+            "modules/runtime-observability-foundation/storage-roles.tf": "2c01d77903845042f44e40c7588220bdda723ff0eaf14bfdffc1fe3a32c5bd51",
+            "modules/runtime-observability-foundation/variables.tf": "752635c0324c50030bad177261b76a74af741c88ae8b88243d5f18e2509b5160",
+            "modules/runtime-observability-foundation/versions.tf": "3800658edcf08829a156742687193cab5d2c72a63a47fc64bdb98e3bcab80631"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/eks",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/account-baseline",
+        "terraform/environments/prod/retained/observability-foundation"
+      ],
+      "required_down_hooks": [
+        "hook:platform-observability"
+      ],
+      "status": "planned-blocked",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": false,
+      "enabled_edge": false,
+      "course_member": true
+    },
+    "terraform/environments/prod/account-integrations": {
+      "module": "runtime-account-integrations",
+      "allowed_addresses": {
+        "module.component.aws_cloudwatch_metric_alarm.log_queue_age": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_cloudwatch_metric_alarm.platform_log_volume": "aws_cloudwatch_metric_alarm",
+        "module.component.aws_iam_role.external_log_consumer": "aws_iam_role",
+        "module.component.aws_iam_role_policy.external_log_consumer": "aws_iam_role_policy",
+        "module.component.aws_s3_bucket_notification.network_logs": "aws_s3_bucket_notification",
+        "module.component.aws_sns_topic.platform": "aws_sns_topic",
+        "module.component.aws_sns_topic_policy.platform": "aws_sns_topic_policy",
+        "module.component.aws_sns_topic_subscription.email": "aws_sns_topic_subscription",
+        "module.component.aws_sqs_queue.logs": "aws_sqs_queue",
+        "module.component.aws_sqs_queue_policy.logs": "aws_sqs_queue_policy",
+        "module.component.terraform_data.contract": "terraform_data",
+        "terraform_data.environment_boundary": "terraform_data"
+      },
+      "source_variants": [
+        {
+          "origin": "reviewed-fresh-retained-split",
+          "files": {
+            "terraform/environments/prod/account-integrations/backend.tf": "c5320cb5a3121d153efaa469a63e49546b26d90a38fb5435d0f619ee80bc013c",
+            "terraform/environments/prod/account-integrations/lifecycle-inputs.tf": "36026f8874e4013be17bbb80f9e726912bcdb4b416e0cfdbc869c8c1bf4ae550",
+            "terraform/environments/prod/account-integrations/locals.tf": "91296ff3b8e26bdd7f3cad7cf233357b0749ec4618f14f762fc8a6cca7ad1e0d",
+            "terraform/environments/prod/account-integrations/main.tf": "92209c04d735317cdd693c3fa7f63874a3cd49aeb8b54b09453c3cc8fecb9ee3",
+            "terraform/environments/prod/account-integrations/outputs.tf": "b0444678be57501e9f5448cfbb9b22de91cf2672d6f2b06fc77e20a92614e0e9",
+            "terraform/environments/prod/account-integrations/providers.tf": "ae2b05f55e26a802f4603d55d337cedbfe00529dd84ef38d97a3e9aa4103d86c",
+            "terraform/environments/prod/account-integrations/remote-state.tf": "ddcc7d8077044806cb6fa5f66903c507c1475c8f44386c8058f737c4df1c7ac4",
+            "terraform/environments/prod/account-integrations/retained-state.tf": "72e52b6e0704685b953005aa91114680d8c9354a7688d24e5952e4c40dcdcc63",
+            "terraform/environments/prod/account-integrations/variables.tf": "ed2ecac658f6d76c13a739f29cf2b7f171960073a856479d8ba99e299190ce52",
+            "terraform/environments/prod/account-integrations/versions.tf": "1a7e3965c1c13d8e7dfc482ae0312c2f9ecaa511775de0f5629a31fbba062d02",
+            "modules/runtime-account-integrations/alarms.tf": "d0db5ef9bf73319ce0884012b2b3f8e9f0aebb07fdbe3410f531db3b5ab3bee3",
+            "modules/runtime-account-integrations/external-log-consumer.tf": "d17198808a07090c7e2af06f7581a595e86207b1ffa7f09009d6230251f11df2",
+            "modules/runtime-account-integrations/main.tf": "71bb2ffbd5293ff041ccd4ad06574f98a11d5b7a3243e03582199e34c94a244d",
+            "modules/runtime-account-integrations/outputs.tf": "966e66a9ce9c5cf4f5d841c7f8cc4e15a6b5de9f6960f4dc22fb3138113fba1f",
+            "modules/runtime-account-integrations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-account-integrations/variables.tf": "eb4545bbf56a30453e274807e7660820c891652d5c3977ef0e26014dfe702423",
+            "modules/runtime-account-integrations/versions.tf": "e1035c90ea26cb09c6b2c912237d26decae10f0f9a7618c84af4500274419461"
+          },
+          "formatted_files": {
+            "terraform/environments/prod/account-integrations/backend.tf": "c5320cb5a3121d153efaa469a63e49546b26d90a38fb5435d0f619ee80bc013c",
+            "terraform/environments/prod/account-integrations/lifecycle-inputs.tf": "36026f8874e4013be17bbb80f9e726912bcdb4b416e0cfdbc869c8c1bf4ae550",
+            "terraform/environments/prod/account-integrations/locals.tf": "91296ff3b8e26bdd7f3cad7cf233357b0749ec4618f14f762fc8a6cca7ad1e0d",
+            "terraform/environments/prod/account-integrations/main.tf": "92209c04d735317cdd693c3fa7f63874a3cd49aeb8b54b09453c3cc8fecb9ee3",
+            "terraform/environments/prod/account-integrations/outputs.tf": "b0444678be57501e9f5448cfbb9b22de91cf2672d6f2b06fc77e20a92614e0e9",
+            "terraform/environments/prod/account-integrations/providers.tf": "ae2b05f55e26a802f4603d55d337cedbfe00529dd84ef38d97a3e9aa4103d86c",
+            "terraform/environments/prod/account-integrations/remote-state.tf": "ddcc7d8077044806cb6fa5f66903c507c1475c8f44386c8058f737c4df1c7ac4",
+            "terraform/environments/prod/account-integrations/retained-state.tf": "49f67177810b680672ad412aa4b0d689e0e8353de8a893126f84bb40da3a255c",
+            "terraform/environments/prod/account-integrations/variables.tf": "ed2ecac658f6d76c13a739f29cf2b7f171960073a856479d8ba99e299190ce52",
+            "terraform/environments/prod/account-integrations/versions.tf": "1a7e3965c1c13d8e7dfc482ae0312c2f9ecaa511775de0f5629a31fbba062d02",
+            "modules/runtime-account-integrations/alarms.tf": "d0db5ef9bf73319ce0884012b2b3f8e9f0aebb07fdbe3410f531db3b5ab3bee3",
+            "modules/runtime-account-integrations/external-log-consumer.tf": "d17198808a07090c7e2af06f7581a595e86207b1ffa7f09009d6230251f11df2",
+            "modules/runtime-account-integrations/main.tf": "71bb2ffbd5293ff041ccd4ad06574f98a11d5b7a3243e03582199e34c94a244d",
+            "modules/runtime-account-integrations/outputs.tf": "966e66a9ce9c5cf4f5d841c7f8cc4e15a6b5de9f6960f4dc22fb3138113fba1f",
+            "modules/runtime-account-integrations/retained-input.tf": "11061ffaf42ca9b8084ddb47e2368042129f1987f6f25c3288c5620e8d5469d7",
+            "modules/runtime-account-integrations/variables.tf": "eb4545bbf56a30453e274807e7660820c891652d5c3977ef0e26014dfe702423",
+            "modules/runtime-account-integrations/versions.tf": "e1035c90ea26cb09c6b2c912237d26decae10f0f9a7618c84af4500274419461"
+          },
+          "formatter_version": "1.16.0",
+          "checkpoints": [
+            {
+              "origin": "reviewed-fresh-retained-split",
+              "checkpoint": "provided-tooling/retained-runtime-layout"
+            }
+          ]
+        }
+      ],
+      "dependencies": [
+        "terraform/environments/prod/network/vpc",
+        "terraform/environments/prod/platform/operations",
+        "terraform/environments/prod/retained/account-integrations"
+      ],
+      "required_down_hooks": [],
+      "status": "source-supported-inactive",
+      "completion_scope": "own-empty-managed-state-only",
+      "disabled_edge": false,
+      "notification_guard": true,
+      "enabled_edge": false,
+      "course_member": false,
+      "activation_blocker": "No actual course root or dependency exists; proposed split source alone cannot activate it."
+    }
+  },
+  "excluded": {
+    "platform/app-auth": "wholly retained: Cognito users and verifier Secret",
+    "original-mixed-roots": "S3/KMS/Secrets/ECR/Cognito remain forbidden; install the exact retained/runtime split before admission"
+  },
+  "protected_type_exception": "account-integrations module.component.aws_s3_bucket_notification.network_logs[0] only, after exact sole-owner live configuration and immutable backlog decision checks"
+}

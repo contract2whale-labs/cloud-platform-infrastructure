@@ -1,232 +1,760 @@
 name: terraform-apply
-
-on:
+'on':
+  push:
+    branches:
+    - main
   workflow_dispatch:
     inputs:
       root:
-        description: 'ci/roots.json 에 등록된 root 경로'
+        description: 예외 재시도할 등록 root (일반 수업은 PR 병합으로 자동 실행)
         required: true
         type: string
-
+concurrency:
+  group: terraform-infra-${{ github.repository_id }}
+  cancel-in-progress: false
 permissions:
   contents: read
-
 jobs:
   tf-pick:
     runs-on: ubuntu-latest
     outputs:
-      env: ${{ steps.r.outputs.env }}
-      key: ${{ steps.r.outputs.key }}
-      detail: ${{ steps.r.outputs.detail }}
+      has_roots: ${{ steps.pick.outputs.has_roots }}
+      dev_wave_0: ${{ steps.pick.outputs.dev_wave_0 }}
+      dev_wave_1: ${{ steps.pick.outputs.dev_wave_1 }}
+      dev_wave_2: ${{ steps.pick.outputs.dev_wave_2 }}
+      dev_wave_3: ${{ steps.pick.outputs.dev_wave_3 }}
+      dev_wave_4: ${{ steps.pick.outputs.dev_wave_4 }}
+      dev_wave_5: ${{ steps.pick.outputs.dev_wave_5 }}
+      dev_wave_6: ${{ steps.pick.outputs.dev_wave_6 }}
+      dev_wave_7: ${{ steps.pick.outputs.dev_wave_7 }}
+      dev_wave_8: ${{ steps.pick.outputs.dev_wave_8 }}
+      dev_wave_9: ${{ steps.pick.outputs.dev_wave_9 }}
+      dev_wave_10: ${{ steps.pick.outputs.dev_wave_10 }}
+      dev_wave_11: ${{ steps.pick.outputs.dev_wave_11 }}
+      prod_wave_0: ${{ steps.pick.outputs.prod_wave_0 }}
+      prod_wave_1: ${{ steps.pick.outputs.prod_wave_1 }}
+      prod_wave_2: ${{ steps.pick.outputs.prod_wave_2 }}
+      prod_wave_3: ${{ steps.pick.outputs.prod_wave_3 }}
+      prod_wave_4: ${{ steps.pick.outputs.prod_wave_4 }}
+      prod_wave_5: ${{ steps.pick.outputs.prod_wave_5 }}
+      prod_wave_6: ${{ steps.pick.outputs.prod_wave_6 }}
+      prod_wave_7: ${{ steps.pick.outputs.prod_wave_7 }}
+      prod_wave_8: ${{ steps.pick.outputs.prod_wave_8 }}
+      prod_wave_9: ${{ steps.pick.outputs.prod_wave_9 }}
+      prod_wave_10: ${{ steps.pick.outputs.prod_wave_10 }}
+      prod_wave_11: ${{ steps.pick.outputs.prod_wave_11 }}
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          fetch-depth: 0
-          persist-credentials: false
-      - id: r
-        env:
-          INPUT_ROOT: ${{ inputs.root }}
-          REPO_PRIVATE: ${{ github.event.repository.private }}
-        run: |
-          set -euo pipefail
-          # private 저장소는 plan 원문(full), public 저장소는 변경 대상과 개수만(summary) 남깁니다.
-          if [ "$REPO_PRIVATE" = "true" ]; then echo "detail=full" >> "$GITHUB_OUTPUT"; else echo "detail=summary" >> "$GITHUB_OUTPUT"; fi
-          # main 의 최신 commit 만 적용합니다.
-          test "$GITHUB_REF" = "refs/heads/main"
-          test "$(git rev-parse origin/main)" = "$GITHUB_SHA"
-          # 등록된 root 만 허용합니다.
-          row="$(jq -c --arg p "$INPUT_ROOT" '.roots[] | select(.path == $p)' ci/roots.json)"
-          test -n "$row"
-          test -d "$INPUT_ROOT"
-          echo "env=$(echo "$row" | jq -r .env)" >> "$GITHUB_OUTPUT"
-          echo "key=$(echo "$INPUT_ROOT" | sed -E 's#^terraform/environments/[^/]+/##')/terraform.tfstate" >> "$GITHUB_OUTPUT"
-
-  tf-saved-plan:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - id: pick
+      env:
+        INPUT_ROOT: ${{ inputs.root }}
+        GH_TOKEN: ${{ github.token }}
+      run: python3 ci/deploy-select.py
+    permissions:
+      contents: read
+      actions: read
+  tf-validate:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        persist-credentials: false
+        ref: ${{ github.sha }}
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - name: fmt
+      run: |
+        set -euo pipefail
+        for p in terraform modules; do
+          if [ ! -d "$p" ]; then continue; fi
+          terraform fmt -check -recursive "$p"
+        done
+    - name: init(backend 없이) / validate / test
+      run: |
+        set -euo pipefail
+        for p in $(jq -r '.roots[].path' ci/roots.json); do
+          # 아직 만들지 않은 root 는 건너뜁니다.
+          if [ ! -d "$p" ]; then continue; fi
+          echo "== $p"
+          terraform -chdir="$p" init -backend=false -input=false -lockfile=readonly
+          terraform -chdir="$p" validate
+          if [ -d "$p/tests" ]; then
+            terraform -chdir="$p" test
+          fi
+        done
+    - name: shared module mock tests
+      run: |
+        set -euo pipefail
+        for p in modules/*; do
+          if [ ! -d "$p/tests" ]; then continue; fi
+          # 테스트와 Terraform 소스가 함께 있는 모듈만 검사합니다.
+          if ! compgen -G "$p/*.tf" > /dev/null && ! compgen -G "$p/*.tf.json" > /dev/null; then
+            continue
+          fi
+          echo "== $p"
+          # 모듈 lock은 ci/prepare-module-locks.sh로 준비하고 커밋합니다.
+          if [ ! -f "$p/.terraform.lock.hcl" ]; then
+            echo "Missing module lock: $p/.terraform.lock.hcl; run bash ci/prepare-module-locks.sh" >&2
+            exit 1
+          fi
+          terraform -chdir="$p" init -backend=false -input=false -lockfile=readonly
+          terraform -chdir="$p" test
+        done
     needs: tf-pick
-    runs-on: ubuntu-latest
-    outputs:
-      summary_sha: ${{ steps.p.outputs.summary_sha }}
-    environment: infra-${{ needs.tf-pick.outputs.env }}-plan
+    if: needs.tf-pick.outputs.has_roots == 'true'
+  deploy-dev-wave-0:
+    needs:
+    - tf-pick
+    - tf-validate
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_0 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_0) }}
     permissions:
       contents: read
       id-token: write
-    env:
-      ROOT_PATH: ${{ inputs.root }}
-      STATE_KEY: ${{ needs.tf-pick.outputs.key }}
-      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
-      # public 저장소에서는 Secret(로그에서 가려짐), private 저장소에서는 Variable 에 둡니다.
-      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
-      PLAN_DETAIL: ${{ needs.tf-pick.outputs.detail }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
-        with:
-          terraform_version: 1.16.0
-          terraform_wrapper: false
-
-      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: 계정 확인
-        run: |
-          set -euo pipefail
-          test "$(aws sts get-caller-identity --query Account --output text)" = "$EXPECTED_ACCOUNT_ID"
-
-      - name: init / plan 저장
-        id: p
-        working-directory: ${{ inputs.root }}
-        run: |
-          set -euo pipefail
-          # 환경 변수 TF_VARS_JSON 에서 이 root 의 입력만 꺼내 terraform.tfvars.json 으로 만듭니다.
-          if [ -z "$TF_VARS_JSON" ]; then TF_VARS_JSON='{}'; fi
-          echo "$TF_VARS_JSON" | jq --arg k "${STATE_KEY%/terraform.tfstate}" '.[$k] // {}' > terraform.tfvars.json
-          {
-            echo "bucket              = \"$STATE_BUCKET\""
-            echo "key                 = \"$STATE_KEY\""
-            echo "region              = \"$AWS_REGION\""
-            echo "encrypt             = true"
-            echo "use_lockfile        = true"
-            echo "allowed_account_ids = [\"$EXPECTED_ACCOUNT_ID\"]"
-          } > backend.hcl
-          terraform init -input=false -lockfile=readonly -backend-config=backend.hcl
-          if [ "$PLAN_DETAIL" = "full" ]; then
-            terraform plan -input=false -lock-timeout=5m -out=change.tfplan
-          else
-            # public 저장소: plan 의 값이 공개 로그에 남지 않도록 출력을 파일로만 받습니다.
-            rc=0
-            terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
-              exit "$rc"
-            fi
-          fi
-          terraform show -no-color change.tfplan > plan.txt
-          sha256sum change.tfplan > change.tfplan.sha256
-          # 변경 대상과 개수만 모은 요약입니다. public 저장소의 apply 는 이 요약의 해시로 승인 내용을 확인합니다.
-          grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
-          echo "summary_sha=$(sha256sum plan.summary.txt | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
-          # 승인자가 읽을 내용을 run 요약에 남깁니다.
-          {
-            if [ "$PLAN_DETAIL" = "full" ]; then
-              echo "### terraform plan: $ROOT_PATH"
-              echo '~~~text'
-              head -c 60000 plan.txt
-              echo
-              echo '~~~'
-            else
-              echo "### terraform plan 요약: $ROOT_PATH"
-              echo "public 저장소라 변경 값은 남기지 않고 변경 대상과 개수만 남깁니다."
-              echo '~~~text'
-              cat plan.summary.txt
-              echo '~~~'
-            fi
-          } >> "$GITHUB_STEP_SUMMARY"
-
-      # public 저장소에서는 저장한 plan 파일을 artifact 로 올리지 않습니다. 파일에 변수 값이 들어 있기 때문입니다.
-      - if: needs.tf-pick.outputs.detail == 'full'
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
-        with:
-          name: tfplan-${{ github.run_id }}
-          path: |
-            ${{ inputs.root }}/change.tfplan
-            ${{ inputs.root }}/change.tfplan.sha256
-          retention-days: 1
-
-  tf-apply:
-    needs: [tf-pick, tf-saved-plan]
-    runs-on: ubuntu-latest
-    # 이 Environment 에 Required reviewers 를 설정하면 승인 전까지 이 job 은 시작하지 않습니다.
-    environment: infra-${{ needs.tf-pick.outputs.env }}-apply
-    concurrency:
-      group: tf-${{ needs.tf-pick.outputs.env }}-${{ needs.tf-pick.outputs.key }}
-      cancel-in-progress: false
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-1:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_1 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_1) }}
     permissions:
       contents: read
       id-token: write
-    env:
-      ROOT_PATH: ${{ inputs.root }}
-      STATE_KEY: ${{ needs.tf-pick.outputs.key }}
-      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
-      AWS_REGION: ${{ vars.AWS_REGION }}
-      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
-      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
-      PLAN_DETAIL: ${{ needs.tf-pick.outputs.detail }}
-      EXPECTED_SUMMARY_SHA: ${{ needs.tf-saved-plan.outputs.summary_sha }}
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-2:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_2 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_2) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-3:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_3 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_3) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-4:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_4 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_4) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-5:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_5 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_5) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-6:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_6 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_6) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-7:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_7 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_7) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-8:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    - deploy-dev-wave-7
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_8 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_8) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-9:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    - deploy-dev-wave-7
+    - deploy-dev-wave-8
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_9 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_9) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-10:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    - deploy-dev-wave-7
+    - deploy-dev-wave-8
+    - deploy-dev-wave-9
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_10 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_10) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-dev-wave-11:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    - deploy-dev-wave-7
+    - deploy-dev-wave-8
+    - deploy-dev-wave-9
+    - deploy-dev-wave-10
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.dev_wave_11 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.dev_wave_11) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-0:
+    needs:
+    - tf-pick
+    - tf-validate
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_0 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_0) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-1:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_1 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_1) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-2:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_2 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_2) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-3:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_3 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_3) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-4:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_4 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_4) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-5:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_5 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_5) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-6:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_6 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_6) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-7:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_7 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_7) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-8:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    - deploy-prod-wave-7
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_8 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_8) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-9:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    - deploy-prod-wave-7
+    - deploy-prod-wave-8
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_9 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_9) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-10:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    - deploy-prod-wave-7
+    - deploy-prod-wave-8
+    - deploy-prod-wave-9
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_10 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_10) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-prod-wave-11:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    - deploy-prod-wave-7
+    - deploy-prod-wave-8
+    - deploy-prod-wave-9
+    - deploy-prod-wave-10
+    if: always() && needs.tf-pick.result == 'success' && needs.tf-validate.result
+      == 'success' && !contains(needs.*.result, 'failure') && !contains(needs.*.result,
+      'cancelled') && needs.tf-pick.outputs.prod_wave_11 != '[]'
+    strategy:
+      fail-fast: false
+      matrix:
+        root: ${{ fromJSON(needs.tf-pick.outputs.prod_wave_11) }}
+    permissions:
+      contents: read
+      id-token: write
+    uses: ./.github/workflows/terraform-deploy-root.yml
+    with:
+      root: ${{ matrix.root.path }}
+      environment: ${{ matrix.root.env }}
+      state_key: ${{ matrix.root.key }}
+    secrets: inherit
+  deploy-result:
+    needs:
+    - tf-pick
+    - tf-validate
+    - deploy-dev-wave-0
+    - deploy-dev-wave-1
+    - deploy-dev-wave-2
+    - deploy-dev-wave-3
+    - deploy-dev-wave-4
+    - deploy-dev-wave-5
+    - deploy-dev-wave-6
+    - deploy-dev-wave-7
+    - deploy-dev-wave-8
+    - deploy-dev-wave-9
+    - deploy-dev-wave-10
+    - deploy-dev-wave-11
+    - deploy-prod-wave-0
+    - deploy-prod-wave-1
+    - deploy-prod-wave-2
+    - deploy-prod-wave-3
+    - deploy-prod-wave-4
+    - deploy-prod-wave-5
+    - deploy-prod-wave-6
+    - deploy-prod-wave-7
+    - deploy-prod-wave-8
+    - deploy-prod-wave-9
+    - deploy-prod-wave-10
+    - deploy-prod-wave-11
+    if: always()
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
-        with:
-          terraform_version: 1.16.0
-          terraform_wrapper: false
-
-      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
-        with:
-          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-
-      - name: 계정 확인
-        run: |
-          set -euo pipefail
-          test "$(aws sts get-caller-identity --query Account --output text)" = "$EXPECTED_ACCOUNT_ID"
-
-      - if: needs.tf-pick.outputs.detail == 'full'
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: tfplan-${{ github.run_id }}
-          path: ${{ inputs.root }}
-
-      - name: init / apply
-        working-directory: ${{ inputs.root }}
-        run: |
-          set -euo pipefail
-          if [ "$PLAN_DETAIL" = "full" ]; then
-            sha256sum -c change.tfplan.sha256
-          fi
-          {
-            echo "bucket              = \"$STATE_BUCKET\""
-            echo "key                 = \"$STATE_KEY\""
-            echo "region              = \"$AWS_REGION\""
-            echo "encrypt             = true"
-            echo "use_lockfile        = true"
-            echo "allowed_account_ids = [\"$EXPECTED_ACCOUNT_ID\"]"
-          } > backend.hcl
-          terraform init -input=false -lockfile=readonly -backend-config=backend.hcl
-          if [ "$PLAN_DETAIL" = "full" ]; then
-            terraform apply -input=false change.tfplan
-            terraform output
-          else
-            # public 저장소: 저장한 plan 파일 없이, 승인된 변경 요약과 같은지 확인한 뒤 새 plan 을 적용합니다.
-            if [ -z "$TF_VARS_JSON" ]; then TF_VARS_JSON='{}'; fi
-            echo "$TF_VARS_JSON" | jq --arg k "${STATE_KEY%/terraform.tfstate}" '.[$k] // {}' > terraform.tfvars.json
-            rc=0
-            terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
-            if [ "$rc" -ne 0 ]; then
-              echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
-              exit "$rc"
-            fi
-            terraform show -no-color change.tfplan > plan.txt
-            grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
-            if [ "$(sha256sum plan.summary.txt | cut -d' ' -f1)" != "$EXPECTED_SUMMARY_SHA" ]; then
-              echo "승인한 변경 요약과 다릅니다. apply 를 중단합니다."
-              exit 1
-            fi
-            # 적용 로그에서 resource 값(id 등)은 빼고 진행 상황만 표시합니다.
-            rc=0
-            terraform apply -input=false -no-color change.tfplan > apply.log 2>&1 || rc=$?
-            sed -E 's/ \[id=[^]]*\]//' apply.log | grep -E '(Creating|Modifying|Destroying|Creation complete|Modifications complete|Destruction complete)|^Apply complete|Error:' | head -n 200 || true
-            if [ "$rc" -ne 0 ]; then exit "$rc"; fi
-            echo "output 이름만 표시합니다."
-            terraform output -json | jq -r 'keys[]'
-          fi
+    - env:
+        RESULTS: ${{ join(needs.*.result, ' ') }}
+      run: |
+        set -euo pipefail
+        for result in $RESULTS; do
+          case "$result" in success|skipped) ;; *) exit 1 ;; esac
+        done

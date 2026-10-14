@@ -1,0 +1,9 @@
+{
+  "source_sha": "0000000000000000000000000000000000000000",
+  "expires_at": "2000-01-01T00:00:00Z",
+  "change_request": "REPLACE_WITH_REVIEWED_REQUEST",
+  "data_decision": "pause-builder-send-one-synthetic-trace-restore-and-uid-cleanup",
+  "experiment_id": "00000000-0000-4000-8000-000000000001",
+  "normal_replicas": 1,
+  "hold_seconds": 120
+}

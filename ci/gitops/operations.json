@@ -1,0 +1,6 @@
+{
+  "schema_version": 1,
+  "enabled": false,
+  "blocked_reason": "Published toolchain and bootstrap chart digest, environment identity/output bindings, immutable application declarations and protected credentials must be registered. Source bootstrap found and adapted; no live activation verified.",
+  "environments": {}
+}

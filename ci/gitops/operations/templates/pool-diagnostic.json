@@ -1,0 +1,76 @@
+{
+  "apiVersion": "batch/v1",
+  "kind": "Job",
+  "metadata": {
+    "name": "${INCIDENT_AFTER_DIAGNOSTIC_JOB}",
+    "namespace": "contract2whale-demo",
+    "labels": {
+      "recovery.course/experiment-id": "${INCIDENT_EXP}"
+    }
+  },
+  "spec": {
+    "ttlSecondsAfterFinished": 600,
+    "backoffLimit": 0,
+    "activeDeadlineSeconds": 180,
+    "template": {
+      "metadata": {
+        "labels": {
+          "app.kubernetes.io/name": "database-operator-check",
+          "recovery.course/experiment-id": "${INCIDENT_EXP}"
+        }
+      },
+      "spec": {
+        "serviceAccountName": "database-operator",
+        "automountServiceAccountToken": false,
+        "restartPolicy": "Never",
+        "nodeSelector": {
+          "workload": "app"
+        },
+        "securityContext": {
+          "runAsNonRoot": true,
+          "runAsUser": 1000,
+          "seccompProfile": {
+            "type": "RuntimeDefault"
+          }
+        },
+        "containers": [
+          {
+            "name": "check",
+            "image": "${INCIDENT_OPERATOR_IMAGE}",
+            "envFrom": [
+              {
+                "configMapRef": {
+                  "name": "${INCIDENT_DIAGNOSTIC_CM}"
+                }
+              }
+            ],
+            "env": [
+              {
+                "name": "EXPECTED_OPERATOR_ROLE_ARN",
+                "value": "${INCIDENT_OPERATOR_ROLE_ARN}"
+              }
+            ],
+            "resources": {
+              "requests": {
+                "cpu": "100m",
+                "memory": "128Mi"
+              },
+              "limits": {
+                "memory": "256Mi"
+              }
+            },
+            "securityContext": {
+              "allowPrivilegeEscalation": false,
+              "readOnlyRootFilesystem": true,
+              "capabilities": {
+                "drop": [
+                  "ALL"
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,194 @@
+{
+  "environments": {
+    "dev": {
+      "mesh-probes-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "mesh-probes-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "collection-probe-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "collection-probe-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "seed-readback-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "read-only-seed-count-and-publishable-key-private",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "seed-readback-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "read-only-seed-count-and-publishable-key-private",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "trace-probe-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "trace_route": "direct",
+        "trace_id": "00000000000000000000000000000000",
+        "span_id": "0000000000000000",
+        "trace_start_ns": 0
+      },
+      "trace-probe-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "application-strict-cycle": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "hold_seconds": 60
+      },
+      "application-strict-restore": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "grafana-secret-refresh": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      }
+    },
+    "prod": {
+      "seed-readback-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "read-only-seed-count-and-publishable-key-private",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "seed-readback-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "read-only-seed-count-and-publishable-key-private",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "trace-probe-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "trace_route": "direct",
+        "trace_id": "00000000000000000000000000000000",
+        "span_id": "0000000000000000",
+        "trace_start_ns": 0
+      },
+      "trace-probe-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      },
+      "application-strict-cycle": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "hold_seconds": 60
+      },
+      "application-strict-restore": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "grafana-secret-refresh": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000"
+      },
+      "notification-probe-create": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "probe_until_epoch": 0
+      },
+      "notification-probe-cleanup": {
+        "source_sha": "0000000000000000000000000000000000000000",
+        "expires_at": "1970-01-01T00:00:00Z",
+        "change_request": "REGISTER-REVIEWED-REQUEST",
+        "data_decision": "retain-existing-data",
+        "experiment_id": "00000000-0000-4000-8000-000000000000",
+        "creation_receipt": {
+          "key": "REGISTER-PRIVATE-RECEIPT",
+          "version": "REGISTER-VERSION",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        }
+      }
+    }
+  }
+}
