@@ -1,6 +1,10 @@
-expected_account_id = "111111111111" # 예: 실제 Dev 계정 ID 12자리
-region              = "ap-northeast-2"        # 예: "ap-northeast-2"
-environment         = "dev"                   # 예: "dev" (VPC 이름이 cp-dev 가 됩니다)
-vpc_cidr            = "172.20.0.0/16"         # 예: 다른 네트워크와 겹치지 않는 사설 /16
+# terraform.tfvars.example — dev network/vpc 루트 모듈
+# 입력 형식 참고용입니다. 로컬 terraform.tfvars 로 복사하지 않습니다. 실제 입력은 CI의 TF_VARS_JSON 에 둡니다.
 
+expected_account_id = "111111111111"   # 예: 실제 Dev 계정 ID 12자리
+region              = "ap-northeast-2" # 예: "ap-northeast-2"
+environment         = "dev"            # 예: "dev" (VPC 이름이 cp-dev 가 됩니다)
+vpc_cidr            = "172.20.0.0/16"  # 예: 다른 네트워크와 겹치지 않는 사설 /16
+
+# 순서가 서브넷 배치를 결정합니다. 운영 중 재정렬하지 않습니다.
 availability_zones = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
