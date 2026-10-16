@@ -1,5 +1,7 @@
 name: terraform-validate
 
+# PR 마다 실행합니다. 형식(fmt), 검증(validate), test(root 와 공통 module)와 ci/roots.json 형식을 확인합니다. AWS 에는 접속하지 않습니다.
+
 on:
   pull_request:
 
@@ -19,13 +21,29 @@ jobs:
           terraform_version: 1.16.0
           terraform_wrapper: false
 
+      - name: ci/roots.json 확인
+        run: |
+          set -euo pipefail
+          # 모든 row 는 env 가 dev 또는 prod 이고, chapter 가 있으면 chapter_order 안에 있어야 합니다.
+          jq -e '.chapter_order as $o | all(.roots[]; . as $r | ($r.env == "dev" or $r.env == "prod") and ($r.chapter == null or ($o | index($r.chapter)) != null))' ci/roots.json
+          bash -n ci/tf-run.sh
+
       - name: fmt
-        run: terraform fmt -check -recursive terraform
+        run: |
+          set -euo pipefail
+          terraform fmt -check -recursive terraform
+          # 공통 module 을 최상위 modules/ 에 두는 챕터(BU06 이후)가 있으면 함께 검사합니다.
+          if [ -d modules ]; then terraform fmt -check -recursive modules; fi
 
       - name: init(backend 없이) / validate / test
         run: |
           set -euo pipefail
-          for p in $(jq -r '.roots[].path' ci/roots.json); do
+          # 등록된 root 와 CI 신원 root(bootstrap/ci-identity)를 검사합니다.
+          roots="$(
+            jq -r '.roots[].path' ci/roots.json
+            ls -d terraform/environments/*/bootstrap/ci-identity 2> /dev/null || true
+          )"
+          for p in $(echo "$roots" | sort -u); do
             # 아직 만들지 않은 root 는 건너뜁니다.
             if [ ! -d "$p" ]; then continue; fi
             echo "== $p"
@@ -34,4 +52,22 @@ jobs:
             if [ -d "$p/tests" ]; then
               terraform -chdir="$p" test
             fi
+          done
+
+      - name: 공통 module mock test
+        run: |
+          set -euo pipefail
+          # 공통 module(modules/ 또는 terraform/modules/)에 tests 가 있으면 mock test 를 실행합니다. 폴더가 없으면 아무 일도 하지 않습니다.
+          for p in modules/* terraform/modules/*; do
+            if [ ! -d "$p/tests" ]; then continue; fi
+            # 테스트와 Terraform 소스가 함께 있는 module 만 검사합니다.
+            if ! compgen -G "$p/*.tf" > /dev/null && ! compgen -G "$p/*.tf.json" > /dev/null; then continue; fi
+            echo "== $p"
+            # module 의 lock 파일은 미리 만들어 커밋해 둬야 합니다. (bash ci/prepare-module-locks.sh)
+            if [ ! -f "$p/.terraform.lock.hcl" ]; then
+              echo "module lock 파일이 없습니다: $p/.terraform.lock.hcl" >&2
+              exit 1
+            fi
+            terraform -chdir="$p" init -backend=false -input=false -lockfile=readonly
+            terraform -chdir="$p" test
           done
