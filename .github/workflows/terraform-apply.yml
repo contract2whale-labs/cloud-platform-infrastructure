@@ -1,5 +1,8 @@
 name: terraform-apply
 
+# 실행 목록의 제목에 root 를 넣어, 어느 root 의 실행인지 목록에서 바로 구분합니다.
+run-name: terraform-apply ${{ inputs.root }}
+
 on:
   workflow_dispatch:
     inputs:
@@ -73,6 +76,8 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
 
       - name: 계정 확인
         run: |
@@ -104,14 +109,14 @@ jobs:
             terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
             if [ "$rc" -ne 0 ]; then
               echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
+              grep -E -A3 'Error:' plan.stdout.txt | head -n 40 || true
               exit "$rc"
             fi
           fi
           terraform show -no-color change.tfplan > plan.txt
           sha256sum change.tfplan > change.tfplan.sha256
           # 변경 대상과 개수만 모은 요약입니다. public 저장소의 apply 는 이 요약의 해시로 승인 내용을 확인합니다.
-          grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
+          grep -E '^(Plan:|No changes\.|Changes to Outputs:)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
           echo "summary_sha=$(sha256sum plan.summary.txt | cut -d' ' -f1)" >> "$GITHUB_OUTPUT"
           # 승인자가 읽을 내용을 run 요약에 남깁니다.
           {
@@ -174,6 +179,8 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
 
       - name: 계정 확인
         run: |
@@ -213,11 +220,11 @@ jobs:
             terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
             if [ "$rc" -ne 0 ]; then
               echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
+              grep -E -A3 'Error:' plan.stdout.txt | head -n 40 || true
               exit "$rc"
             fi
             terraform show -no-color change.tfplan > plan.txt
-            grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
+            grep -E '^(Plan:|No changes\.|Changes to Outputs:)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
             if [ "$(sha256sum plan.summary.txt | cut -d' ' -f1)" != "$EXPECTED_SUMMARY_SHA" ]; then
               echo "승인한 변경 요약과 다릅니다. apply 를 중단합니다."
               exit 1
@@ -225,8 +232,12 @@ jobs:
             # 적용 로그에서 resource 값(id 등)은 빼고 진행 상황만 표시합니다.
             rc=0
             terraform apply -input=false -no-color change.tfplan > apply.log 2>&1 || rc=$?
-            sed -E 's/ \[id=[^]]*\]//' apply.log | grep -E '(Creating|Modifying|Destroying|Creation complete|Modifications complete|Destruction complete)|^Apply complete|Error:' | head -n 200 || true
-            if [ "$rc" -ne 0 ]; then exit "$rc"; fi
+            sed -E 's/ \[id=[^]]*\]//' apply.log | grep -E '(Creating|Modifying|Destroying|Creation complete|Modifications complete|Destruction complete)|^Apply complete' | head -n 200 || true
+            if [ "$rc" -ne 0 ]; then
+              echo "terraform apply 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
+              grep -E -A3 'Error:' apply.log | sed -E 's/ \[id=[^]]*\]//' | head -n 40 || true
+              exit "$rc"
+            fi
             echo "output 이름만 표시합니다."
             terraform output -json | jq -r 'keys[]'
           fi

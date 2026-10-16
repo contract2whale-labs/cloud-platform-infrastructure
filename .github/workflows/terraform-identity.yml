@@ -1,0 +1,111 @@
+name: terraform-identity
+
+# CI 가 쓰는 AWS Role(bootstrap/ci-identity)을 바꾸는 전용 workflow 입니다. 수동 실행만 합니다.
+# 일반 apply 와 Environment 를 따로 쓰는 이유: 인프라 적용 Role 이 자기 자신의 권한을 바꾸지 못하게 하기 위해서입니다.
+#  plan   identity-<dev|prod>-plan 에서 변경 요약을 만듭니다.
+#  apply  identity-<dev|prod>-apply 의 승인자가 승인하면, 승인한 요약과 같은 내용일 때만 적용합니다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: '대상 계정'
+        required: true
+        type: choice
+        options:
+          - dev
+          - prod
+
+permissions:
+  contents: read
+
+concurrency:
+  group: terraform-identity-${{ inputs.environment }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    # main 의 코드만 적용합니다.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: identity-${{ inputs.environment }}-plan
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      sha: ${{ steps.p.outputs.sha }}
+    env:
+      ROOT_PATH: terraform/environments/${{ inputs.environment }}/bootstrap/ci-identity
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
+
+      - name: 계정 확인
+        run: bash ci/tf-run.sh check-account
+
+      - name: plan
+        id: p
+        run: |
+          set -euo pipefail
+          bash ci/tf-run.sh plan "$ROOT_PATH"
+          echo "sha=$(bash ci/tf-run.sh summary-sha "$ROOT_PATH")" >> "$GITHUB_OUTPUT"
+
+  apply:
+    needs: plan
+    runs-on: ubuntu-latest
+    # 이 Environment 의 Required reviewers 가 승인하기 전에는 이 job 이 시작하지 않습니다.
+    environment: identity-${{ inputs.environment }}-apply
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROOT_PATH: terraform/environments/${{ inputs.environment }}/bootstrap/ci-identity
+      EXPECTED_SUMMARY_SHA: ${{ needs.plan.outputs.sha }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
+
+      - name: 계정 확인
+        run: bash ci/tf-run.sh check-account
+
+      - name: 승인한 plan 과 같을 때만 apply
+        run: |
+          set -euo pipefail
+          bash ci/tf-run.sh plan "$ROOT_PATH"
+          bash ci/tf-run.sh apply "$ROOT_PATH" "$EXPECTED_SUMMARY_SHA"

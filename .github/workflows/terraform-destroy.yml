@@ -1,0 +1,149 @@
+name: terraform-destroy
+
+# Down: through_chapter 까지의 Dev root 를 역순으로 지웁니다. 지우기 전에 반드시 승인을 받습니다.
+#  down-plan    plan -destroy 로 무엇이 지워지는지 계산하고, 요약을 run 요약에 남깁니다.
+#  down-review  infra-dev-destroy 의 승인자가 요약을 보고 승인합니다. 승인 전에는 이 job 이 시작하지 않습니다.
+#  down-apply   승인한 요약과 같은 내용일 때만 지우고, 지운 뒤 state 가 비었는지 확인합니다.
+# state bucket, 로그 보존, 보존(retained) root 는 ci/roots.json 에서 down:false 라서 지우지 않습니다.
+
+on:
+  workflow_dispatch:
+    inputs:
+      through_chapter:
+        description: '이 챕터까지의 Dev root 를 지웁니다. 예: BU03'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# deploy 와 destroy 는 한 줄로 세워 동시에 실행하지 않습니다.
+concurrency:
+  group: terraform-dev-lifecycle
+  cancel-in-progress: false
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    outputs:
+      roots: ${{ steps.p.outputs.roots }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - id: p
+        env:
+          THROUGH: ${{ inputs.through_chapter }}
+        run: |
+          set -euo pipefail
+          # main 의 코드로만 지웁니다.
+          test "$GITHUB_REF" = "refs/heads/main"
+          roots="$(bash ci/tf-run.sh pick-down "$THROUGH")"
+          echo "roots=$roots" >> "$GITHUB_OUTPUT"
+          echo "삭제 대상(순서대로):"
+          echo "$roots" | jq -r 'if length == 0 then "(없음)" else .[].path end'
+
+  down-plan:
+    needs: pick
+    if: needs.pick.outputs.roots != '[]'
+    runs-on: ubuntu-latest
+    environment: infra-dev-plan
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      shas: ${{ steps.p.outputs.shas }}
+    env:
+      ROOTS: ${{ needs.pick.outputs.roots }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
+
+      - name: 계정 확인
+        run: bash ci/tf-run.sh check-account
+
+      - name: 삭제 plan 계산
+        id: p
+        run: |
+          set -euo pipefail
+          shas='{}'
+          for root in $(jq -r '.[].path' <<< "$ROOTS"); do
+            echo "::group::$root"
+            bash ci/tf-run.sh plan "$root" destroy
+            shas="$(jq -c --arg r "$root" --arg s "$(bash ci/tf-run.sh summary-sha "$root")" '. + {($r): $s}' <<< "$shas")"
+            echo "::endgroup::"
+          done
+          echo "shas=$shas" >> "$GITHUB_OUTPUT"
+
+  down-review:
+    needs: down-plan
+    runs-on: ubuntu-latest
+    # 이 Environment 의 Required reviewers 가 승인하기 전에는 이 job 이 시작하지 않습니다.
+    environment: infra-dev-destroy
+    steps:
+      - run: echo "삭제가 승인되었습니다. 삭제를 시작합니다."
+
+  down-apply:
+    needs: [pick, down-plan, down-review]
+    runs-on: ubuntu-latest
+    environment: infra-dev-apply
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROOTS: ${{ needs.pick.outputs.roots }}
+      SHAS: ${{ needs.down-plan.outputs.shas }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
+
+      - name: 계정 확인
+        run: bash ci/tf-run.sh check-account
+
+      - name: 역순으로 삭제
+        run: |
+          set -euo pipefail
+          for root in $(jq -r '.[].path' <<< "$ROOTS"); do
+            echo "::group::$root"
+            # 다시 계산한 plan 요약이 승인한 요약과 다르면 apply 하지 않고 멈춥니다.
+            bash ci/tf-run.sh plan "$root" destroy
+            bash ci/tf-run.sh apply "$root" "$(jq -r --arg r "$root" '.[$r]' <<< "$SHAS")"
+            bash ci/tf-run.sh empty "$root"
+            echo "::endgroup::"
+          done

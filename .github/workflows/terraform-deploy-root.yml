@@ -1,0 +1,99 @@
+name: terraform-deploy-root
+permissions:
+  contents: read
+concurrency:
+  group: terraform-root-${{ github.repository_id }}-${{ inputs.root }}
+  cancel-in-progress: false
+jobs:
+  tf-saved-plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    environment: infra-${{ inputs.environment }}-plan
+    permissions:
+      contents: read
+      id-token: write
+    outputs:
+      manifest_key: ${{ steps.plan.outputs.manifest_key }}
+      manifest_version: ${{ steps.plan.outputs.manifest_version }}
+      manifest_sha: ${{ steps.plan.outputs.manifest_sha }}
+      plan_sha: ${{ steps.plan.outputs.plan_sha }}
+    env:
+      ROOT_PATH: ${{ inputs.root }}
+      STATE_KEY: ${{ inputs.state_key }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.EXPECTED_APPLY_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+        mask-aws-account-id: true
+    - id: plan
+      name: Private saved plan
+      run: python3 ci/saved-plan.py plan
+  tf-apply:
+    needs: tf-saved-plan
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    environment: infra-${{ inputs.environment }}-apply
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROOT_PATH: ${{ inputs.root }}
+      STATE_KEY: ${{ inputs.state_key }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      TF_IN_AUTOMATION: 'true'
+      MANIFEST_KEY: ${{ needs.tf-saved-plan.outputs.manifest_key }}
+      MANIFEST_VERSION: ${{ needs.tf-saved-plan.outputs.manifest_version }}
+      EXPECTED_MANIFEST_SHA: ${{ needs.tf-saved-plan.outputs.manifest_sha }}
+      EXPECTED_PLAN_SHA: ${{ needs.tf-saved-plan.outputs.plan_sha }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        persist-credentials: false
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c
+      with:
+        role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+        aws-region: ${{ vars.AWS_REGION }}
+        allowed-account-ids: ${{ vars.ACCOUNT_ID }}
+        mask-aws-account-id: true
+    - name: Apply exact private saved plan
+      run: python3 ci/saved-plan.py apply
+'on':
+  workflow_call:
+    inputs:
+      root:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      state_key:
+        required: true
+        type: string

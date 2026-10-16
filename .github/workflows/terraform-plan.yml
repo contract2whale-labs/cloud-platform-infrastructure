@@ -38,7 +38,7 @@ jobs:
             | ($ex | split("\n")) as $e
             | [ .roots[] | . as $r
                 | select($e | index($r.path))
-                | select(($f | any(startswith("terraform/modules/")))
+                | select(($f | any(startswith("terraform/modules/") or startswith("modules/")))
                          or ($f | any(startswith($r.path + "/"))))
                 | . + {key: (.path | sub("^terraform/environments/[^/]+/"; "") + "/terraform.tfstate")} ]' ci/roots.json)"
           echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
@@ -82,6 +82,8 @@ jobs:
         with:
           role-to-assume: ${{ vars.AWS_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
 
       - name: 계정 확인
         run: |
@@ -117,12 +119,12 @@ jobs:
             terraform plan -input=false -no-color -lock-timeout=5m -out=change.tfplan > plan.stdout.txt 2>&1 || rc=$?
             if [ "$rc" -ne 0 ]; then
               echo "terraform plan 실패 (종료 코드 $rc). public 저장소라 오류 제목만 표시합니다."
-              grep -E 'Error:' plan.stdout.txt | head -n 10 || true
+              grep -E -A3 'Error:' plan.stdout.txt | head -n 40 || true
               exit "$rc"
             fi
           fi
           terraform show -no-color change.tfplan > plan.txt
-          grep -E '^(Plan:|No changes\.)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
+          grep -E '^(Plan:|No changes\.|Changes to Outputs:)|^  # .* (will be|must be) ' plan.txt > plan.summary.txt || true
 
       - name: PR 에 plan 게시
         working-directory: ${{ matrix.root.path }}

@@ -1,0 +1,103 @@
+name: terraform-deploy
+
+# Dev 자동 적용 workflow 입니다.
+#  - main 에 병합(push)되면 바뀐 Dev root 를 승인 없이 적용합니다. 공통 module 이 바뀌면 모든 Dev root 를 적용합니다.
+#  - 수동 실행(Up)하면 through_chapter 까지의 Dev root 를 모두 적용합니다. 이미 있는 resource 는 "No changes" 로 지나갑니다.
+# Prod 는 이 workflow 가 다루지 않습니다. terraform-apply.yml 을 수동으로 실행하고 승인받아 적용합니다.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'terraform/environments/dev/**'
+      - 'terraform/modules/**'
+      - 'modules/**'
+  workflow_dispatch:
+    inputs:
+      through_chapter:
+        description: '이 챕터까지의 Dev root 를 만듭니다. 예: BU03'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+# deploy 와 destroy 는 한 줄로 세워 동시에 실행하지 않습니다.
+concurrency:
+  group: terraform-dev-lifecycle
+  cancel-in-progress: false
+
+jobs:
+  pick:
+    runs-on: ubuntu-latest
+    outputs:
+      roots: ${{ steps.p.outputs.roots }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: p
+        env:
+          EVENT: ${{ github.event_name }}
+          BEFORE: ${{ github.event.before }}
+          THROUGH: ${{ inputs.through_chapter }}
+        run: |
+          set -euo pipefail
+          # main 의 코드만 적용합니다.
+          test "$GITHUB_REF" = "refs/heads/main"
+          if [ "$EVENT" = "push" ]; then
+            roots="$(bash ci/tf-run.sh pick-changed "$BEFORE" "$GITHUB_SHA")"
+          else
+            roots="$(bash ci/tf-run.sh pick-up "$THROUGH")"
+          fi
+          echo "roots=$roots" >> "$GITHUB_OUTPUT"
+          echo "적용 대상(순서대로):"
+          echo "$roots" | jq -r 'if length == 0 then "(없음)" else .[].path end'
+
+  apply:
+    needs: pick
+    if: needs.pick.outputs.roots != '[]'
+    runs-on: ubuntu-latest
+    # Dev 는 승인자 없이 바로 시작합니다. infra-dev-apply 에는 Required reviewers 를 두지 않습니다.
+    environment: infra-dev-apply
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      ROOTS: ${{ needs.pick.outputs.roots }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      # public 저장소에서는 Secret(로그에서 가려짐), private 저장소에서는 Variable 에 둡니다.
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      REPO_PRIVATE: ${{ github.event.repository.private }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e # v4.0.1
+        with:
+          terraform_version: 1.16.0
+          terraform_wrapper: false
+
+      - uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+          # 공개 로그에 AWS 계정 번호가 나오지 않게 가립니다.
+          mask-aws-account-id: true
+
+      - name: 계정 확인
+        run: bash ci/tf-run.sh check-account
+
+      - name: 순서대로 plan / apply
+        run: |
+          set -euo pipefail
+          for root in $(jq -r '.[].path' <<< "$ROOTS"); do
+            echo "::group::$root"
+            bash ci/tf-run.sh plan "$root"
+            bash ci/tf-run.sh apply "$root"
+            echo "::endgroup::"
+          done

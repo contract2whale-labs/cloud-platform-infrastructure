@@ -1,0 +1,125 @@
+name: terraform-lifecycle-level
+'on':
+  workflow_call:
+    inputs:
+      completed_chapter:
+        required: true
+        type: string
+      level:
+        required: true
+        type: number
+      toolchain_image:
+        required: true
+        type: string
+permissions:
+  contents: read
+  packages: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: infra-prod-plan
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: up
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: prod
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      EXPECTED_APPLY_ROLE_ARN: ${{ vars.EXPECTED_APPLY_ROLE_ARN }}
+      LIFECYCLE_LEVEL: ${{ inputs.level }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Fresh plans for this dependency level
+      run: python3 -I ci/run-lifecycle.py up-plan
+    outputs:
+      has_work: ${{ steps.lifecycle.outputs.has_work }}
+      bundle_key: ${{ steps.lifecycle.outputs.bundle_key }}
+      bundle_version: ${{ steps.lifecycle.outputs.bundle_version }}
+      bundle_sha: ${{ steps.lifecycle.outputs.bundle_sha }}
+    container:
+      image: ${{ inputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+  apply:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    environment: infra-prod-apply
+    permissions:
+      contents: read
+      id-token: write
+      packages: read
+    env:
+      OPERATION: up
+      EXPECTED_ACCOUNT_ID: ${{ vars.ACCOUNT_ID }}
+      STATE_BUCKET: ${{ vars.STATE_BUCKET }}
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      TF_VARS_JSON: ${{ secrets.TF_VARS_JSON || vars.TF_VARS_JSON }}
+      LIFECYCLE_ROOT_CONTRACTS: ${{ secrets.LIFECYCLE_ROOT_CONTRACTS || vars.LIFECYCLE_ROOT_CONTRACTS
+        }}
+      EKS_PROBE_IMAGE: ${{ vars.EKS_PROBE_IMAGE }}
+      EKS_PAUSE_IMAGE: ${{ vars.EKS_PAUSE_IMAGE }}
+      TF_IN_AUTOMATION: 'true'
+      GH_TOKEN: ${{ github.token }}
+      LIFECYCLE_ENVIRONMENT: prod
+      COMPLETED_CHAPTER: ${{ inputs.completed_chapter }}
+      LIFECYCLE_LEVEL: ${{ inputs.level }}
+      BUNDLE_KEY: ${{ needs.plan.outputs.bundle_key }}
+      BUNDLE_VERSION: ${{ needs.plan.outputs.bundle_version }}
+      EXPECTED_BUNDLE_SHA: ${{ needs.plan.outputs.bundle_sha }}
+      ARGOCD_AUTH_TOKEN: ${{ secrets.ARGOCD_AUTH_TOKEN }}
+      ARGOCD_SERVER_SECRETKEY: ${{ secrets.ARGOCD_SERVER_SECRETKEY }}
+      GITOPS_REPO_SSH_KEY: ${{ secrets.GITOPS_REPO_SSH_KEY }}
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      with:
+        ref: ${{ github.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - name: Validate registered lifecycle target before AWS credentials
+      run: python3 ci/terraform-lifecycle.py select
+    - uses: hashicorp/setup-terraform@dfe3c3f87815947d99a8997f908cb6525fc44e9e
+      with:
+        terraform_version: 1.16.0
+        terraform_wrapper: false
+    - id: lifecycle
+      name: Apply identical reviewed plans; never replan
+      run: python3 -I ci/run-lifecycle.py up-apply
+    container:
+      image: ${{ inputs.toolchain_image }}
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ github.token }}
+    defaults:
+      run:
+        shell: bash
+    needs: plan
+    if: needs.plan.outputs.has_work == 'true'
