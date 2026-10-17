@@ -11,6 +11,7 @@ locals {
   vpc_ext_resources = concat(local.vpc_ci_resources, [
     "${local.vpc_ci_ec2_prefix}:vpc-endpoint/*",
     "${local.vpc_ci_ec2_prefix}:vpc-flow-log/*",
+    "${local.vpc_ci_ec2_prefix}:subnet-cidr-reservation/*",
   ])
 }
 
