@@ -3,10 +3,10 @@
 locals {
   # 06편에서 생성할 네트워크 로그 보존용 S3 버킷의 ARN입니다.
   vpc_ext_bucket_arn = "arn:aws:s3:::cp-${var.environment}-network-logs-${var.expected_account_id}-${var.region}"
-  
+
   # Route 53 Resolver DNS 질의 로그 설정 리소스의 ARN 패턴입니다.
-  vpc_ext_query_arn  = "arn:aws:route53resolver:${var.region}:${var.expected_account_id}:resolver-query-log-config/*"
-  
+  vpc_ext_query_arn = "arn:aws:route53resolver:${var.region}:${var.expected_account_id}:resolver-query-log-config/*"
+
   # 기존 BU02 EC2 리소스 목록에 VPC 엔드포인트와 Flow Log 리소스 ARN을 합칩니다.
   vpc_ext_resources = concat(local.vpc_ci_resources, [
     "${local.vpc_ci_ec2_prefix}:vpc-endpoint/*",
