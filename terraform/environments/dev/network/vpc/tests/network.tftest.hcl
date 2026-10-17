@@ -1,11 +1,24 @@
 # tests/network.tftest.hcl — network/vpc 루트 모듈 (dev · prod 공통 코드)
-# mock provider 로 AWS API 호출 없이 plan 만 실행해 주소 계산 · 생성 개수 · 입력 거부 계약을 확인합니다.
+# mock provider 로 AWS API 호출 없이 plan 만 실행해 주소 계산 · 생성 개수 · 입력 검증 규칙을 확인합니다.
 # init 은 모듈 · provider 다운로드가 필요하지만 apply 는 수행하지 않습니다.
 
 mock_provider "aws" {}
 
+# AWS mock과 별도로 원격 State도 대체하여 실제 S3에 접근하지 않습니다.
+override_data {
+  target = data.terraform_remote_state.network_log_storage
+  values = {
+    outputs = {
+      network_logs_bucket_name = "cp-testnet-network-logs-111111111111-ap-northeast-2"
+      network_logs_bucket_arn  = "arn:aws:s3:::cp-testnet-network-logs-111111111111-ap-northeast-2"
+    }
+  }
+}
+
 # 테스트 fixture 입니다. provider 가 mock 이므로 이 계정에 접근하지 않습니다.
 variables {
+  state_bucket_name   = "test-state-bucket-111111111111"
+  state_region        = "ap-northeast-2"
   expected_account_id = "111111111111"
   region              = "ap-northeast-2"
   environment         = "testnet"
@@ -58,6 +71,16 @@ run "three_az_network_contract" {
 }
 
 run "explicit_environment_and_address_input" {
+  # AWS mock과 별도로 원격 State도 대체하여 실제 S3에 접근하지 않습니다.
+  override_data {
+    target = data.terraform_remote_state.network_log_storage
+    values = {
+      outputs = {
+        network_logs_bucket_name = "cp-secondnet-network-logs-111111111111-ap-northeast-2"
+        network_logs_bucket_arn  = "arn:aws:s3:::cp-secondnet-network-logs-111111111111-ap-northeast-2"
+      }
+    }
+  }
   command = plan
 
   variables {
@@ -79,7 +102,7 @@ run "explicit_environment_and_address_input" {
   }
 }
 
-# CIDR 문법이 올바르더라도 공인 범위는 이 입력 계약에서 거부합니다.
+# CIDR 문법이 올바르더라도 공인 범위는 이 입력 검증 규칙에서 거부합니다.
 run "reject_public_cidr" {
   command = plan
 
@@ -101,7 +124,7 @@ run "reject_cidr_with_host_bits" {
   expect_failures = [var.vpc_cidr]
 }
 
-# /16 이외의 prefix 에는 이 챕터의 subnet 계산식 계약을 적용하지 않습니다.
+# /16 이외의 prefix 에는 이 챕터의 subnet 계산식 규칙을 적용하지 않습니다.
 run "reject_non_16_prefix" {
   command = plan
 
